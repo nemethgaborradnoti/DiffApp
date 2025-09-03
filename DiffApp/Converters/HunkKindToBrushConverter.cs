@@ -20,8 +20,8 @@ namespace DiffApp.Converters
 
             return kind switch
             {
-                HunkKind.Added when side.Equals("New", StringComparison.OrdinalIgnoreCase) => Application.Current.TryFindResource("DiffBackgroundAdded") as Brush,
-                HunkKind.Removed when side.Equals("Old", StringComparison.OrdinalIgnoreCase) => Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush,
+                HunkKind.Added when side.Equals("New", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
+                HunkKind.Removed when side.Equals("Old", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
                 _ => Brushes.Transparent,
             };
         }

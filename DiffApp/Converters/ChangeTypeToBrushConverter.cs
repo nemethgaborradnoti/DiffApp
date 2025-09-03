@@ -18,10 +18,10 @@ namespace DiffApp.Converters
 
             return type switch
             {
-                ChangeType.Inserted => Application.Current.TryFindResource("DiffBackgroundAdded") as Brush,
-                ChangeType.Deleted => Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush,
-                ChangeType.Modified => Application.Current.TryFindResource("DiffBackgroundModified") as Brush,
-                ChangeType.Imaginary => Application.Current.TryFindResource("DiffBackgroundImaginary") as Brush,
+                ChangeType.Inserted => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
+                ChangeType.Deleted => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
+                ChangeType.Modified => (Application.Current.TryFindResource("DiffBackgroundModified") as Brush) ?? Brushes.Transparent,
+                ChangeType.Imaginary => (Application.Current.TryFindResource("DiffBackgroundImaginary") as Brush) ?? Brushes.Transparent,
                 _ => Brushes.Transparent,
             };
         }
