@@ -1,0 +1,32 @@
+﻿using DiffPlex.DiffBuilder.Model;
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Media;
+
+namespace DiffApp.Converters
+{
+    public class DiffPieceKindToBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is not ChangeType type)
+            {
+                return Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush;
+            }
+
+            return type switch
+            {
+                ChangeType.Inserted => Application.Current.TryFindResource("DiffHighlightAdded") as Brush,
+                ChangeType.Deleted => Application.Current.TryFindResource("DiffHighlightRemoved") as Brush,
+                _ => Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush,
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+}
