@@ -4,6 +4,6 @@ namespace DiffApp.Services
 {
     public interface IDiffEngine
     {
-        DiffResult Compare(string oldText, string newText);
+        DiffResult Compare(string oldText, string newText, DiffOptions options);
     }
 }

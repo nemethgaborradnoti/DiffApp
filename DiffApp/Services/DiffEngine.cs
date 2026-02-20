@@ -1,22 +1,42 @@
 ﻿using DiffApp.Models;
 using DiffPlex;
+using DiffPlex.Chunkers;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DiffApp.Services
 {
     public class DiffEngine : IDiffEngine
     {
-        public DiffResult Compare(string oldText, string newText)
+        public DiffResult Compare(string oldText, string newText, DiffOptions options)
         {
-            var diffBuilder = new SideBySideDiffBuilder(new Differ());
-            var diffModel = diffBuilder.BuildDiffModel(oldText ?? string.Empty, newText ?? string.Empty);
+            string oldTextProcessed = oldText ?? string.Empty;
+            string newTextProcessed = newText ?? string.Empty;
+
+            if (options.IgnoreWhitespace)
+            {
+                oldTextProcessed = RemoveWhitespace(oldTextProcessed);
+                newTextProcessed = RemoveWhitespace(newTextProcessed);
+            }
+
+            IChunker wordChunker = options.Precision == DiffPrecision.Character
+                ? new CharacterChunker()
+                : new WordChunker();
+
+            var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), wordChunker);
+            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
 
             var hunks = BuildHunks(diffModel);
 
             return new DiffResult(hunks);
+        }
+
+        private string RemoveWhitespace(string input)
+        {
+            return Regex.Replace(input, @"\s+", " ").Trim();
         }
 
         private List<DiffHunk> BuildHunks(SideBySideDiffModel model)
@@ -27,7 +47,17 @@ namespace DiffApp.Services
                 return hunks;
             }
 
-            var currentHunk = new DiffHunk { Kind = MapKind(model.OldText.Lines[0].Type == ChangeType.Imaginary ? model.NewText.Lines[0].Type : model.OldText.Lines[0].Type) };
+            // Track actual line indices for insertion contexts
+            int currentOldIndex = 0;
+            int currentNewIndex = 0;
+
+            var currentHunk = new DiffHunk
+            {
+                Kind = MapKind(model.OldText.Lines[0].Type == ChangeType.Imaginary ? model.NewText.Lines[0].Type : model.OldText.Lines[0].Type),
+                StartIndexOld = currentOldIndex,
+                StartIndexNew = currentNewIndex
+            };
+
             var inlineDiffer = new InlineDiffBuilder(new Differ());
 
             for (int i = 0; i < model.OldText.Lines.Count; i++)
@@ -37,13 +67,20 @@ namespace DiffApp.Services
 
                 var kind = MapKind(oldLine.Type == ChangeType.Imaginary ? newLine.Type : oldLine.Type);
 
+                // Any change in kind starts a new block. 
+                // Unchanged lines break the block sequence as per requirements.
                 if (kind != currentHunk.Kind)
                 {
                     if (currentHunk.OldLines.Count > 0 || currentHunk.NewLines.Count > 0)
                     {
                         hunks.Add(currentHunk);
                     }
-                    currentHunk = new DiffHunk { Kind = kind };
+                    currentHunk = new DiffHunk
+                    {
+                        Kind = kind,
+                        StartIndexOld = currentOldIndex,
+                        StartIndexNew = currentNewIndex
+                    };
                 }
 
                 if (oldLine.Type == ChangeType.Modified && newLine.Type == ChangeType.Modified)
@@ -54,11 +91,17 @@ namespace DiffApp.Services
 
                     currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, ChangeType.Deleted, oldPieces));
                     currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, ChangeType.Inserted, newPieces));
+
+                    currentOldIndex++;
+                    currentNewIndex++;
                 }
                 else
                 {
                     currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, oldLine.Type, oldLine.Text));
                     currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, newLine.Type, newLine.Text));
+
+                    if (oldLine.Type != ChangeType.Imaginary) currentOldIndex++;
+                    if (newLine.Type != ChangeType.Imaginary) currentNewIndex++;
                 }
             }
 
