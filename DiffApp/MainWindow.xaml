@@ -92,6 +92,7 @@
             <GroupBox Header="Settings" Margin="20,0,0,0" Padding="5">
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Content="Ignore Whitespace" IsChecked="{Binding IgnoreWhitespace}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <CheckBox Content="Word Wrap" IsChecked="{Binding IsWordWrapEnabled}" VerticalAlignment="Center" Margin="10,0,10,0"/>
 
                     <Label Content="Precision:" VerticalAlignment="Center"/>
                     <RadioButton Content="Word" IsChecked="{Binding Precision, Converter={x:Static converters:EnumMatchToBooleanConverter.Instance}, ConverterParameter={x:Static models:DiffPrecision.Word}}" 

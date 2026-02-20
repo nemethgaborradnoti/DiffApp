@@ -16,6 +16,7 @@ namespace DiffApp.ViewModels
         private string _rightText = string.Empty;
         private bool _isUnifiedMode;
         private bool _ignoreWhitespace;
+        private bool _isWordWrapEnabled = true; // Default to true
         private DiffPrecision _precision = DiffPrecision.Word;
         private DiffViewModel? _diffViewModel;
         private readonly IDiffEngine _diffEngine;
@@ -49,6 +50,12 @@ namespace DiffApp.ViewModels
         {
             get => _isUnifiedMode;
             set => SetProperty(ref _isUnifiedMode, value);
+        }
+
+        public bool IsWordWrapEnabled
+        {
+            get => _isWordWrapEnabled;
+            set => SetProperty(ref _isWordWrapEnabled, value);
         }
 
         public bool IgnoreWhitespace

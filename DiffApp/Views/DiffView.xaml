@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:DiffApp.Models"
              xmlns:converters="clr-namespace:DiffApp.Converters"
+             xmlns:helpers="clr-namespace:DiffApp.Helpers"
              xmlns:diffBuilder="clr-namespace:DiffPlex.DiffBuilder.Model;assembly=DiffPlex"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="800"
@@ -12,24 +13,15 @@
              Background="White">
     <UserControl.Resources>
         <converters:ChangeTypeToBrushConverter x:Key="ChangeTypeToBrushConverter" />
-        <converters:DiffPieceKindToBrushConverter x:Key="DiffPieceKindToBrushConverter" />
         <converters:MergeParamsConverter x:Key="MergeParamsConverter" />
+        <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+        <!-- Modified LineContentTemplate to use TextBlockFormatter and support wrapping -->
         <DataTemplate x:Key="LineContentTemplate">
-            <ItemsControl ItemsSource="{Binding Pieces}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:DiffPiece}">
-                        <TextBlock Text="{Binding Text}"
-                                   Background="{Binding Kind, Converter={StaticResource DiffPieceKindToBrushConverter}}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <TextBlock helpers:TextBlockFormatter.Pieces="{Binding Pieces}"
+                       TextWrapping="{Binding DataContext.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}}"
+                       FontFamily="Consolas" />
         </DataTemplate>
 
         <DataTemplate x:Key="SideBySideTemplate">
@@ -74,7 +66,7 @@
                 </Grid>
 
                 <!-- Scrollable Content -->
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding DiffResult.Hunks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:DiffHunk}">
@@ -122,6 +114,7 @@
                                     <Border Grid.Column="1" BorderBrush="#e1e4e8" BorderThickness="1,0">
                                         <StackPanel VerticalAlignment="Center" 
                                                     Visibility="{Binding IsMergeable, Converter={StaticResource BooleanToVisibilityConverter}}">
+
                                             <Button Content=">>" 
                                                     ToolTip="Merge Left to Right"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
@@ -129,10 +122,12 @@
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
+                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
                                             </Button>
+
                                             <Button Content="&lt;&lt;" 
                                                     ToolTip="Merge Right to Left"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
@@ -140,6 +135,7 @@
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
+                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
@@ -185,14 +181,13 @@
                     <!-- Content -->
                 </Grid.RowDefinitions>
 
-                <!-- Global Header with Copy Buttons (Same as SideBySide but Spanning) -->
+                <!-- Global Header with Copy Buttons -->
                 <Grid Grid.Row="0" Margin="0,0,0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left Header -->
                     <Border Grid.Column="0" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,1,1" Padding="5">
                         <Grid>
                             <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
@@ -202,7 +197,6 @@
                         </Grid>
                     </Border>
 
-                    <!-- Right Header -->
                     <Border Grid.Column="1" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1" Padding="5">
                         <Grid>
                             <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
@@ -213,7 +207,7 @@
                     </Border>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding UnifiedLines}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:DiffLine}">
