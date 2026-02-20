@@ -1,6 +1,6 @@
 ﻿using DiffApp.Models;
 
-namespace DiffApp.Services
+namespace DiffApp.Services.Interfaces
 {
     public interface IDiffEngine
     {

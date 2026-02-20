@@ -1,6 +1,7 @@
 ﻿using DiffApp.Helpers;
 using DiffApp.Models;
 using DiffApp.Services;
+using DiffApp.Services.Interfaces;
 using System;
 using System.Windows.Input;
 
@@ -105,23 +106,19 @@ namespace DiffApp.ViewModels
                     PerformMerge(hunk, direction);
                 }
             }
-            // Alternative parameter passing support if needed
         }
 
         private void PerformMerge(DiffHunk hunk, MergeDirection direction)
         {
             if (direction == MergeDirection.LeftToRight)
             {
-                // Modify Right Text based on Left
                 RightText = _textMergeService.MergeBlock(RightText, hunk, direction);
             }
             else
             {
-                // Modify Left Text based on Right
                 LeftText = _textMergeService.MergeBlock(LeftText, hunk, direction);
             }
 
-            // Re-run diff to update UI
             FindDifference(null);
         }
 

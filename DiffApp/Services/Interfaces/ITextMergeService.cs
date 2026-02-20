@@ -1,7 +1,7 @@
 ﻿using DiffApp.Models;
 using System.Collections.Generic;
 
-namespace DiffApp.Services
+namespace DiffApp.Services.Interfaces
 {
     public interface ITextMergeService
     {

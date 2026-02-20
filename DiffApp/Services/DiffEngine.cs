@@ -1,4 +1,5 @@
 ﻿using DiffApp.Models;
+using DiffApp.Services.Interfaces;
 using DiffPlex;
 using DiffPlex.Chunkers;
 using DiffPlex.DiffBuilder;
@@ -47,7 +48,6 @@ namespace DiffApp.Services
                 return hunks;
             }
 
-            // Track actual line indices for insertion contexts
             int currentOldIndex = 0;
             int currentNewIndex = 0;
 
@@ -67,8 +67,6 @@ namespace DiffApp.Services
 
                 var kind = MapKind(oldLine.Type == ChangeType.Imaginary ? newLine.Type : oldLine.Type);
 
-                // Any change in kind starts a new block. 
-                // Unchanged lines break the block sequence as per requirements.
                 if (kind != currentHunk.Kind)
                 {
                     if (currentHunk.OldLines.Count > 0 || currentHunk.NewLines.Count > 0)
