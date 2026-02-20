@@ -4,11 +4,11 @@ namespace DiffApp.Models
 {
     public class DiffResult
     {
-        public IReadOnlyList<DiffHunk> Hunks { get; }
+        public IReadOnlyList<ChangeBlock> Blocks { get; }
 
-        public DiffResult(IReadOnlyList<DiffHunk> hunks)
+        public DiffResult(IReadOnlyList<ChangeBlock> blocks)
         {
-            Hunks = hunks;
+            Blocks = blocks;
         }
     }
 }

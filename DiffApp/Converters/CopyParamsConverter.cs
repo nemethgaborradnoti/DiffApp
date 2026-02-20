@@ -9,10 +9,9 @@ namespace DiffApp.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Expected: values[0] = DiffHunk, values[1] = DiffSide (Enum)
-            if (values.Length == 2 && values[0] is DiffHunk hunk && values[1] is DiffSide side)
+            if (values.Length == 2 && values[0] is ChangeBlock block && values[1] is DiffSide side)
             {
-                return new object[] { hunk, side };
+                return new object[] { block, side };
             }
             return null;
         }

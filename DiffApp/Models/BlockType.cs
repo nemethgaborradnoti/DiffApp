@@ -1,6 +1,6 @@
 ﻿namespace DiffApp.Models
 {
-    public enum HunkKind
+    public enum BlockType
     {
         Unchanged,
         Added,
@@ -8,4 +8,3 @@
         Modified
     }
 }
-

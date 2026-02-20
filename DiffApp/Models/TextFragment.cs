@@ -2,7 +2,7 @@
 
 namespace DiffApp.Models
 {
-    public class DiffPiece
+    public class TextFragment
     {
         public ChangeType Kind { get; set; }
         public string Text { get; set; } = string.Empty;

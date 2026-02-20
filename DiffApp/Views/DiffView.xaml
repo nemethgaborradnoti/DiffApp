@@ -6,7 +6,6 @@
              xmlns:models="clr-namespace:DiffApp.Models"
              xmlns:converters="clr-namespace:DiffApp.Converters"
              xmlns:helpers="clr-namespace:DiffApp.Helpers"
-             xmlns:diffBuilder="clr-namespace:DiffPlex.DiffBuilder.Model;assembly=DiffPlex"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="800"
              FontFamily="Consolas"
@@ -17,9 +16,8 @@
         <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <!-- Modified LineContentTemplate to use TextBlockFormatter and support wrapping -->
         <DataTemplate x:Key="LineContentTemplate">
-            <TextBlock helpers:TextBlockFormatter.Pieces="{Binding Pieces}"
+            <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
                        TextWrapping="{Binding DataContext.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}}"
                        FontFamily="Consolas" />
         </DataTemplate>
@@ -28,9 +26,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <!-- Global Header -->
                     <RowDefinition Height="*" />
-                    <!-- Content -->
                 </Grid.RowDefinitions>
 
                 <!-- Global Header with Copy Buttons -->
@@ -67,9 +63,9 @@
 
                 <!-- Scrollable Content -->
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding DiffResult.Hunks}">
+                    <ItemsControl ItemsSource="{Binding DiffResult.Blocks}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:DiffHunk}">
+                            <DataTemplate DataType="{x:Type models:ChangeBlock}">
                                 <Grid>
                                     <Grid.Style>
                                         <Style TargetType="Grid">
@@ -91,7 +87,7 @@
                                     <!-- Left Side (Old) Content -->
                                     <ItemsControl Grid.Column="0" ItemsSource="{Binding OldLines}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:DiffLine}">
+                                            <DataTemplate DataType="{x:Type models:ChangeLine}">
                                                 <Grid MinHeight="18">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="40" />
@@ -112,30 +108,28 @@
 
                                     <!-- Gutter with Merge Actions -->
                                     <Border Grid.Column="1" BorderBrush="#e1e4e8" BorderThickness="1,0">
-                                        <StackPanel VerticalAlignment="Center" 
+                                        <StackPanel VerticalAlignment="Center"
                                                     Visibility="{Binding IsMergeable, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                                            <Button Content=">>" 
+                                            <Button Content=">>"
                                                     ToolTip="Merge Left to Right"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=Window}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
-                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
                                             </Button>
 
-                                            <Button Content="&lt;&lt;" 
+                                            <Button Content="&lt;&lt;"
                                                     ToolTip="Merge Right to Left"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=Window}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
-                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
@@ -146,7 +140,7 @@
                                     <!-- Right Side (New) Content -->
                                     <ItemsControl Grid.Column="2" ItemsSource="{Binding NewLines}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:DiffLine}">
+                                            <DataTemplate DataType="{x:Type models:ChangeLine}">
                                                 <Grid MinHeight="18">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="40" />
@@ -176,12 +170,9 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <!-- Global Header -->
                     <RowDefinition Height="*" />
-                    <!-- Content -->
                 </Grid.RowDefinitions>
 
-                <!-- Global Header with Copy Buttons -->
                 <Grid Grid.Row="0" Margin="0,0,0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -210,7 +201,7 @@
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding UnifiedLines}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:DiffLine}">
+                            <DataTemplate DataType="{x:Type models:ChangeLine}">
                                 <Grid MinHeight="18">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40" />

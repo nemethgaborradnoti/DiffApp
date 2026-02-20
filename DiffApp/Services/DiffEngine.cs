@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// Alias definition to resolve ambiguity between DiffApp.Models.DiffPiece and DiffPlex.DiffBuilder.Model.DiffPiece
 using DiffPlexPiece = DiffPlex.DiffBuilder.Model.DiffPiece;
 
 namespace DiffApp.Services
@@ -27,17 +26,17 @@ namespace DiffApp.Services
             var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
             var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
 
-            var hunks = BuildHunks(diffModel, options);
+            var blocks = BuildBlocks(diffModel, options);
 
-            return new DiffResult(hunks);
+            return new DiffResult(blocks);
         }
 
-        private List<DiffHunk> BuildHunks(SideBySideDiffModel model, DiffOptions options)
+        private List<ChangeBlock> BuildBlocks(SideBySideDiffModel model, DiffOptions options)
         {
-            var hunks = new List<DiffHunk>();
+            var blocks = new List<ChangeBlock>();
             if (model.OldText.Lines.Count == 0 && model.NewText.Lines.Count == 0)
             {
-                return hunks;
+                return blocks;
             }
 
             int currentOldIndex = 0;
@@ -46,7 +45,7 @@ namespace DiffApp.Services
             GetEffectiveTypes(model.OldText.Lines[0], model.NewText.Lines[0], options, out var startOldType, out var startNewType);
             var startKind = MapKind(startOldType == ChangeType.Imaginary ? startNewType : startOldType);
 
-            var currentHunk = new DiffHunk
+            var currentBlock = new ChangeBlock
             {
                 Kind = startKind,
                 StartIndexOld = currentOldIndex,
@@ -64,13 +63,13 @@ namespace DiffApp.Services
 
                 var kind = MapKind(effectiveOldType == ChangeType.Imaginary ? effectiveNewType : effectiveOldType);
 
-                if (kind != currentHunk.Kind)
+                if (kind != currentBlock.Kind)
                 {
-                    if (currentHunk.OldLines.Count > 0 || currentHunk.NewLines.Count > 0)
+                    if (currentBlock.OldLines.Count > 0 || currentBlock.NewLines.Count > 0)
                     {
-                        hunks.Add(currentHunk);
+                        blocks.Add(currentBlock);
                     }
-                    currentHunk = new DiffHunk
+                    currentBlock = new ChangeBlock
                     {
                         Kind = kind,
                         StartIndexOld = currentOldIndex,
@@ -82,35 +81,33 @@ namespace DiffApp.Services
                 {
                     var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty);
 
-                    // Explicitly using DiffPlexPiece here
                     List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Inserted).ToList();
                     List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Deleted).ToList();
 
-                    currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, ChangeType.Deleted, oldPieces));
-                    currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, ChangeType.Inserted, newPieces));
+                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, ChangeType.Deleted, oldPieces));
+                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, ChangeType.Inserted, newPieces));
 
                     currentOldIndex++;
                     currentNewIndex++;
                 }
                 else
                 {
-                    currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, effectiveOldType, oldLine.Text));
-                    currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, effectiveNewType, newLine.Text));
+                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, effectiveOldType, oldLine.Text));
+                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, effectiveNewType, newLine.Text));
 
                     if (oldLine.Type != ChangeType.Imaginary) currentOldIndex++;
                     if (newLine.Type != ChangeType.Imaginary) currentNewIndex++;
                 }
             }
 
-            if (currentHunk.OldLines.Count > 0 || currentHunk.NewLines.Count > 0)
+            if (currentBlock.OldLines.Count > 0 || currentBlock.NewLines.Count > 0)
             {
-                hunks.Add(currentHunk);
+                blocks.Add(currentBlock);
             }
 
-            return hunks;
+            return blocks;
         }
 
-        // Using DiffPlexPiece explicitly in arguments
         private void GetEffectiveTypes(DiffPlexPiece oldLine, DiffPlexPiece newLine, DiffOptions options, out ChangeType oldType, out ChangeType newType)
         {
             oldType = oldLine.Type;
@@ -144,40 +141,39 @@ namespace DiffApp.Services
             return string.Equals(oldText.Trim(), newText.Trim(), StringComparison.Ordinal);
         }
 
-        private DiffLine CreateDiffLine(int? lineNumber, ChangeType kind, string text)
+        private ChangeLine CreateChangeLine(int? lineNumber, ChangeType kind, string text)
         {
-            var pieces = text is null
-                ? new List<Models.DiffPiece>()
-                : new List<Models.DiffPiece> { new Models.DiffPiece { Text = text, Kind = kind } };
+            var fragments = text is null
+                ? new List<TextFragment>()
+                : new List<TextFragment> { new TextFragment { Text = text, Kind = kind } };
 
-            return new DiffLine
+            return new ChangeLine
             {
                 LineNumber = lineNumber,
                 Kind = kind,
-                Pieces = pieces
+                Fragments = fragments
             };
         }
 
-        // Using DiffPlexPiece explicitly in arguments
-        private DiffLine CreateDiffLine(int? lineNumber, ChangeType kind, List<DiffPlexPiece> pieces)
+        private ChangeLine CreateChangeLine(int? lineNumber, ChangeType kind, List<DiffPlexPiece> pieces)
         {
-            return new DiffLine
+            return new ChangeLine
             {
                 LineNumber = lineNumber,
                 Kind = kind,
-                Pieces = pieces.Select(p => new Models.DiffPiece { Text = p.Text, Kind = p.Type }).ToList()
+                Fragments = pieces.Select(p => new TextFragment { Text = p.Text, Kind = p.Type }).ToList()
             };
         }
 
-        private HunkKind MapKind(ChangeType type)
+        private BlockType MapKind(ChangeType type)
         {
             return type switch
             {
-                ChangeType.Inserted => HunkKind.Added,
-                ChangeType.Deleted => HunkKind.Removed,
-                ChangeType.Unchanged => HunkKind.Unchanged,
-                ChangeType.Modified => HunkKind.Modified,
-                _ => HunkKind.Unchanged,
+                ChangeType.Inserted => BlockType.Added,
+                ChangeType.Deleted => BlockType.Removed,
+                ChangeType.Unchanged => BlockType.Unchanged,
+                ChangeType.Modified => BlockType.Modified,
+                _ => BlockType.Unchanged,
             };
         }
     }

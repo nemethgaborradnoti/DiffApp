@@ -9,10 +9,9 @@ namespace DiffApp.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Expected: values[0] = DiffHunk, values[1] = MergeDirection (Enum)
-            if (values.Length == 2 && values[0] is DiffHunk hunk && values[1] is MergeDirection direction)
+            if (values.Length == 2 && values[0] is ChangeBlock block && values[1] is MergeDirection direction)
             {
-                return new object[] { hunk, direction };
+                return new object[] { block, direction };
             }
             return null;
         }

@@ -1,11 +1,10 @@
 ﻿using DiffApp.Models;
-using System.Collections.Generic;
 
 namespace DiffApp.Services.Interfaces
 {
     public interface ITextMergeService
     {
-        string MergeBlock(string targetText, DiffHunk hunk, MergeDirection direction);
-        string MergeLine(string targetText, DiffLine line, int targetLineIndex, MergeDirection direction);
+        string MergeBlock(string targetText, ChangeBlock block, MergeDirection direction);
+        string MergeLine(string targetText, ChangeLine line, int targetLineIndex, MergeDirection direction);
     }
 }

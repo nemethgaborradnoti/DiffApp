@@ -9,7 +9,7 @@ namespace DiffApp.ViewModels
 
         public DiffResult DiffResult => _diffResult;
 
-        public IReadOnlyList<DiffLine> UnifiedLines { get; }
+        public IReadOnlyList<ChangeLine> UnifiedLines { get; }
 
         public DiffViewModel(DiffResult diffResult)
         {
@@ -17,25 +17,25 @@ namespace DiffApp.ViewModels
             UnifiedLines = CreateUnifiedLines();
         }
 
-        private List<DiffLine> CreateUnifiedLines()
+        private List<ChangeLine> CreateUnifiedLines()
         {
-            var lines = new List<DiffLine>();
-            foreach (var hunk in _diffResult.Hunks)
+            var lines = new List<ChangeLine>();
+            foreach (var block in _diffResult.Blocks)
             {
-                switch (hunk.Kind)
+                switch (block.Kind)
                 {
-                    case HunkKind.Unchanged:
-                        lines.AddRange(hunk.OldLines);
+                    case BlockType.Unchanged:
+                        lines.AddRange(block.OldLines);
                         break;
-                    case HunkKind.Removed:
-                        lines.AddRange(hunk.OldLines);
+                    case BlockType.Removed:
+                        lines.AddRange(block.OldLines);
                         break;
-                    case HunkKind.Added:
-                        lines.AddRange(hunk.NewLines);
+                    case BlockType.Added:
+                        lines.AddRange(block.NewLines);
                         break;
-                    case HunkKind.Modified:
-                        lines.AddRange(hunk.OldLines);
-                        lines.AddRange(hunk.NewLines);
+                    case BlockType.Modified:
+                        lines.AddRange(block.OldLines);
+                        lines.AddRange(block.NewLines);
                         break;
                 }
             }
@@ -43,4 +43,3 @@ namespace DiffApp.ViewModels
         }
     }
 }
-

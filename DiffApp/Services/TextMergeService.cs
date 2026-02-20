@@ -3,53 +3,52 @@ using DiffApp.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DiffApp.Services
 {
     public class TextMergeService : ITextMergeService
     {
-        public string MergeBlock(string targetText, DiffHunk hunk, MergeDirection direction)
+        public string MergeBlock(string targetText, ChangeBlock block, MergeDirection direction)
         {
             var lines = GetLines(targetText);
 
             if (direction == MergeDirection.LeftToRight)
             {
-                if (hunk.Kind == HunkKind.Added)
+                if (block.Kind == BlockType.Added)
                 {
-                    RemoveLines(lines, hunk.NewLines);
+                    RemoveLines(lines, block.NewLines);
                 }
-                else if (hunk.Kind == HunkKind.Removed)
+                else if (block.Kind == BlockType.Removed)
                 {
-                    var textToInsert = hunk.OldLines.Select(l => GetText(l)).ToList();
-                    InsertLines(lines, hunk.StartIndexNew, textToInsert);
+                    var textToInsert = block.OldLines.Select(l => GetText(l)).ToList();
+                    InsertLines(lines, block.StartIndexNew, textToInsert);
                 }
-                else if (hunk.Kind == HunkKind.Modified)
+                else if (block.Kind == BlockType.Modified)
                 {
-                    ReplaceLines(lines, hunk.NewLines, hunk.OldLines);
+                    ReplaceLines(lines, block.NewLines, block.OldLines);
                 }
             }
             else
             {
-                if (hunk.Kind == HunkKind.Added)
+                if (block.Kind == BlockType.Added)
                 {
-                    var textToInsert = hunk.NewLines.Select(l => GetText(l)).ToList();
-                    InsertLines(lines, hunk.StartIndexOld, textToInsert);
+                    var textToInsert = block.NewLines.Select(l => GetText(l)).ToList();
+                    InsertLines(lines, block.StartIndexOld, textToInsert);
                 }
-                else if (hunk.Kind == HunkKind.Removed)
+                else if (block.Kind == BlockType.Removed)
                 {
-                    RemoveLines(lines, hunk.OldLines);
+                    RemoveLines(lines, block.OldLines);
                 }
-                else if (hunk.Kind == HunkKind.Modified)
+                else if (block.Kind == BlockType.Modified)
                 {
-                    ReplaceLines(lines, hunk.OldLines, hunk.NewLines);
+                    ReplaceLines(lines, block.OldLines, block.NewLines);
                 }
             }
 
             return string.Join(Environment.NewLine, lines);
         }
 
-        public string MergeLine(string targetText, DiffLine line, int targetLineIndex, MergeDirection direction)
+        public string MergeLine(string targetText, ChangeLine line, int targetLineIndex, MergeDirection direction)
         {
             throw new NotImplementedException("Line-level merge requires strict context management. Block merge is recommended.");
         }
@@ -60,12 +59,12 @@ namespace DiffApp.Services
             return text.Replace("\r\n", "\n").Split('\n').ToList();
         }
 
-        private string GetText(DiffLine line)
+        private string GetText(ChangeLine line)
         {
-            return string.Join("", line.Pieces.Select(p => p.Text));
+            return string.Join("", line.Fragments.Select(p => p.Text));
         }
 
-        private void RemoveLines(List<string> textLines, List<DiffLine> linesToRemove)
+        private void RemoveLines(List<string> textLines, List<ChangeLine> linesToRemove)
         {
             var indices = linesToRemove
                 .Where(l => l.LineNumber.HasValue)
@@ -90,7 +89,7 @@ namespace DiffApp.Services
             textLines.InsertRange(insertIndex, linesToInsert);
         }
 
-        private void ReplaceLines(List<string> textLines, List<DiffLine> targets, List<DiffLine> sources)
+        private void ReplaceLines(List<string> textLines, List<ChangeLine> targets, List<ChangeLine> sources)
         {
             var indices = targets
                 .Where(l => l.LineNumber.HasValue)

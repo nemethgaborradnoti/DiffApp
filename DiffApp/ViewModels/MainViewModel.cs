@@ -3,8 +3,6 @@ using DiffApp.Models;
 using DiffApp.Services;
 using DiffApp.Services.Interfaces;
 using System;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 
@@ -16,7 +14,7 @@ namespace DiffApp.ViewModels
         private string _rightText = string.Empty;
         private bool _isUnifiedMode;
         private bool _ignoreWhitespace;
-        private bool _isWordWrapEnabled = true; // Default to true
+        private bool _isWordWrapEnabled = true;
         private DiffPrecision _precision = DiffPrecision.Word;
         private DiffViewModel? _diffViewModel;
         private readonly IDiffEngine _diffEngine;
@@ -127,9 +125,9 @@ namespace DiffApp.ViewModels
         {
             if (parameter is object[] args && args.Length == 2)
             {
-                if (args[0] is DiffHunk hunk && args[1] is MergeDirection direction)
+                if (args[0] is ChangeBlock block && args[1] is MergeDirection direction)
                 {
-                    PerformMerge(hunk, direction);
+                    PerformMerge(block, direction);
                 }
             }
         }
@@ -148,7 +146,6 @@ namespace DiffApp.ViewModels
                     }
                     catch (Exception)
                     {
-                        // Handle clipboard exception if necessary
                     }
                 }
             }
@@ -166,15 +163,15 @@ namespace DiffApp.ViewModels
             }
         }
 
-        private void PerformMerge(DiffHunk hunk, MergeDirection direction)
+        private void PerformMerge(ChangeBlock block, MergeDirection direction)
         {
             if (direction == MergeDirection.LeftToRight)
             {
-                RightText = _textMergeService.MergeBlock(RightText, hunk, direction);
+                RightText = _textMergeService.MergeBlock(RightText, block, direction);
             }
             else
             {
-                LeftText = _textMergeService.MergeBlock(LeftText, hunk, direction);
+                LeftText = _textMergeService.MergeBlock(LeftText, block, direction);
             }
 
             FindDifference(null);

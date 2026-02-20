@@ -6,43 +6,38 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-// Alias létrehozása a névütközés feloldására
-// Így a "DiffPiece" ebben a fájlban a mi modellünkre (DiffApp.Models.DiffPiece) utal.
-using DiffPiece = DiffApp.Models.DiffPiece;
-
 namespace DiffApp.Helpers
 {
     public static class TextBlockFormatter
     {
-        public static readonly DependencyProperty PiecesProperty =
+        public static readonly DependencyProperty FragmentsProperty =
             DependencyProperty.RegisterAttached(
-                "Pieces",
-                typeof(IEnumerable<DiffPiece>),
+                "Fragments",
+                typeof(IEnumerable<TextFragment>),
                 typeof(TextBlockFormatter),
-                new PropertyMetadata(null, OnPiecesChanged));
+                new PropertyMetadata(null, OnFragmentsChanged));
 
-        public static IEnumerable<DiffPiece> GetPieces(DependencyObject obj)
+        public static IEnumerable<TextFragment> GetFragments(DependencyObject obj)
         {
-            return (IEnumerable<DiffPiece>)obj.GetValue(PiecesProperty);
+            return (IEnumerable<TextFragment>)obj.GetValue(FragmentsProperty);
         }
 
-        public static void SetPieces(DependencyObject obj, IEnumerable<DiffPiece> value)
+        public static void SetFragments(DependencyObject obj, IEnumerable<TextFragment> value)
         {
-            obj.SetValue(PiecesProperty, value);
+            obj.SetValue(FragmentsProperty, value);
         }
 
-        private static void OnPiecesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnFragmentsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is TextBlock textBlock && e.NewValue is IEnumerable<DiffPiece> pieces)
+            if (d is TextBlock textBlock && e.NewValue is IEnumerable<TextFragment> fragments)
             {
                 textBlock.Inlines.Clear();
 
-                foreach (var piece in pieces)
+                foreach (var fragment in fragments)
                 {
-                    var run = new Run(piece.Text);
+                    var run = new Run(fragment.Text);
 
-                    // Apply background color based on ChangeType using resources
-                    var brush = GetBrushForChangeType(piece.Kind);
+                    var brush = GetBrushForChangeType(fragment.Kind);
                     if (brush != null)
                     {
                         run.Background = brush;

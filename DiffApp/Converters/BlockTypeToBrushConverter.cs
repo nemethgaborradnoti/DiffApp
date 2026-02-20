@@ -7,11 +7,11 @@ using System.Windows.Media;
 
 namespace DiffApp.Converters
 {
-    public class HunkKindToBrushConverter : IValueConverter
+    public class BlockTypeToBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not HunkKind kind)
+            if (value is not BlockType kind)
             {
                 return Brushes.Transparent;
             }
@@ -20,8 +20,8 @@ namespace DiffApp.Converters
 
             return kind switch
             {
-                HunkKind.Added when side.Equals("New", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
-                HunkKind.Removed when side.Equals("Old", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
+                BlockType.Added when side.Equals("New", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
+                BlockType.Removed when side.Equals("Old", StringComparison.OrdinalIgnoreCase) => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
                 _ => Brushes.Transparent,
             };
         }
