@@ -4,9 +4,12 @@ using DiffPlex;
 using DiffPlex.Chunkers;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+
+// Alias definition to resolve ambiguity between DiffApp.Models.DiffPiece and DiffPlex.DiffBuilder.Model.DiffPiece
+using DiffPlexPiece = DiffPlex.DiffBuilder.Model.DiffPiece;
 
 namespace DiffApp.Services
 {
@@ -17,30 +20,19 @@ namespace DiffApp.Services
             string oldTextProcessed = oldText ?? string.Empty;
             string newTextProcessed = newText ?? string.Empty;
 
-            if (options.IgnoreWhitespace)
-            {
-                oldTextProcessed = RemoveWhitespace(oldTextProcessed);
-                newTextProcessed = RemoveWhitespace(newTextProcessed);
-            }
-
-            IChunker wordChunker = options.Precision == DiffPrecision.Character
+            IChunker chunker = options.Precision == DiffPrecision.Character
                 ? new CharacterChunker()
                 : new WordChunker();
 
-            var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), wordChunker);
+            var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
             var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
 
-            var hunks = BuildHunks(diffModel);
+            var hunks = BuildHunks(diffModel, options);
 
             return new DiffResult(hunks);
         }
 
-        private string RemoveWhitespace(string input)
-        {
-            return Regex.Replace(input, @"\s+", " ").Trim();
-        }
-
-        private List<DiffHunk> BuildHunks(SideBySideDiffModel model)
+        private List<DiffHunk> BuildHunks(SideBySideDiffModel model, DiffOptions options)
         {
             var hunks = new List<DiffHunk>();
             if (model.OldText.Lines.Count == 0 && model.NewText.Lines.Count == 0)
@@ -51,9 +43,12 @@ namespace DiffApp.Services
             int currentOldIndex = 0;
             int currentNewIndex = 0;
 
+            GetEffectiveTypes(model.OldText.Lines[0], model.NewText.Lines[0], options, out var startOldType, out var startNewType);
+            var startKind = MapKind(startOldType == ChangeType.Imaginary ? startNewType : startOldType);
+
             var currentHunk = new DiffHunk
             {
-                Kind = MapKind(model.OldText.Lines[0].Type == ChangeType.Imaginary ? model.NewText.Lines[0].Type : model.OldText.Lines[0].Type),
+                Kind = startKind,
                 StartIndexOld = currentOldIndex,
                 StartIndexNew = currentNewIndex
             };
@@ -65,7 +60,9 @@ namespace DiffApp.Services
                 var oldLine = model.OldText.Lines[i];
                 var newLine = model.NewText.Lines[i];
 
-                var kind = MapKind(oldLine.Type == ChangeType.Imaginary ? newLine.Type : oldLine.Type);
+                GetEffectiveTypes(oldLine, newLine, options, out var effectiveOldType, out var effectiveNewType);
+
+                var kind = MapKind(effectiveOldType == ChangeType.Imaginary ? effectiveNewType : effectiveOldType);
 
                 if (kind != currentHunk.Kind)
                 {
@@ -81,11 +78,13 @@ namespace DiffApp.Services
                     };
                 }
 
-                if (oldLine.Type == ChangeType.Modified && newLine.Type == ChangeType.Modified)
+                if (effectiveOldType == ChangeType.Modified && effectiveNewType == ChangeType.Modified)
                 {
                     var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty);
-                    var oldPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Inserted).ToList();
-                    var newPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Deleted).ToList();
+
+                    // Explicitly using DiffPlexPiece here
+                    List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Inserted).ToList();
+                    List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != ChangeType.Deleted).ToList();
 
                     currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, ChangeType.Deleted, oldPieces));
                     currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, ChangeType.Inserted, newPieces));
@@ -95,8 +94,8 @@ namespace DiffApp.Services
                 }
                 else
                 {
-                    currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, oldLine.Type, oldLine.Text));
-                    currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, newLine.Type, newLine.Text));
+                    currentHunk.OldLines.Add(CreateDiffLine(oldLine.Position, effectiveOldType, oldLine.Text));
+                    currentHunk.NewLines.Add(CreateDiffLine(newLine.Position, effectiveNewType, newLine.Text));
 
                     if (oldLine.Type != ChangeType.Imaginary) currentOldIndex++;
                     if (newLine.Type != ChangeType.Imaginary) currentNewIndex++;
@@ -109,6 +108,40 @@ namespace DiffApp.Services
             }
 
             return hunks;
+        }
+
+        // Using DiffPlexPiece explicitly in arguments
+        private void GetEffectiveTypes(DiffPlexPiece oldLine, DiffPlexPiece newLine, DiffOptions options, out ChangeType oldType, out ChangeType newType)
+        {
+            oldType = oldLine.Type;
+            newType = newLine.Type;
+
+            if (options.IgnoreWhitespace)
+            {
+                bool isWhitespaceDifference = IsWhitespaceOnlyChange(oldLine, newLine);
+                if (isWhitespaceDifference)
+                {
+                    oldType = ChangeType.Unchanged;
+                    newType = ChangeType.Unchanged;
+                }
+            }
+        }
+
+        private bool IsWhitespaceOnlyChange(DiffPlexPiece oldLine, DiffPlexPiece newLine)
+        {
+            string oldText = oldLine.Text ?? string.Empty;
+            string newText = newLine.Text ?? string.Empty;
+
+            if (oldLine.Type == ChangeType.Imaginary)
+            {
+                return string.IsNullOrWhiteSpace(newText);
+            }
+            if (newLine.Type == ChangeType.Imaginary)
+            {
+                return string.IsNullOrWhiteSpace(oldText);
+            }
+
+            return string.Equals(oldText.Trim(), newText.Trim(), StringComparison.Ordinal);
         }
 
         private DiffLine CreateDiffLine(int? lineNumber, ChangeType kind, string text)
@@ -125,7 +158,8 @@ namespace DiffApp.Services
             };
         }
 
-        private DiffLine CreateDiffLine(int? lineNumber, ChangeType kind, List<DiffPlex.DiffBuilder.Model.DiffPiece> pieces)
+        // Using DiffPlexPiece explicitly in arguments
+        private DiffLine CreateDiffLine(int? lineNumber, ChangeType kind, List<DiffPlexPiece> pieces)
         {
             return new DiffLine
             {

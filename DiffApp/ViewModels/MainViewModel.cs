@@ -3,6 +3,9 @@ using DiffApp.Models;
 using DiffApp.Services;
 using DiffApp.Services.Interfaces;
 using System;
+using System.Linq;
+using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DiffApp.ViewModels
@@ -51,13 +54,25 @@ namespace DiffApp.ViewModels
         public bool IgnoreWhitespace
         {
             get => _ignoreWhitespace;
-            set => SetProperty(ref _ignoreWhitespace, value);
+            set
+            {
+                if (SetProperty(ref _ignoreWhitespace, value))
+                {
+                    if (CanFindDifference(null)) FindDifference(null);
+                }
+            }
         }
 
         public DiffPrecision Precision
         {
             get => _precision;
-            set => SetProperty(ref _precision, value);
+            set
+            {
+                if (SetProperty(ref _precision, value))
+                {
+                    if (CanFindDifference(null)) FindDifference(null);
+                }
+            }
         }
 
         public DiffViewModel? DiffViewModel
@@ -68,6 +83,7 @@ namespace DiffApp.ViewModels
 
         public ICommand FindDifferenceCommand { get; }
         public ICommand MergeBlockCommand { get; }
+        public ICommand CopyTextCommand { get; }
 
         public MainViewModel()
         {
@@ -76,6 +92,7 @@ namespace DiffApp.ViewModels
 
             FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
             MergeBlockCommand = new RelayCommand(MergeBlock);
+            CopyTextCommand = new RelayCommand(CopyText);
 
             LoadSampleText();
         }
@@ -104,6 +121,26 @@ namespace DiffApp.ViewModels
                 if (args[0] is DiffHunk hunk && args[1] is MergeDirection direction)
                 {
                     PerformMerge(hunk, direction);
+                }
+            }
+        }
+
+        private void CopyText(object? parameter)
+        {
+            if (parameter is DiffSide side)
+            {
+                string textToCopy = side == DiffSide.Old ? LeftText : RightText;
+
+                if (!string.IsNullOrEmpty(textToCopy))
+                {
+                    try
+                    {
+                        Clipboard.SetText(textToCopy);
+                    }
+                    catch (Exception)
+                    {
+                        // Handle clipboard exception if necessary
+                    }
                 }
             }
         }
