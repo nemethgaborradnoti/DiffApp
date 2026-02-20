@@ -55,7 +55,7 @@
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -66,6 +66,16 @@
                      TextWrapping="NoWrap"
                      Margin="0,5,0,0"
                      FontFamily="Consolas"/>
+
+            <!-- Swap Button in the Middle -->
+            <Button Grid.Column="1" 
+                    Content="&#x21C4;" 
+                    Command="{Binding SwapTextsCommand}"
+                    ToolTip="Swap Sides"
+                    Margin="5,5,5,0" 
+                    VerticalAlignment="Top"
+                    FontWeight="Bold"
+                    FontSize="16"/>
 
             <TextBox Grid.Column="2"
                      Text="{Binding RightText, UpdateSourceTrigger=PropertyChanged}"

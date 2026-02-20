@@ -84,6 +84,7 @@ namespace DiffApp.ViewModels
         public ICommand FindDifferenceCommand { get; }
         public ICommand MergeBlockCommand { get; }
         public ICommand CopyTextCommand { get; }
+        public ICommand SwapTextsCommand { get; }
 
         public MainViewModel()
         {
@@ -93,6 +94,7 @@ namespace DiffApp.ViewModels
             FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
             MergeBlockCommand = new RelayCommand(MergeBlock);
             CopyTextCommand = new RelayCommand(CopyText);
+            SwapTextsCommand = new RelayCommand(SwapTexts);
 
             LoadSampleText();
         }
@@ -142,6 +144,18 @@ namespace DiffApp.ViewModels
                         // Handle clipboard exception if necessary
                     }
                 }
+            }
+        }
+
+        private void SwapTexts(object? parameter)
+        {
+            string temp = LeftText;
+            LeftText = RightText;
+            RightText = temp;
+
+            if (CanFindDifference(null))
+            {
+                FindDifference(null);
             }
         }
 

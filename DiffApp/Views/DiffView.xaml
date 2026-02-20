@@ -122,36 +122,24 @@
                                     <Border Grid.Column="1" BorderBrush="#e1e4e8" BorderThickness="1,0">
                                         <StackPanel VerticalAlignment="Center" 
                                                     Visibility="{Binding IsMergeable, Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                                            <!-- Copy Left to Right (>>) -->
                                             <Button Content=">>" 
                                                     ToolTip="Merge Left to Right"
-                                                    Padding="2"
-                                                    Margin="2"
-                                                    FontSize="10"
-                                                    FontWeight="Bold"
+                                                    Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=Window}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
-                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
                                             </Button>
-
-                                            <!-- Copy Right to Left (<<) -->
                                             <Button Content="&lt;&lt;" 
                                                     ToolTip="Merge Right to Left"
-                                                    Padding="2"
-                                                    Margin="2"
-                                                    FontSize="10"
-                                                    FontWeight="Bold"
+                                                    Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=Window}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                         <Binding />
-                                                        <!-- The DiffHunk -->
                                                         <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
@@ -189,47 +177,84 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UnifiedTemplate">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding UnifiedLines}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:DiffLine}">
-                            <Grid MinHeight="18">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="40" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.ColumnSpan="3" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <!-- Global Header -->
+                    <RowDefinition Height="*" />
+                    <!-- Content -->
+                </Grid.RowDefinitions>
 
-                                <TextBlock Text="{Binding LineNumber}"
-                                           Foreground="{StaticResource LineNumberForeground}"
-                                           TextAlignment="Right"
-                                           Padding="0,0,10,0" />
+                <!-- Global Header with Copy Buttons (Same as SideBySide but Spanning) -->
+                <Grid Grid.Row="0" Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="1" Foreground="{StaticResource LineNumberForeground}" Padding="5,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Text" Value=" "/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Kind}" Value="Inserted">
-                                                    <Setter Property="Text" Value="+"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Kind}" Value="Deleted">
-                                                    <Setter Property="Text" Value="-"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                    <!-- Left Header -->
+                    <Border Grid.Column="0" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,1,1" Padding="5">
+                        <Grid>
+                            <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{x:Static models:DiffSide.Old}"/>
+                        </Grid>
+                    </Border>
 
-                                <ContentPresenter Grid.Column="2"
-                                                  Content="{Binding}"
-                                                  ContentTemplate="{StaticResource LineContentTemplate}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                    <!-- Right Header -->
+                    <Border Grid.Column="1" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1" Padding="5">
+                        <Grid>
+                            <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{x:Static models:DiffSide.New}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding UnifiedLines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:DiffLine}">
+                                <Grid MinHeight="18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.ColumnSpan="3" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+
+                                    <TextBlock Text="{Binding LineNumber}"
+                                               Foreground="{StaticResource LineNumberForeground}"
+                                               TextAlignment="Right"
+                                               Padding="0,0,10,0" />
+
+                                    <TextBlock Grid.Column="1" Foreground="{StaticResource LineNumberForeground}" Padding="5,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value=" "/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Inserted">
+                                                        <Setter Property="Text" Value="+"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Deleted">
+                                                        <Setter Property="Text" Value="-"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <ContentPresenter Grid.Column="2"
+                                                      Content="{Binding}"
+                                                      ContentTemplate="{StaticResource LineContentTemplate}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </DataTemplate>
     </UserControl.Resources>
 
