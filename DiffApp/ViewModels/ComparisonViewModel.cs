@@ -5,6 +5,7 @@
         private readonly IComparisonService _comparisonService;
         private readonly IMergeService _mergeService;
         private readonly CompareSettings _settings;
+        private readonly Action<Side, string>? _onSourceUpdated;
 
         private ComparisonResult _comparisonResult;
         private IReadOnlyList<ChangeLine> _unifiedLines;
@@ -67,7 +68,8 @@
             string rightText,
             CompareSettings settings,
             IComparisonService comparisonService,
-            IMergeService mergeService)
+            IMergeService mergeService,
+            Action<Side, string>? onSourceUpdated = null)
         {
             _comparisonResult = initialResult;
             _leftResultText = leftText;
@@ -75,6 +77,7 @@
             _settings = settings;
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
+            _onSourceUpdated = onSourceUpdated;
 
             _unifiedLines = CreateUnifiedLines();
 
@@ -105,10 +108,12 @@
             if (direction == MergeDirection.LeftToRight)
             {
                 RightResultText = _mergeService.MergeBlock(RightResultText, block, direction);
+                _onSourceUpdated?.Invoke(Side.New, RightResultText);
             }
             else
             {
                 LeftResultText = _mergeService.MergeBlock(LeftResultText, block, direction);
+                _onSourceUpdated?.Invoke(Side.Old, LeftResultText);
             }
 
             RefreshComparison();

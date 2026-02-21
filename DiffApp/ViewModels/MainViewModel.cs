@@ -60,7 +60,6 @@ namespace DiffApp.ViewModels
             SwapAllCommand = new RelayCommand(SwapAll);
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
 
-            // Initial state: Input panel open, Comparison null (handled by UI triggers)
             IsInputPanelOpen = true;
         }
 
@@ -69,7 +68,6 @@ namespace DiffApp.ViewModels
             _settingsService.ResetToDefaults();
             var settings = _settingsService.LoadSettings();
 
-            // Update InputViewModel
             InputViewModel.IsWordWrapEnabled = settings.IsWordWrapEnabled;
             InputViewModel.IgnoreWhitespace = settings.IgnoreWhitespace;
             InputViewModel.Precision = settings.Precision;
@@ -88,7 +86,6 @@ namespace DiffApp.ViewModels
 
         private void OnSettingsChanged(object? sender, EventArgs e)
         {
-            // Re-run comparison if settings affecting it (like IgnoreWhitespace) change
             if (ComparisonViewModel != null)
             {
                 PerformComparison();
@@ -98,8 +95,6 @@ namespace DiffApp.ViewModels
         private void OnCompareRequested(object? sender, EventArgs e)
         {
             PerformComparison();
-
-            // Auto-collapse input panel when comparison is requested
             IsInputPanelOpen = false;
         }
 
@@ -122,7 +117,18 @@ namespace DiffApp.ViewModels
                 right,
                 settings,
                 _comparisonService,
-                _mergeService
+                _mergeService,
+                (side, text) =>
+                {
+                    if (side == Side.Old)
+                    {
+                        InputViewModel.LeftText = text;
+                    }
+                    else
+                    {
+                        InputViewModel.RightText = text;
+                    }
+                }
             );
 
             ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
