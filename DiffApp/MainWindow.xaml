@@ -115,7 +115,7 @@
 
                 <Button Content="Reset to defaults"
                          Command="{Binding ResetDefaultsCommand}"
-                         Style="{StaticResource SecondaryButton}"
+                         Style="{StaticResource DangerButton}"
                          Margin="0,20,0,0"/>
             </StackPanel>
         </Border>
@@ -142,18 +142,21 @@
             </Border>
 
             <Grid Grid.Row="1">
-                <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                <ContentControl Content="{Binding ComparisonViewModel}"
+                                Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}"/>
 
-                        <ContentControl Grid.Row="0" Content="{Binding ComparisonViewModel}" MaxHeight="800" />
-
-                        <ContentControl Grid.Row="1" x:Name="InputSection" Content="{Binding InputViewModel}" Margin="10,0,10,10"/>
-                    </Grid>
-                </ScrollViewer>
+                <ContentControl Content="{Binding InputViewModel}" Margin="10">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
 
                 <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="30"
                             Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}">
