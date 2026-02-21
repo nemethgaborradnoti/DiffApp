@@ -7,6 +7,7 @@
         private bool _ignoreWhitespace;
         private bool _isWordWrapEnabled = true;
         private PrecisionLevel _precision = PrecisionLevel.Word;
+        private ViewMode _viewMode = ViewMode.Split;
 
         public event EventHandler? CompareRequested;
 
@@ -38,6 +39,12 @@
         {
             get => _precision;
             set => SetProperty(ref _precision, value);
+        }
+
+        public ViewMode ViewMode
+        {
+            get => _viewMode;
+            set => SetProperty(ref _viewMode, value);
         }
 
         public ICommand SwapTextsCommand { get; }

@@ -62,6 +62,18 @@
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
                          Padding="5"/>
+
+                <!-- Manual Collapse Button -->
+                <Button Grid.Row="0"
+                        Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding DataContext.ToggleInputPanelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,-5,0,0"
+                        Padding="5"
+                        ToolTip="Collapse Input Panel">
+                    <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_down}" Style="{StaticResource IconStyle}"/>
+                </Button>
             </Grid>
         </Grid>
 
