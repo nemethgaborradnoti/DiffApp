@@ -22,10 +22,10 @@
 
             <Grid Grid.Column="0" Margin="0,5,2,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Original Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" Margin="5,0,0,5"/>
+                <TextBlock Text="Original Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
                 <TextBox Grid.Row="1"
                          Text="{Binding LeftText, UpdateSourceTrigger=PropertyChanged}"
                          AcceptsReturn="True"
@@ -37,21 +37,29 @@
 
             <Grid Grid.Column="1" Margin="2,5,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
-                    <TextBlock Text="Changed Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" Margin="5,0,0,5" VerticalAlignment="Center"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <Button Style="{StaticResource IconButtonStyle}"
+                    <TextBlock Grid.Column="0" Text="Changed Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+
+                    <Button Grid.Column="1" 
+                             Style="{StaticResource IconButtonStyle}"
                              Command="{Binding DataContext.ToggleInputPanelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                             HorizontalAlignment="Right"
                              VerticalAlignment="Center"
-                             Margin="0,-4,0,0"
-                             Padding="4"
+                             Padding="2"
+                             Width="24"
+                             Height="24"
+                             MinHeight="24"
+                             MinWidth="24"
                              ToolTip="Collapse Input Panel">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_down}" Style="{StaticResource IconStyle}"/>
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_down}" Style="{StaticResource IconStyle}" FontSize="20"/>
                     </Button>
                 </Grid>
 

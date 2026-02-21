@@ -216,9 +216,9 @@
 
     <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource BorderlessIconButton}">
         <Setter Property="Width" Value="Auto"/>
-        <Setter Property="MinHeight" Value="36"/>
-        <Setter Property="MinWidth" Value="36"/>
-        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="MinWidth" Value="30"/>
+        <Setter Property="Padding" Value="12,4"/>
     </Style>
 
 </ResourceDictionary>
