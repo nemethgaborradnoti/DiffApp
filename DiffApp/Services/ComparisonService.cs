@@ -12,26 +12,26 @@ using DiffPlexPiece = DiffPlex.DiffBuilder.Model.DiffPiece;
 
 namespace DiffApp.Services
 {
-    public class DiffEngine : IDiffEngine
+    public class ComparisonService : IComparisonService
     {
-        public DiffResult Compare(string oldText, string newText, DiffOptions options)
+        public ComparisonResult Compare(string oldText, string newText, CompareSettings settings)
         {
             string oldTextProcessed = oldText ?? string.Empty;
             string newTextProcessed = newText ?? string.Empty;
 
-            IChunker chunker = options.Precision == DiffPrecision.Character
+            IChunker chunker = settings.Precision == PrecisionLevel.Character
                 ? new CharacterChunker()
                 : new WordChunker();
 
             var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
             var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
 
-            var blocks = BuildBlocks(diffModel, options);
+            var blocks = BuildBlocks(diffModel, settings);
 
-            return new DiffResult(blocks);
+            return new ComparisonResult(blocks);
         }
 
-        private List<ChangeBlock> BuildBlocks(SideBySideDiffModel model, DiffOptions options)
+        private List<ChangeBlock> BuildBlocks(SideBySideDiffModel model, CompareSettings settings)
         {
             var blocks = new List<ChangeBlock>();
             if (model.OldText.Lines.Count == 0 && model.NewText.Lines.Count == 0)
@@ -42,7 +42,7 @@ namespace DiffApp.Services
             int currentOldIndex = 0;
             int currentNewIndex = 0;
 
-            GetEffectiveTypes(model.OldText.Lines[0], model.NewText.Lines[0], options, out var startOldType, out var startNewType);
+            GetEffectiveTypes(model.OldText.Lines[0], model.NewText.Lines[0], settings, out var startOldType, out var startNewType);
             var startKind = MapKind(startOldType == ChangeType.Imaginary ? startNewType : startOldType);
 
             var currentBlock = new ChangeBlock
@@ -59,7 +59,7 @@ namespace DiffApp.Services
                 var oldLine = model.OldText.Lines[i];
                 var newLine = model.NewText.Lines[i];
 
-                GetEffectiveTypes(oldLine, newLine, options, out var effectiveOldType, out var effectiveNewType);
+                GetEffectiveTypes(oldLine, newLine, settings, out var effectiveOldType, out var effectiveNewType);
 
                 var kind = MapKind(effectiveOldType == ChangeType.Imaginary ? effectiveNewType : effectiveOldType);
 
@@ -108,12 +108,12 @@ namespace DiffApp.Services
             return blocks;
         }
 
-        private void GetEffectiveTypes(DiffPlexPiece oldLine, DiffPlexPiece newLine, DiffOptions options, out ChangeType oldType, out ChangeType newType)
+        private void GetEffectiveTypes(DiffPlexPiece oldLine, DiffPlexPiece newLine, CompareSettings settings, out ChangeType oldType, out ChangeType newType)
         {
             oldType = oldLine.Type;
             newType = newLine.Type;
 
-            if (options.IgnoreWhitespace)
+            if (settings.IgnoreWhitespace)
             {
                 bool isWhitespaceDifference = IsWhitespaceOnlyChange(oldLine, newLine);
                 if (isWhitespaceDifference)

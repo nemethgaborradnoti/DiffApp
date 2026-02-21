@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace DiffApp.Services
 {
-    public class TextMergeService : ITextMergeService
+    public class MergeService : IMergeService
     {
         public string MergeBlock(string targetText, ChangeBlock block, MergeDirection direction)
         {
@@ -50,7 +50,7 @@ namespace DiffApp.Services
 
         public string MergeLine(string targetText, ChangeLine line, int targetLineIndex, MergeDirection direction)
         {
-            throw new NotImplementedException("Line-level merge requires strict context management. Block merge is recommended.");
+            throw new NotImplementedException();
         }
 
         private List<string> GetLines(string text)

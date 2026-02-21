@@ -15,10 +15,10 @@ namespace DiffApp.ViewModels
         private bool _isUnifiedMode;
         private bool _ignoreWhitespace;
         private bool _isWordWrapEnabled = true;
-        private DiffPrecision _precision = DiffPrecision.Word;
-        private DiffViewModel? _diffViewModel;
-        private readonly IDiffEngine _diffEngine;
-        private readonly ITextMergeService _textMergeService;
+        private PrecisionLevel _precision = PrecisionLevel.Word;
+        private ComparisonViewModel? _comparisonViewModel;
+        private readonly IComparisonService _comparisonService;
+        private readonly IMergeService _mergeService;
 
         public string LeftText
         {
@@ -68,7 +68,7 @@ namespace DiffApp.ViewModels
             }
         }
 
-        public DiffPrecision Precision
+        public PrecisionLevel Precision
         {
             get => _precision;
             set
@@ -80,10 +80,10 @@ namespace DiffApp.ViewModels
             }
         }
 
-        public DiffViewModel? DiffViewModel
+        public ComparisonViewModel? ComparisonViewModel
         {
-            get => _diffViewModel;
-            private set => SetProperty(ref _diffViewModel, value);
+            get => _comparisonViewModel;
+            private set => SetProperty(ref _comparisonViewModel, value);
         }
 
         public ICommand FindDifferenceCommand { get; }
@@ -93,8 +93,8 @@ namespace DiffApp.ViewModels
 
         public MainViewModel()
         {
-            _diffEngine = new DiffEngine();
-            _textMergeService = new TextMergeService();
+            _comparisonService = new ComparisonService();
+            _mergeService = new MergeService();
 
             FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
             MergeBlockCommand = new RelayCommand(MergeBlock);
@@ -106,14 +106,14 @@ namespace DiffApp.ViewModels
 
         private void FindDifference(object? parameter)
         {
-            var options = new DiffOptions
+            var options = new CompareSettings
             {
                 IgnoreWhitespace = IgnoreWhitespace,
                 Precision = Precision
             };
 
-            var result = _diffEngine.Compare(LeftText, RightText, options);
-            DiffViewModel = new DiffViewModel(result);
+            var result = _comparisonService.Compare(LeftText, RightText, options);
+            ComparisonViewModel = new ComparisonViewModel(result);
         }
 
         private bool CanFindDifference(object? parameter)
@@ -134,9 +134,9 @@ namespace DiffApp.ViewModels
 
         private void CopyText(object? parameter)
         {
-            if (parameter is DiffSide side)
+            if (parameter is Side side)
             {
-                string textToCopy = side == DiffSide.Old ? LeftText : RightText;
+                string textToCopy = side == Side.Old ? LeftText : RightText;
 
                 if (!string.IsNullOrEmpty(textToCopy))
                 {
@@ -167,11 +167,11 @@ namespace DiffApp.ViewModels
         {
             if (direction == MergeDirection.LeftToRight)
             {
-                RightText = _textMergeService.MergeBlock(RightText, block, direction);
+                RightText = _mergeService.MergeBlock(RightText, block, direction);
             }
             else
             {
-                LeftText = _textMergeService.MergeBlock(LeftText, block, direction);
+                LeftText = _mergeService.MergeBlock(LeftText, block, direction);
             }
 
             FindDifference(null);

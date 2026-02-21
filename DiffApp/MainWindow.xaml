@@ -40,15 +40,15 @@
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding DiffViewModel}" Value="{x:Null}">
+                                <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <views:DiffView DataContext="{Binding DiffViewModel}"
-                                Visibility="{Binding DiffViewModel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <views:ComparisonView DataContext="{Binding ComparisonViewModel}"
+                                      Visibility="{Binding ComparisonViewModel, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
         </Border>
 
@@ -67,12 +67,11 @@
                      Margin="0,5,0,0"
                      FontFamily="Consolas"/>
 
-            <!-- Swap Button in the Middle -->
-            <Button Grid.Column="1" 
-                    Content="&#x21C4;" 
+            <Button Grid.Column="1"
+                    Content="&#x21C4;"
                     Command="{Binding SwapTextsCommand}"
                     ToolTip="Swap Sides"
-                    Margin="5,5,5,0" 
+                    Margin="5,5,5,0"
                     VerticalAlignment="Top"
                     FontWeight="Bold"
                     FontSize="16"/>
@@ -95,9 +94,9 @@
                     <CheckBox Content="Word Wrap" IsChecked="{Binding IsWordWrapEnabled}" VerticalAlignment="Center" Margin="10,0,10,0"/>
 
                     <Label Content="Precision:" VerticalAlignment="Center"/>
-                    <RadioButton Content="Word" IsChecked="{Binding Precision, Converter={x:Static converters:EnumMatchToBooleanConverter.Instance}, ConverterParameter={x:Static models:DiffPrecision.Word}}" 
+                    <RadioButton Content="Word" IsChecked="{Binding Precision, Converter={x:Static converters:EnumMatchToBooleanConverter.Instance}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
                                  GroupName="PrecisionGroup" VerticalAlignment="Center" Margin="5,0"/>
-                    <RadioButton Content="Character" IsChecked="{Binding Precision, Converter={x:Static converters:EnumMatchToBooleanConverter.Instance}, ConverterParameter={x:Static models:DiffPrecision.Character}}" 
+                    <RadioButton Content="Character" IsChecked="{Binding Precision, Converter={x:Static converters:EnumMatchToBooleanConverter.Instance}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
                                  GroupName="PrecisionGroup" VerticalAlignment="Center" Margin="5,0"/>
                 </StackPanel>
             </GroupBox>

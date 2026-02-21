@@ -3,24 +3,24 @@ using System.Collections.Generic;
 
 namespace DiffApp.ViewModels
 {
-    public class DiffViewModel : ViewModelBase
+    public class ComparisonViewModel : ViewModelBase
     {
-        private readonly DiffResult _diffResult;
+        private readonly ComparisonResult _comparisonResult;
 
-        public DiffResult DiffResult => _diffResult;
+        public ComparisonResult ComparisonResult => _comparisonResult;
 
         public IReadOnlyList<ChangeLine> UnifiedLines { get; }
 
-        public DiffViewModel(DiffResult diffResult)
+        public ComparisonViewModel(ComparisonResult comparisonResult)
         {
-            _diffResult = diffResult;
+            _comparisonResult = comparisonResult;
             UnifiedLines = CreateUnifiedLines();
         }
 
         private List<ChangeLine> CreateUnifiedLines()
         {
             var lines = new List<ChangeLine>();
-            foreach (var block in _diffResult.Blocks)
+            foreach (var block in _comparisonResult.Blocks)
             {
                 switch (block.Kind)
                 {

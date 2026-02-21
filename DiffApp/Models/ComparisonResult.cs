@@ -2,11 +2,11 @@
 
 namespace DiffApp.Models
 {
-    public class DiffResult
+    public class ComparisonResult
     {
         public IReadOnlyList<ChangeBlock> Blocks { get; }
 
-        public DiffResult(IReadOnlyList<ChangeBlock> blocks)
+        public ComparisonResult(IReadOnlyList<ChangeBlock> blocks)
         {
             Blocks = blocks;
         }

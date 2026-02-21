@@ -1,6 +1,6 @@
 ﻿namespace DiffApp.Models
 {
-    public enum DiffSide
+    public enum Side
     {
         Old,
         New
