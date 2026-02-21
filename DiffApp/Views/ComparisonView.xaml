@@ -92,153 +92,176 @@
                     <ItemsControl ItemsSource="{Binding ComparisonResult.Blocks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:ChangeBlock}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
 
-                                    <Grid.InputBindings>
-                                        <MouseBinding MouseAction="LeftClick" 
-                                                      Command="{Binding DataContext.SelectBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                      CommandParameter="{Binding}"/>
-                                    </Grid.InputBindings>
+                                <Border Margin="0,1" 
+                                        Padding="0"
+                                        CornerRadius="4"
+                                        BorderThickness="2">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="Background" Value="Transparent"/>
 
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Background" Value="Transparent" />
                                             <Style.Triggers>
-                                                <!-- Highlight on Hover for Mergeable blocks -->
+                                                <!-- IsMergeable Triggers -->
+                                                <DataTrigger Binding="{Binding IsMergeable}" Value="True">
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                </DataTrigger>
+
                                                 <MultiDataTrigger>
                                                     <MultiDataTrigger.Conditions>
                                                         <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
                                                         <Condition Binding="{Binding IsMergeable}" Value="True"/>
                                                     </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Background" Value="{StaticResource BrushHighlightSelected}" />
+                                                    <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
+                                                    <Setter Property="Background" Value="#F8F8F8"/>
                                                 </MultiDataTrigger>
-                                                <!-- Highlight on Selection -->
+
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Background" Value="{StaticResource BrushHighlightSelected}" />
+                                                    <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
+                                                    <Setter Property="Background" Value="{StaticResource BrushBackground}"/>
+                                                    <!-- Lift effect -->
+                                                    <Setter Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="2" BlurRadius="5" Opacity="0.2"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="Panel.ZIndex" Value="10"/>
+                                                    <Setter Property="Margin" Value="0,4"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </Grid.Style>
+                                    </Border.Style>
 
-                                    <!-- Block Content -->
-                                    <Grid Grid.Row="0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding DataContext.SelectBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                    </Border.InputBindings>
 
-                                        <ItemsControl Grid.Column="0" ItemsSource="{Binding OldLines}" Margin="0,0,2,0">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type models:ChangeLine}">
-                                                    <Grid MinHeight="20">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="40" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                                        <TextBlock Text="{Binding LineNumber}"
-                                                                   Foreground="{StaticResource BrushLineNumber}"
-                                                                   Background="#F6F8FA"
-                                                                   TextAlignment="Right"
-                                                                   Padding="0,2,8,2"
-                                                                   FontSize="11"
-                                                                   FontFamily="Consolas"/>
-                                                        <ContentPresenter Grid.Column="1"
-                                                                          Content="{Binding}"
-                                                                          ContentTemplate="{StaticResource LineContentTemplate}"
-                                                                          Margin="5,0,0,0"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                    <!-- Content Grid -->
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                                        <ItemsControl Grid.Column="1" ItemsSource="{Binding NewLines}" Margin="2,0,0,0">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type models:ChangeLine}">
-                                                    <Grid MinHeight="20">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="40" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                                        <TextBlock Text="{Binding LineNumber}"
-                                                                   Foreground="{StaticResource BrushLineNumber}"
-                                                                   Background="#F6F8FA"
-                                                                   TextAlignment="Right"
-                                                                   Padding="0,2,8,2"
-                                                                   FontSize="11"
-                                                                   FontFamily="Consolas"/>
-                                                        <ContentPresenter Grid.Column="1"
-                                                                          Content="{Binding}"
-                                                                          ContentTemplate="{StaticResource LineContentTemplate}"
-                                                                          Margin="5,0,0,0"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Grid>
-
-                                    <!-- Merge Action Bar -->
-                                    <Border Grid.Row="1" 
-                                            Background="{StaticResource BrushHighlightSelected}"
-                                            BorderBrush="{StaticResource BrushBorder}"
-                                            BorderThickness="0,1,0,1"
-                                            Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <Grid Margin="10,5">
+                                        <!-- Lines Content -->
+                                        <Grid Grid.Row="0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Merge Left to Right -->
-                                            <Button Grid.Column="0" 
-                                                    Style="{StaticResource MergeButtonStyle}"
-                                                    Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                <Button.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MergeParamsConverter}">
-                                                        <Binding />
-                                                        <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
-                                                    </MultiBinding>
-                                                </Button.CommandParameter>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                    <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="18"/>
-                                                </StackPanel>
-                                            </Button>
+                                            <ItemsControl Grid.Column="0" ItemsSource="{Binding OldLines}" Margin="0,0,2,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type models:ChangeLine}">
+                                                        <Grid MinHeight="20">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="40" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+                                                            <TextBlock Text="{Binding LineNumber}"
+                                                                       Foreground="{StaticResource BrushLineNumber}"
+                                                                       Background="#F6F8FA"
+                                                                       TextAlignment="Right"
+                                                                       Padding="0,2,8,2"
+                                                                       FontSize="11"
+                                                                       FontFamily="Consolas"/>
+                                                            <ContentPresenter Grid.Column="1"
+                                                                              Content="{Binding}"
+                                                                              ContentTemplate="{StaticResource LineContentTemplate}"
+                                                                              Margin="5,0,0,0"
+                                                                              VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
 
-                                            <!-- Close / Cancel Selection -->
-                                            <Button Grid.Column="1" 
-                                                    Style="{StaticResource CloseSelectionButtonStyle}"
-                                                    ToolTip="Close Selection"
-                                                    Command="{Binding DataContext.DeselectAllCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}" FontSize="20"/>
-                                            </Button>
-
-                                            <!-- Merge Right to Left -->
-                                            <Button Grid.Column="2" 
-                                                    Style="{StaticResource MergeButtonStyle}"
-                                                    Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                <Button.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MergeParamsConverter}">
-                                                        <Binding />
-                                                        <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
-                                                    </MultiBinding>
-                                                </Button.CommandParameter>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0"/>
-                                                    <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                            </Button>
+                                            <ItemsControl Grid.Column="1" ItemsSource="{Binding NewLines}" Margin="2,0,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type models:ChangeLine}">
+                                                        <Grid MinHeight="20">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="40" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+                                                            <TextBlock Text="{Binding LineNumber}"
+                                                                       Foreground="{StaticResource BrushLineNumber}"
+                                                                       Background="#F6F8FA"
+                                                                       TextAlignment="Right"
+                                                                       Padding="0,2,8,2"
+                                                                       FontSize="11"
+                                                                       FontFamily="Consolas"/>
+                                                            <ContentPresenter Grid.Column="1"
+                                                                              Content="{Binding}"
+                                                                              ContentTemplate="{StaticResource LineContentTemplate}"
+                                                                              Margin="5,0,0,0"
+                                                                              VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </Grid>
-                                    </Border>
-                                </Grid>
+
+                                        <!-- Merge Action Bar (Inside the shared Border) -->
+                                        <Border Grid.Row="1" 
+                                                Background="#F1F8FF"
+                                                BorderBrush="{StaticResource BrushBorder}"
+                                                BorderThickness="0,1,0,0"
+                                                Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <Grid Margin="10,5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Merge Left to Right -->
+                                                <Button Grid.Column="0" 
+                                                        Style="{StaticResource MergeButtonStyle}"
+                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                    <Button.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource MergeParamsConverter}">
+                                                            <Binding />
+                                                            <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
+                                                        </MultiBinding>
+                                                    </Button.CommandParameter>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="18"/>
+                                                    </StackPanel>
+                                                </Button>
+
+                                                <!-- Close / Cancel Selection -->
+                                                <Button Grid.Column="1" 
+                                                        Style="{StaticResource CloseSelectionButtonStyle}"
+                                                        ToolTip="Close Selection"
+                                                        Command="{Binding DataContext.DeselectAllCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                    <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}" FontSize="20"/>
+                                                </Button>
+
+                                                <!-- Merge Right to Left -->
+                                                <Button Grid.Column="2" 
+                                                        Style="{StaticResource MergeButtonStyle}"
+                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                    <Button.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource MergeParamsConverter}">
+                                                            <Binding />
+                                                            <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
+                                                        </MultiBinding>
+                                                    </Button.CommandParameter>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0"/>
+                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
