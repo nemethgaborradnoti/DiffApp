@@ -8,17 +8,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
+		<None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DiffPlex" Version="1.7.2" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="DiffPlex" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
+		<Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 
 </Project>
