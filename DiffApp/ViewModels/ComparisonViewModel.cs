@@ -30,8 +30,32 @@
             set => SetProperty(ref _isUnifiedMode, value);
         }
 
-        public string LeftResultText => _leftResultText;
-        public string RightResultText => _rightResultText;
+        public string LeftResultText
+        {
+            get => _leftResultText;
+            private set
+            {
+                if (SetProperty(ref _leftResultText, value))
+                {
+                    OnPropertyChanged(nameof(LeftLineCount));
+                }
+            }
+        }
+
+        public string RightResultText
+        {
+            get => _rightResultText;
+            private set
+            {
+                if (SetProperty(ref _rightResultText, value))
+                {
+                    OnPropertyChanged(nameof(RightLineCount));
+                }
+            }
+        }
+
+        public int LeftLineCount => GetLineCount(_leftResultText);
+        public int RightLineCount => GetLineCount(_rightResultText);
 
         public ICommand MergeBlockCommand { get; }
         public ICommand SelectBlockCommand { get; }
@@ -59,6 +83,12 @@
             DeselectAllCommand = new RelayCommand(_ => DeselectAll());
         }
 
+        private int GetLineCount(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 0;
+            return text.Replace("\r\n", "\n").Split('\n').Length;
+        }
+
         private void ExecuteMerge(object? parameter)
         {
             if (parameter is object[] args && args.Length == 2)
@@ -74,11 +104,11 @@
         {
             if (direction == MergeDirection.LeftToRight)
             {
-                _rightResultText = _mergeService.MergeBlock(_rightResultText, block, direction);
+                RightResultText = _mergeService.MergeBlock(RightResultText, block, direction);
             }
             else
             {
-                _leftResultText = _mergeService.MergeBlock(_leftResultText, block, direction);
+                LeftResultText = _mergeService.MergeBlock(LeftResultText, block, direction);
             }
 
             RefreshComparison();
@@ -110,7 +140,7 @@
 
         private void RefreshComparison()
         {
-            var result = _comparisonService.Compare(_leftResultText, _rightResultText, _settings);
+            var result = _comparisonService.Compare(LeftResultText, RightResultText, _settings);
             ComparisonResult = result;
             UnifiedLines = CreateUnifiedLines();
         }

@@ -20,7 +20,6 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Sidebar / Settings Panel -->
         <Border Grid.Column="0"
                 Background="{StaticResource BrushSurface}"
                 BorderBrush="{StaticResource BrushBorder}"
@@ -73,7 +72,6 @@
                                FontSize="11" Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
 
-                <!-- Reset Defaults Button -->
                 <Button Content="Reset to defaults" 
                          Command="{Binding ResetDefaultsCommand}"
                          Style="{StaticResource SecondaryButton}" 
@@ -81,17 +79,14 @@
             </StackPanel>
         </Border>
 
-        <!-- Main Content Area -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Row 1: Comparison View -->
                 <RowDefinition>
                     <RowDefinition.Style>
                         <Style TargetType="RowDefinition">
                             <Setter Property="Height" Value="*" />
                             <Style.Triggers>
-                                <!-- Hide Comparison Row if ComparisonViewModel is null -->
                                 <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
                                     <Setter Property="Height" Value="0" />
                                 </DataTrigger>
@@ -102,15 +97,17 @@
 
                 <RowDefinition Height="Auto" />
 
-                <!-- Row 3: Input Panel -->
                 <RowDefinition>
                     <RowDefinition.Style>
                         <Style TargetType="RowDefinition">
+                            <Setter Property="MinHeight" Value="0"/>
                             <Setter Property="Height" Value="*" />
                             <Style.Triggers>
-                                <!-- Hide Input Row if IsInputPanelOpen is false -->
                                 <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="False">
                                     <Setter Property="Height" Value="0" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="True">
+                                    <Setter Property="MinHeight" Value="150"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -120,7 +117,6 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Top Toolbar for Toggle -->
             <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource IconButtonStyle}"
@@ -136,10 +132,8 @@
                 </StackPanel>
             </Border>
 
-            <!-- Comparison Result -->
             <ContentControl Grid.Row="1" Content="{Binding ComparisonViewModel}" />
 
-            <!-- Grid Splitter (Visible when both Input and Comparison are visible) -->
             <GridSplitter Grid.Row="2"
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"
@@ -160,13 +154,11 @@
                 </GridSplitter.Style>
             </GridSplitter>
 
-            <!-- Input Panel (Visible when Input is Open) -->
             <ContentControl Grid.Row="3"
                             Content="{Binding InputViewModel}"
                             Margin="10"
                             Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-            <!-- Collapsed Input Strip (Visible when Input is Closed) -->
             <Button Grid.Row="4"
                     Command="{Binding ToggleInputPanelCommand}"
                     Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
