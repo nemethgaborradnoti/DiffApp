@@ -32,7 +32,7 @@
                 <Grid Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
-                        <TextBlock Text="Settings" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
                     </StackPanel>
 
                     <Button Style="{StaticResource IconButtonStyle}"
@@ -43,10 +43,13 @@
                     </Button>
                 </Grid>
 
-                <TextBlock Text="Appearance" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
-                <CheckBox Content="Word Wrap" IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" Margin="0,0,0,20"/>
+                <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox Content="Word Wrap" 
+                          IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" 
+                          Style="{StaticResource ToggleSwitchStyle}"
+                          Margin="0,0,0,20"/>
 
-                <TextBlock Text="Layout" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
+                <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
                 <StackPanel Margin="0,0,0,20">
                     <RadioButton Content="Split" IsChecked="{Binding InputViewModel.ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
                                  GroupName="ViewModeGroup" Margin="0,0,0,8"/>
@@ -54,18 +57,27 @@
                                  GroupName="ViewModeGroup" Margin="0,0,0,8"/>
                 </StackPanel>
 
-                <TextBlock Text="Comparison" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
-                <CheckBox Content="Ignore Whitespace" IsChecked="{Binding InputViewModel.IgnoreWhitespace}" Margin="0,0,0,20"/>
+                <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox Content="Ignore Whitespace" 
+                          IsChecked="{Binding InputViewModel.IgnoreWhitespace}" 
+                          Style="{StaticResource ToggleSwitchStyle}"
+                          Margin="0,0,0,20"/>
 
-                <TextBlock Text="Highlight Precision" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
+                <TextBlock Text="Highlight Precision" Style="{StaticResource SectionHeaderStyle}"/>
                 <StackPanel>
                     <RadioButton Content="Word Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
                     <RadioButton Content="Character Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
                     <TextBlock Text="Switching precision only affects highlighting, not calculation."
-                               FontSize="11" Foreground="#6a737d" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                               FontSize="11" Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
+
+                <!-- Reset Defaults Button -->
+                <Button Content="Reset to defaults" 
+                         Command="{Binding ResetDefaultsCommand}"
+                         Style="{StaticResource SecondaryButton}" 
+                         Margin="0,20,0,0"/>
             </StackPanel>
         </Border>
 
@@ -73,13 +85,30 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
+                <!-- Row 1: Comparison View -->
                 <RowDefinition>
                     <RowDefinition.Style>
                         <Style TargetType="RowDefinition">
                             <Setter Property="Height" Value="*" />
                             <Style.Triggers>
+                                <!-- Hide Comparison Row if ComparisonViewModel is null -->
+                                <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
+                                    <Setter Property="Height" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </RowDefinition.Style>
+                </RowDefinition>
+
+                <RowDefinition Height="Auto" />
+
+                <!-- Row 3: Input Panel -->
+                <RowDefinition>
+                    <RowDefinition.Style>
+                        <Style TargetType="RowDefinition">
+                            <Setter Property="Height" Value="*" />
+                            <Style.Triggers>
+                                <!-- Hide Input Row if IsInputPanelOpen is false -->
                                 <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="False">
                                     <Setter Property="Height" Value="0" />
                                 </DataTrigger>
@@ -87,13 +116,13 @@
                         </Style>
                     </RowDefinition.Style>
                 </RowDefinition>
+
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- Top Toolbar for Toggle -->
             <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
                 <StackPanel Orientation="Horizontal">
-                    <!-- Increased size and padding for better visibility -->
                     <Button Style="{StaticResource IconButtonStyle}"
                             Command="{Binding ToggleSettingsCommand}"
                             Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
@@ -110,46 +139,48 @@
             <!-- Comparison Result -->
             <ContentControl Grid.Row="1" Content="{Binding ComparisonViewModel}" />
 
-            <!-- Grid Splitter (Visible when Input is Open) -->
-            <GridSplitter Grid.Row="2" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch" 
-                          Height="5" 
-                          ResizeBehavior="PreviousAndNext"
-                          Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <!-- Grid Splitter (Visible when both Input and Comparison are visible) -->
+            <GridSplitter Grid.Row="2"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Height="5"
+                          ResizeBehavior="PreviousAndNext">
+                <GridSplitter.Style>
+                    <Style TargetType="GridSplitter">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </GridSplitter.Style>
+            </GridSplitter>
 
             <!-- Input Panel (Visible when Input is Open) -->
-            <ContentControl Grid.Row="3" 
-                            Content="{Binding InputViewModel}" 
-                            Margin="10" 
+            <ContentControl Grid.Row="3"
+                            Content="{Binding InputViewModel}"
+                            Margin="10"
                             Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
             <!-- Collapsed Input Strip (Visible when Input is Closed) -->
-            <Button Grid.Row="4" 
+            <Button Grid.Row="4"
                     Command="{Binding ToggleInputPanelCommand}"
                     Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                    Background="{StaticResource BrushSurface}"
-                    BorderBrush="{StaticResource BrushBorder}"
-                    BorderThickness="0,1,0,0"
+                    Style="{StaticResource PrimaryButton}"
                     Height="40"
+                    Margin="0"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
-                    Cursor="Hand">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{x:Static fonts:MaterialIcons.edit}" Style="{StaticResource IconStyle}" Margin="0,0,8,0" Foreground="{StaticResource BrushPrimary}"/>
-                                <TextBlock Text="Edit Inputs" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimary}"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#eef2f5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
+                    Cursor="Hand"
+                    BorderThickness="0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Static fonts:MaterialIcons.edit}" Style="{StaticResource IconStyle}" Margin="0,0,8,0"/>
+                    <TextBlock Text="EDIT INPUTS" FontWeight="Bold"/>
+                </StackPanel>
             </Button>
         </Grid>
     </Grid>

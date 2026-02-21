@@ -12,6 +12,7 @@ namespace DiffApp
             _host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddSingleton<ISettingsService, SettingsService>();
                     services.AddSingleton<IComparisonService, ComparisonService>();
                     services.AddSingleton<IMergeService, MergeService>();
                     services.AddSingleton<InputViewModel>();

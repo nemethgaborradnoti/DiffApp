@@ -21,4 +21,8 @@
 		<Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Themes\Styles\" />
+	</ItemGroup>
+
 </Project>

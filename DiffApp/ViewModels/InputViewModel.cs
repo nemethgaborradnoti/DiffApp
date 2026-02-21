@@ -2,6 +2,7 @@
 {
     public class InputViewModel : ViewModelBase
     {
+        private readonly ISettingsService _settingsService;
         private string _leftText = string.Empty;
         private string _rightText = string.Empty;
         private bool _ignoreWhitespace;
@@ -10,6 +11,7 @@
         private ViewMode _viewMode = ViewMode.Split;
 
         public event EventHandler? CompareRequested;
+        public event EventHandler? SettingsChanged;
 
         public string LeftText
         {
@@ -26,36 +28,86 @@
         public bool IgnoreWhitespace
         {
             get => _ignoreWhitespace;
-            set => SetProperty(ref _ignoreWhitespace, value);
+            set
+            {
+                if (SetProperty(ref _ignoreWhitespace, value))
+                {
+                    SaveCurrentSettings();
+                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
         }
 
         public bool IsWordWrapEnabled
         {
             get => _isWordWrapEnabled;
-            set => SetProperty(ref _isWordWrapEnabled, value);
+            set
+            {
+                if (SetProperty(ref _isWordWrapEnabled, value))
+                {
+                    SaveCurrentSettings();
+                }
+            }
         }
 
         public PrecisionLevel Precision
         {
             get => _precision;
-            set => SetProperty(ref _precision, value);
+            set
+            {
+                if (SetProperty(ref _precision, value))
+                {
+                    SaveCurrentSettings();
+                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
         }
 
         public ViewMode ViewMode
         {
             get => _viewMode;
-            set => SetProperty(ref _viewMode, value);
+            set
+            {
+                if (SetProperty(ref _viewMode, value))
+                {
+                    SaveCurrentSettings();
+                    // This change often requires a re-render in MainViewModel
+                }
+            }
         }
 
         public ICommand SwapTextsCommand { get; }
         public ICommand FindDifferenceCommand { get; }
 
-        public InputViewModel()
+        public InputViewModel(ISettingsService settingsService)
         {
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+
             SwapTextsCommand = new RelayCommand(SwapTexts);
             FindDifferenceCommand = new RelayCommand(OnFindDifference, CanFindDifference);
 
+            LoadSettings();
             LoadSampleText();
+        }
+
+        private void LoadSettings()
+        {
+            var settings = _settingsService.LoadSettings();
+            _ignoreWhitespace = settings.IgnoreWhitespace;
+            _isWordWrapEnabled = settings.IsWordWrapEnabled;
+            _precision = settings.Precision;
+            _viewMode = settings.ViewMode;
+        }
+
+        private void SaveCurrentSettings()
+        {
+            // Note: InputPanelHeight is managed by MainViewModel, but we can preserve it by loading first
+            var current = _settingsService.LoadSettings();
+            current.IgnoreWhitespace = IgnoreWhitespace;
+            current.IsWordWrapEnabled = IsWordWrapEnabled;
+            current.Precision = Precision;
+            current.ViewMode = ViewMode;
+            _settingsService.SaveSettings(current);
         }
 
         private void OnFindDifference(object? parameter)

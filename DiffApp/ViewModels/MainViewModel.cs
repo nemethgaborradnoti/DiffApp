@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using DiffApp.Services.Interfaces;
+using System.ComponentModel;
 
 namespace DiffApp.ViewModels
 {
@@ -6,6 +7,7 @@ namespace DiffApp.ViewModels
     {
         private readonly IComparisonService _comparisonService;
         private readonly IMergeService _mergeService;
+        private readonly ISettingsService _settingsService;
 
         private ComparisonViewModel? _comparisonViewModel;
         private bool _isSettingsPanelOpen = true;
@@ -35,20 +37,45 @@ namespace DiffApp.ViewModels
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ToggleInputPanelCommand { get; }
         public ICommand SwapAllCommand { get; }
+        public ICommand ResetDefaultsCommand { get; }
 
-        public MainViewModel(IComparisonService comparisonService, IMergeService mergeService, InputViewModel inputViewModel)
+        public MainViewModel(
+            IComparisonService comparisonService,
+            IMergeService mergeService,
+            ISettingsService settingsService,
+            InputViewModel inputViewModel)
         {
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
 
             InputViewModel.CompareRequested += OnCompareRequested;
+            InputViewModel.SettingsChanged += OnSettingsChanged;
             InputViewModel.PropertyChanged += InputViewModel_PropertyChanged;
 
             CopyTextCommand = new RelayCommand(CopyText);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
             ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelOpen = !IsInputPanelOpen);
             SwapAllCommand = new RelayCommand(SwapAll);
+            ResetDefaultsCommand = new RelayCommand(ResetDefaults);
+
+            // Initial state: Input panel open, Comparison null (handled by UI triggers)
+            IsInputPanelOpen = true;
+        }
+
+        private void ResetDefaults(object? parameter)
+        {
+            _settingsService.ResetToDefaults();
+            var settings = _settingsService.LoadSettings();
+
+            // Update InputViewModel
+            InputViewModel.IsWordWrapEnabled = settings.IsWordWrapEnabled;
+            InputViewModel.IgnoreWhitespace = settings.IgnoreWhitespace;
+            InputViewModel.Precision = settings.Precision;
+            InputViewModel.ViewMode = settings.ViewMode;
+
+            PerformComparison();
         }
 
         private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -59,9 +86,20 @@ namespace DiffApp.ViewModels
             }
         }
 
+        private void OnSettingsChanged(object? sender, EventArgs e)
+        {
+            // Re-run comparison if settings affecting it (like IgnoreWhitespace) change
+            if (ComparisonViewModel != null)
+            {
+                PerformComparison();
+            }
+        }
+
         private void OnCompareRequested(object? sender, EventArgs e)
         {
             PerformComparison();
+
+            // Auto-collapse input panel when comparison is requested
             IsInputPanelOpen = false;
         }
 

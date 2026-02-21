@@ -42,11 +42,9 @@
                     <!-- Left Header -->
                     <Border Grid.Column="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10,5" Margin="0,0,2,0">
                         <Grid>
-                            <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+                            <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}"/>
                             <Button Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"
                                     ToolTip="Copy Original Text"
-                                    Padding="15,8"
-                                    MinWidth="100"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.Old}">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -62,7 +60,6 @@
                         <Button Style="{StaticResource IconButtonStyle}"
                                 Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                 ToolTip="Swap Sides"
-                                Padding="8"
                                 MinHeight="40"
                                 MinWidth="40">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="24"/>
@@ -72,11 +69,9 @@
                     <!-- Right Header -->
                     <Border Grid.Column="2" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10,5" Margin="2,0,0,0">
                         <Grid>
-                            <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+                            <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}"/>
                             <Button Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"
                                     ToolTip="Copy Modified Text"
-                                    Padding="15,8"
-                                    MinWidth="100"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.New}">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -93,7 +88,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:ChangeBlock}">
 
-                                <Border Margin="0,1" 
+                                <Border Margin="0,1"
                                         Padding="0"
                                         CornerRadius="4"
                                         BorderThickness="2">
@@ -134,7 +129,7 @@
                                     </Border.Style>
 
                                     <Border.InputBindings>
-                                        <MouseBinding MouseAction="LeftClick" 
+                                        <MouseBinding MouseAction="LeftClick"
                                                       Command="{Binding DataContext.SelectBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                       CommandParameter="{Binding}"/>
                                     </Border.InputBindings>
@@ -207,7 +202,7 @@
                                         </Grid>
 
                                         <!-- Merge Action Bar (Inside the shared Border) -->
-                                        <Border Grid.Row="1" 
+                                        <Border Grid.Row="1"
                                                 Background="#F1F8FF"
                                                 BorderBrush="{StaticResource BrushBorder}"
                                                 BorderThickness="0,1,0,0"
@@ -219,10 +214,11 @@
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- Merge Left to Right -->
-                                                <Button Grid.Column="0" 
-                                                        Style="{StaticResource MergeButtonStyle}"
-                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                <!-- Merge Left to Right (Danger/Red) -->
+                                                <Button Grid.Column="0"
+                                                        Style="{StaticResource DangerButton}"
+                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        HorizontalAlignment="Center">
                                                     <Button.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                             <Binding />
@@ -230,23 +226,24 @@
                                                         </MultiBinding>
                                                     </Button.CommandParameter>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="18"/>
+                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="White"/>
+                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="White"/>
                                                     </StackPanel>
                                                 </Button>
 
                                                 <!-- Close / Cancel Selection -->
-                                                <Button Grid.Column="1" 
-                                                        Style="{StaticResource CloseSelectionButtonStyle}"
+                                                <Button Grid.Column="1"
+                                                        Style="{StaticResource IconButtonStyle}"
                                                         ToolTip="Close Selection"
                                                         Command="{Binding DataContext.DeselectAllCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                     <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}" FontSize="20"/>
                                                 </Button>
 
-                                                <!-- Merge Right to Left -->
-                                                <Button Grid.Column="2" 
-                                                        Style="{StaticResource MergeButtonStyle}"
-                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                <!-- Merge Right to Left (Success/Green) -->
+                                                <Button Grid.Column="2"
+                                                        Style="{StaticResource SuccessButton}"
+                                                        Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        HorizontalAlignment="Center">
                                                     <Button.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource MergeParamsConverter}">
                                                             <Binding />
@@ -254,8 +251,8 @@
                                                         </MultiBinding>
                                                     </Button.CommandParameter>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0"/>
-                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0" Foreground="White"/>
+                                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
                                                     </StackPanel>
                                                 </Button>
                                             </Grid>
@@ -282,10 +279,10 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,1,1" Padding="10,5">
-                        <TextBlock Text="Original" FontWeight="Bold" Foreground="#586069"/>
+                        <TextBlock Text="Original" FontWeight="Bold" Foreground="{StaticResource GrayTextBrush}"/>
                     </Border>
                     <Border Grid.Column="1" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10,5">
-                        <TextBlock Text="Modified" FontWeight="Bold" Foreground="#586069"/>
+                        <TextBlock Text="Modified" FontWeight="Bold" Foreground="{StaticResource GrayTextBrush}"/>
                     </Border>
                 </Grid>
 
