@@ -2,14 +2,27 @@
 {
     public class ComparisonViewModel : ViewModelBase
     {
-        private readonly ComparisonResult _comparisonResult;
+        private readonly IComparisonService _comparisonService;
+        private readonly IMergeService _mergeService;
+        private readonly CompareSettings _settings;
+
+        private ComparisonResult _comparisonResult;
+        private IReadOnlyList<ChangeLine> _unifiedLines;
         private bool _isUnifiedMode;
+        private string _leftResultText;
+        private string _rightResultText;
 
-        public event EventHandler<MergeRequestArgs>? MergeRequested;
+        public ComparisonResult ComparisonResult
+        {
+            get => _comparisonResult;
+            private set => SetProperty(ref _comparisonResult, value);
+        }
 
-        public ComparisonResult ComparisonResult => _comparisonResult;
-
-        public IReadOnlyList<ChangeLine> UnifiedLines { get; }
+        public IReadOnlyList<ChangeLine> UnifiedLines
+        {
+            get => _unifiedLines;
+            private set => SetProperty(ref _unifiedLines, value);
+        }
 
         public bool IsUnifiedMode
         {
@@ -17,12 +30,27 @@
             set => SetProperty(ref _isUnifiedMode, value);
         }
 
+        public string LeftResultText => _leftResultText;
+        public string RightResultText => _rightResultText;
+
         public ICommand MergeBlockCommand { get; }
 
-        public ComparisonViewModel(ComparisonResult comparisonResult)
+        public ComparisonViewModel(
+            ComparisonResult initialResult,
+            string leftText,
+            string rightText,
+            CompareSettings settings,
+            IComparisonService comparisonService,
+            IMergeService mergeService)
         {
-            _comparisonResult = comparisonResult;
-            UnifiedLines = CreateUnifiedLines();
+            _comparisonResult = initialResult;
+            _leftResultText = leftText;
+            _rightResultText = rightText;
+            _settings = settings;
+            _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
+            _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
+
+            _unifiedLines = CreateUnifiedLines();
 
             MergeBlockCommand = new RelayCommand(ExecuteMerge);
         }
@@ -33,21 +61,42 @@
             {
                 if (args[0] is ChangeBlock block && args[1] is MergeDirection direction)
                 {
-                    MergeRequested?.Invoke(this, new MergeRequestArgs(block, direction));
+                    PerformMerge(block, direction);
                 }
             }
+        }
+
+        private void PerformMerge(ChangeBlock block, MergeDirection direction)
+        {
+            if (direction == MergeDirection.LeftToRight)
+            {
+                _rightResultText = _mergeService.MergeBlock(_rightResultText, block, direction);
+            }
+            else
+            {
+                _leftResultText = _mergeService.MergeBlock(_leftResultText, block, direction);
+            }
+
+            RefreshComparison();
+        }
+
+        private void RefreshComparison()
+        {
+            var result = _comparisonService.Compare(_leftResultText, _rightResultText, _settings);
+            ComparisonResult = result;
+            UnifiedLines = CreateUnifiedLines();
         }
 
         private List<ChangeLine> CreateUnifiedLines()
         {
             var lines = new List<ChangeLine>();
+            if (_comparisonResult?.Blocks == null) return lines;
+
             foreach (var block in _comparisonResult.Blocks)
             {
                 switch (block.Kind)
                 {
                     case BlockType.Unchanged:
-                        lines.AddRange(block.OldLines);
-                        break;
                     case BlockType.Removed:
                         lines.AddRange(block.OldLines);
                         break;
@@ -61,18 +110,6 @@
                 }
             }
             return lines;
-        }
-    }
-
-    public class MergeRequestArgs : EventArgs
-    {
-        public ChangeBlock Block { get; }
-        public MergeDirection Direction { get; }
-
-        public MergeRequestArgs(ChangeBlock block, MergeDirection direction)
-        {
-            Block = block;
-            Direction = direction;
         }
     }
 }

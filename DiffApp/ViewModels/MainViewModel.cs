@@ -50,33 +50,35 @@
                 Precision = InputViewModel.Precision
             };
 
-            var result = _comparisonService.Compare(InputViewModel.LeftText, InputViewModel.RightText, settings);
+            string left = InputViewModel.LeftText;
+            string right = InputViewModel.RightText;
 
-            var comparisonVM = new ComparisonViewModel(result);
-            comparisonVM.MergeRequested += OnMergeRequested;
+            var result = _comparisonService.Compare(left, right, settings);
 
-            ComparisonViewModel = comparisonVM;
-        }
-
-        private void OnMergeRequested(object? sender, MergeRequestArgs e)
-        {
-            if (e.Direction == MergeDirection.LeftToRight)
-            {
-                InputViewModel.RightText = _mergeService.MergeBlock(InputViewModel.RightText, e.Block, e.Direction);
-            }
-            else
-            {
-                InputViewModel.LeftText = _mergeService.MergeBlock(InputViewModel.LeftText, e.Block, e.Direction);
-            }
-
-            PerformComparison();
+            ComparisonViewModel = new ComparisonViewModel(
+                result,
+                left,
+                right,
+                settings,
+                _comparisonService,
+                _mergeService
+            );
         }
 
         private void CopyText(object? parameter)
         {
             if (parameter is Side side)
             {
-                string textToCopy = side == Side.Old ? InputViewModel.LeftText : InputViewModel.RightText;
+                string textToCopy = string.Empty;
+
+                if (ComparisonViewModel != null)
+                {
+                    textToCopy = side == Side.Old ? ComparisonViewModel.LeftResultText : ComparisonViewModel.RightResultText;
+                }
+                else
+                {
+                    textToCopy = side == Side.Old ? InputViewModel.LeftText : InputViewModel.RightText;
+                }
 
                 if (!string.IsNullOrEmpty(textToCopy))
                 {
