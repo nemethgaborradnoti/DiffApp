@@ -11,10 +11,6 @@
         Title="DiffApp" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
-        <viewModels:MainViewModel/>
-    </Window.DataContext>
-
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>

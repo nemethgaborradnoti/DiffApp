@@ -1,4 +1,4 @@
-﻿using DiffPlex.DiffBuilder.Model;
+﻿using DiffApp.Models;
 using System;
 using System.Globalization;
 using System.Windows;
@@ -11,17 +11,17 @@ namespace DiffApp.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not ChangeType type)
+            if (value is not DiffChangeType type)
             {
                 return Brushes.Transparent;
             }
 
             return type switch
             {
-                ChangeType.Inserted => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
-                ChangeType.Deleted => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
-                ChangeType.Modified => (Application.Current.TryFindResource("DiffBackgroundModified") as Brush) ?? Brushes.Transparent,
-                ChangeType.Imaginary => (Application.Current.TryFindResource("DiffBackgroundImaginary") as Brush) ?? Brushes.Transparent,
+                DiffChangeType.Inserted => (Application.Current.TryFindResource("DiffBackgroundAdded") as Brush) ?? Brushes.Transparent,
+                DiffChangeType.Deleted => (Application.Current.TryFindResource("DiffBackgroundRemoved") as Brush) ?? Brushes.Transparent,
+                DiffChangeType.Modified => (Application.Current.TryFindResource("DiffBackgroundModified") as Brush) ?? Brushes.Transparent,
+                DiffChangeType.Imaginary => (Application.Current.TryFindResource("DiffBackgroundImaginary") as Brush) ?? Brushes.Transparent,
                 _ => Brushes.Transparent,
             };
         }

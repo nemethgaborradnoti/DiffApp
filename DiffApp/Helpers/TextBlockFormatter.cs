@@ -1,5 +1,4 @@
 ﻿using DiffApp.Models;
-using DiffPlex.DiffBuilder.Model;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -48,12 +47,12 @@ namespace DiffApp.Helpers
             }
         }
 
-        private static Brush? GetBrushForChangeType(ChangeType type)
+        private static Brush? GetBrushForChangeType(DiffChangeType type)
         {
             string resourceKey = type switch
             {
-                ChangeType.Inserted => "DiffHighlightAdded",
-                ChangeType.Deleted => "DiffHighlightRemoved",
+                DiffChangeType.Inserted => "DiffHighlightAdded",
+                DiffChangeType.Deleted => "DiffHighlightRemoved",
                 _ => "DiffHighlightUnchanged"
             };
 

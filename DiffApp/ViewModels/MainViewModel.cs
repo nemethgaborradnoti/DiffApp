@@ -1,6 +1,5 @@
 ﻿using DiffApp.Helpers;
 using DiffApp.Models;
-using DiffApp.Services;
 using DiffApp.Services.Interfaces;
 using System;
 using System.Windows;
@@ -91,10 +90,10 @@ namespace DiffApp.ViewModels
         public ICommand CopyTextCommand { get; }
         public ICommand SwapTextsCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(IComparisonService comparisonService, IMergeService mergeService)
         {
-            _comparisonService = new ComparisonService();
-            _mergeService = new MergeService();
+            _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
+            _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
 
             FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
             MergeBlockCommand = new RelayCommand(MergeBlock);

@@ -1,5 +1,4 @@
-﻿using DiffPlex.DiffBuilder.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DiffApp.Models
 {
@@ -7,6 +6,6 @@ namespace DiffApp.Models
     {
         public IReadOnlyList<TextFragment> Fragments { get; set; } = new List<TextFragment>();
         public int? LineNumber { get; set; }
-        public ChangeType Kind { get; set; } = ChangeType.Unchanged;
+        public DiffChangeType Kind { get; set; } = DiffChangeType.Unchanged;
     }
 }
