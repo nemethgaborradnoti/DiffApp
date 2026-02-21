@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:DiffApp.Converters"
+             xmlns:fonts="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -16,40 +17,60 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0"
-                     Text="{Binding LeftText, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
-                     Margin="0,5,0,0"
-                     FontFamily="Consolas"
-                     Padding="5"/>
+            <!-- Left Input -->
+            <Grid Grid.Column="0" Margin="0,5,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Original Text" FontWeight="SemiBold" Foreground="#586069" Margin="5,0,0,5"/>
+                <TextBox Grid.Row="1"
+                         Text="{Binding LeftText, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
+                         FontFamily="Consolas"
+                         Padding="5"/>
+            </Grid>
 
+            <!-- Swap Button -->
             <Button Grid.Column="1"
-                    Content="&#x21C4;"
+                    Style="{StaticResource IconButtonStyle}"
                     Command="{Binding SwapTextsCommand}"
                     ToolTip="Swap Sides"
-                    Margin="5,5,5,0"
+                    Margin="5,25,5,0"
                     VerticalAlignment="Top"
-                    FontWeight="Bold"
-                    FontSize="16"/>
+                    HorizontalAlignment="Center">
+                <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="24"/>
+            </Button>
 
-            <TextBox Grid.Column="2"
-                     Text="{Binding RightText, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
-                     Margin="0,5,0,0"
-                     FontFamily="Consolas"
-                     Padding="5"/>
+            <!-- Right Input -->
+            <Grid Grid.Column="2" Margin="0,5,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Changed Text" FontWeight="SemiBold" Foreground="#586069" Margin="5,0,0,5"/>
+                <TextBox Grid.Row="1"
+                         Text="{Binding RightText, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
+                         FontFamily="Consolas"
+                         Padding="5"/>
+            </Grid>
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,10">
-            <Button Content="Find Difference" Command="{Binding FindDifferenceCommand}" Padding="20,10" FontWeight="Bold"/>
+            <Button Command="{Binding FindDifferenceCommand}" Padding="20,10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="FIND DIFFERENCE" FontWeight="Bold"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

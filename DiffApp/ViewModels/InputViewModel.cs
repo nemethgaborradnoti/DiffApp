@@ -1,10 +1,4 @@
-﻿using DiffApp.Helpers;
-using DiffApp.Models;
-using System;
-using System.Windows;
-using System.Windows.Input;
-
-namespace DiffApp.ViewModels
+﻿namespace DiffApp.ViewModels
 {
     public class InputViewModel : ViewModelBase
     {
@@ -54,7 +48,6 @@ namespace DiffApp.ViewModels
             SwapTextsCommand = new RelayCommand(SwapTexts);
             FindDifferenceCommand = new RelayCommand(OnFindDifference, CanFindDifference);
 
-            // Default sample text
             LoadSampleText();
         }
 
@@ -73,6 +66,8 @@ namespace DiffApp.ViewModels
             string temp = LeftText;
             LeftText = RightText;
             RightText = temp;
+
+            CompareRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void LoadSampleText()

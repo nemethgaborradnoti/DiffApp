@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:DiffApp.Converters"
         xmlns:models="clr-namespace:DiffApp.Models"
+        xmlns:fonts="clr-namespace:Fonts"
         mc:Ignorable="d"
         Title="DiffApp" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
@@ -25,32 +26,37 @@
                 BorderBrush="{StaticResource BrushBorder}" 
                 BorderThickness="0,0,1,0" 
                 Padding="15"
-                Width="250"
+                Width="280"
                 Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <Grid Margin="0,0,0,20">
-                    <TextBlock Text="Settings" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <Button Content="✕" 
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
+                        <TextBlock Text="Settings" FontSize="18" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <Button Style="{StaticResource IconButtonStyle}"
                             Command="{Binding ToggleSettingsCommand}"
-                            HorizontalAlignment="Right" 
-                            Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="5"
-                            Cursor="Hand"/>
+                            HorizontalAlignment="Right"
+                            ToolTip="Close Settings">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}"/>
+                    </Button>
                 </Grid>
 
-                <TextBlock Text="Appearance" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                <CheckBox Content="Word Wrap" IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" Margin="0,0,0,15"/>
+                <TextBlock Text="Appearance" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
+                <CheckBox Content="Word Wrap" IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" Margin="0,0,0,20"/>
 
-                <TextBlock Text="Comparison" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                <CheckBox Content="Ignore Whitespace" IsChecked="{Binding InputViewModel.IgnoreWhitespace}" Margin="0,0,0,15"/>
+                <TextBlock Text="Comparison" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
+                <CheckBox Content="Ignore Whitespace" IsChecked="{Binding InputViewModel.IgnoreWhitespace}" Margin="0,0,0,20"/>
 
-                <TextBlock Text="Precision" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <TextBlock Text="Highlight Precision" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="#586069"/>
                 <StackPanel>
-                    <RadioButton Content="Word" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
+                    <RadioButton Content="Word Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
-                    <RadioButton Content="Character" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
+                    <RadioButton Content="Character Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
+                    <TextBlock Text="Switching precision only affects highlighting, not calculation." 
+                               FontSize="11" Foreground="#6a737d" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -67,11 +73,15 @@
             <!-- Top Toolbar for Toggle -->
             <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
                 <StackPanel Orientation="Horizontal">
-                    <ToggleButton Content="☰ Settings" 
-                                  IsChecked="{Binding IsSettingsPanelOpen, Mode=OneWay}"
-                                  Command="{Binding ToggleSettingsCommand}"
-                                  Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                                  Padding="10,5"/>
+                    <Button Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ToggleSettingsCommand}"
+                            Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                            ToolTip="Open Settings">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,8,0"/>
+                            <TextBlock Text="Settings" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Border>
 

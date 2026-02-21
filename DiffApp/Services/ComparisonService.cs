@@ -14,9 +14,7 @@ namespace DiffApp.Services
             string oldTextProcessed = oldText ?? string.Empty;
             string newTextProcessed = newText ?? string.Empty;
 
-            IChunker chunker = settings.Precision == PrecisionLevel.Character
-                ? new CharacterChunker()
-                : new WordChunker();
+            IChunker chunker = new CharacterChunker();
 
             var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
             var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
@@ -74,7 +72,7 @@ namespace DiffApp.Services
 
                 if (effectiveOldType == DiffPlexChangeType.Modified && effectiveNewType == DiffPlexChangeType.Modified)
                 {
-                    var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty);
+                    var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty, ignoreWhitespace: false, ignoreCase: false, new CharacterChunker());
 
                     List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
                     List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
