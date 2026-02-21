@@ -93,13 +93,15 @@
             <!-- Top Toolbar for Toggle -->
             <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
                 <StackPanel Orientation="Horizontal">
+                    <!-- Increased size and padding for better visibility -->
                     <Button Style="{StaticResource IconButtonStyle}"
                             Command="{Binding ToggleSettingsCommand}"
                             Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                            ToolTip="Open Settings">
+                            ToolTip="Open Settings"
+                            Padding="10,6">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,8,0"/>
-                            <TextBlock Text="Settings" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="20"/>
+                            <TextBlock Text="Settings" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

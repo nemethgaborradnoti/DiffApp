@@ -37,16 +37,9 @@
                          Padding="5"/>
             </Grid>
 
-            <!-- Swap Button -->
-            <Button Grid.Column="1"
-                    Style="{StaticResource IconButtonStyle}"
-                    Command="{Binding SwapTextsCommand}"
-                    ToolTip="Swap Sides"
-                    Margin="5,25,5,0"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="24"/>
-            </Button>
+            <!-- Middle Spacer (Button removed) -->
+            <Grid Grid.Column="1">
+            </Grid>
 
             <!-- Right Input -->
             <Grid Grid.Column="2" Margin="0,5,0,0">

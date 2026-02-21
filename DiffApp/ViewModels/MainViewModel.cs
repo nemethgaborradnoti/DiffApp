@@ -34,6 +34,7 @@ namespace DiffApp.ViewModels
         public ICommand CopyTextCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ToggleInputPanelCommand { get; }
+        public ICommand SwapAllCommand { get; }
 
         public MainViewModel(IComparisonService comparisonService, IMergeService mergeService, InputViewModel inputViewModel)
         {
@@ -47,6 +48,7 @@ namespace DiffApp.ViewModels
             CopyTextCommand = new RelayCommand(CopyText);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
             ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelOpen = !IsInputPanelOpen);
+            SwapAllCommand = new RelayCommand(SwapAll);
         }
 
         private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -86,6 +88,15 @@ namespace DiffApp.ViewModels
             );
 
             ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
+        }
+
+        private void SwapAll(object? parameter)
+        {
+            string temp = InputViewModel.LeftText;
+            InputViewModel.LeftText = InputViewModel.RightText;
+            InputViewModel.RightText = temp;
+
+            PerformComparison();
         }
 
         private void CopyText(object? parameter)

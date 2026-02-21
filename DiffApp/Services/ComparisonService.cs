@@ -77,16 +77,18 @@ namespace DiffApp.Services
                     List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
                     List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
 
-                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, DiffPlexChangeType.Deleted, oldPieces));
-                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, DiffPlexChangeType.Inserted, newPieces));
+                    // Passed true for IsInModifiedBlock
+                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, DiffPlexChangeType.Deleted, oldPieces, true));
+                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, DiffPlexChangeType.Inserted, newPieces, true));
 
                     currentOldIndex++;
                     currentNewIndex++;
                 }
                 else
                 {
-                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, effectiveOldType, oldLine.Text));
-                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, effectiveNewType, newLine.Text));
+                    // Passed false for IsInModifiedBlock (Pure Add/Remove/Unchanged)
+                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, effectiveOldType, oldLine.Text, false));
+                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, effectiveNewType, newLine.Text, false));
 
                     if (oldLine.Type != DiffPlexChangeType.Imaginary) currentOldIndex++;
                     if (newLine.Type != DiffPlexChangeType.Imaginary) currentNewIndex++;
@@ -134,7 +136,7 @@ namespace DiffApp.Services
             return string.Equals(oldText.Trim(), newText.Trim(), StringComparison.Ordinal);
         }
 
-        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, string text)
+        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, string text, bool isInModifiedBlock)
         {
             var internalKind = MapChangeType(kind);
             var fragments = text is null
@@ -145,11 +147,12 @@ namespace DiffApp.Services
             {
                 LineNumber = lineNumber,
                 Kind = internalKind,
-                Fragments = fragments
+                Fragments = fragments,
+                IsInModifiedBlock = isInModifiedBlock
             };
         }
 
-        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, List<DiffPlexPiece> pieces)
+        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, List<DiffPlexPiece> pieces, bool isInModifiedBlock)
         {
             return new ChangeLine
             {
@@ -159,7 +162,8 @@ namespace DiffApp.Services
                 {
                     Text = p.Text,
                     Kind = MapChangeType(p.Type)
-                }).ToList()
+                }).ToList(),
+                IsInModifiedBlock = isInModifiedBlock
             };
         }
 

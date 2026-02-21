@@ -19,6 +19,13 @@ namespace DiffApp.Helpers
                 typeof(TextBlockFormatter),
                 new PropertyMetadata(PrecisionLevel.Word, OnPropertyChanged));
 
+        public static readonly DependencyProperty AreHighlightsEnabledProperty =
+           DependencyProperty.RegisterAttached(
+               "AreHighlightsEnabled",
+               typeof(bool),
+               typeof(TextBlockFormatter),
+               new PropertyMetadata(true, OnPropertyChanged));
+
         public static IEnumerable<TextFragment> GetFragments(DependencyObject obj)
         {
             return (IEnumerable<TextFragment>)obj.GetValue(FragmentsProperty);
@@ -39,18 +46,29 @@ namespace DiffApp.Helpers
             obj.SetValue(PrecisionProperty, value);
         }
 
+        public static bool GetAreHighlightsEnabled(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(AreHighlightsEnabledProperty);
+        }
+
+        public static void SetAreHighlightsEnabled(DependencyObject obj, bool value)
+        {
+            obj.SetValue(AreHighlightsEnabledProperty, value);
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TextBlock textBlock)
             {
                 var fragments = GetFragments(textBlock);
                 var precision = GetPrecision(textBlock);
+                var enabled = GetAreHighlightsEnabled(textBlock);
 
-                Render(textBlock, fragments, precision);
+                Render(textBlock, fragments, precision, enabled);
             }
         }
 
-        private static void Render(TextBlock textBlock, IEnumerable<TextFragment> fragments, PrecisionLevel precision)
+        private static void Render(TextBlock textBlock, IEnumerable<TextFragment> fragments, PrecisionLevel precision, bool enabled)
         {
             textBlock.Inlines.Clear();
 
@@ -58,29 +76,32 @@ namespace DiffApp.Helpers
 
             if (precision == PrecisionLevel.Character)
             {
-                RenderCharacterPrecision(textBlock, fragments);
+                RenderCharacterPrecision(textBlock, fragments, enabled);
             }
             else
             {
-                RenderWordPrecision(textBlock, fragments);
+                RenderWordPrecision(textBlock, fragments, enabled);
             }
         }
 
-        private static void RenderCharacterPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments)
+        private static void RenderCharacterPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled)
         {
             foreach (var fragment in fragments)
             {
                 var run = new Run(fragment.Text);
-                var brush = GetBrushForChangeType(fragment.Kind);
-                if (brush != null)
+                if (enabled)
                 {
-                    run.Background = brush;
+                    var brush = GetBrushForChangeType(fragment.Kind);
+                    if (brush != null)
+                    {
+                        run.Background = brush;
+                    }
                 }
                 textBlock.Inlines.Add(run);
             }
         }
 
-        private static void RenderWordPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments)
+        private static void RenderWordPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled)
         {
             var wordBuffer = new List<(char Char, DiffChangeType Kind)>();
 
@@ -90,7 +111,7 @@ namespace DiffApp.Helpers
                 {
                     if (char.IsWhiteSpace(c))
                     {
-                        FlushWordBuffer(textBlock, wordBuffer);
+                        FlushWordBuffer(textBlock, wordBuffer, enabled);
                         textBlock.Inlines.Add(new Run(c.ToString()));
                     }
                     else
@@ -99,10 +120,10 @@ namespace DiffApp.Helpers
                     }
                 }
             }
-            FlushWordBuffer(textBlock, wordBuffer);
+            FlushWordBuffer(textBlock, wordBuffer, enabled);
         }
 
-        private static void FlushWordBuffer(TextBlock textBlock, List<(char Char, DiffChangeType Kind)> buffer)
+        private static void FlushWordBuffer(TextBlock textBlock, List<(char Char, DiffChangeType Kind)> buffer, bool enabled)
         {
             if (buffer.Count == 0) return;
 
@@ -118,7 +139,7 @@ namespace DiffApp.Helpers
             var text = new string(buffer.Select(x => x.Char).ToArray());
             var run = new Run(text);
 
-            if (dominantKind != DiffChangeType.Unchanged)
+            if (enabled && dominantKind != DiffChangeType.Unchanged)
             {
                 run.Background = GetBrushForChangeType(dominantKind);
             }
