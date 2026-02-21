@@ -43,11 +43,13 @@
                             <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
                             <Button Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"
                                     ToolTip="Copy Original Text"
+                                    Padding="15,8"
+                                    MinWidth="100"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.Old}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="16" Margin="0,0,5,0"/>
-                                    <TextBlock Text="Copy" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Copy" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="14"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -58,7 +60,9 @@
                         <Button Style="{StaticResource IconButtonStyle}"
                                 Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                 ToolTip="Swap Sides"
-                                Padding="5"
+                                Padding="8"
+                                MinHeight="40"
+                                MinWidth="40"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="24"/>
@@ -70,11 +74,13 @@
                             <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
                             <Button Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"
                                     ToolTip="Copy Modified Text"
+                                    Padding="15,8"
+                                    MinWidth="100"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.New}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="16" Margin="0,0,5,0"/>
-                                    <TextBlock Text="Copy" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Copy" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="14"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -139,8 +145,8 @@
 
                                             <Button Style="{StaticResource IconButtonStyle}"
                                                     ToolTip="Merge Left to Right"
-                                                    Margin="0,4"
-                                                    Padding="10,6"
+                                                    Margin="0,2"
+                                                    Padding="8,5"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
@@ -148,13 +154,13 @@
                                                         <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
-                                                <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="20"/>
+                                                <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="16"/>
                                             </Button>
 
                                             <Button Style="{StaticResource IconButtonStyle}"
                                                     ToolTip="Merge Right to Left"
-                                                    Margin="0,4"
-                                                    Padding="10,6"
+                                                    Margin="0,2"
+                                                    Padding="8,5"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                 <Button.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource MergeParamsConverter}">
@@ -162,7 +168,7 @@
                                                         <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
                                                     </MultiBinding>
                                                 </Button.CommandParameter>
-                                                <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="20"/>
+                                                <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="16"/>
                                             </Button>
                                         </StackPanel>
                                     </Border>
