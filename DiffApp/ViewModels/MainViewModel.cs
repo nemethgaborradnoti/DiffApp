@@ -4,29 +4,37 @@
     {
         private readonly IComparisonService _comparisonService;
         private readonly IMergeService _mergeService;
-        private readonly InputViewModel _inputViewModel;
 
-        private ViewModelBase _currentViewModel;
+        private ComparisonViewModel? _comparisonViewModel;
+        private bool _isSettingsPanelOpen = true;
 
-        public ViewModelBase CurrentViewModel
+        public InputViewModel InputViewModel { get; }
+
+        public ComparisonViewModel? ComparisonViewModel
         {
-            get => _currentViewModel;
-            private set => SetProperty(ref _currentViewModel, value);
+            get => _comparisonViewModel;
+            private set => SetProperty(ref _comparisonViewModel, value);
+        }
+
+        public bool IsSettingsPanelOpen
+        {
+            get => _isSettingsPanelOpen;
+            set => SetProperty(ref _isSettingsPanelOpen, value);
         }
 
         public ICommand CopyTextCommand { get; }
+        public ICommand ToggleSettingsCommand { get; }
 
         public MainViewModel(IComparisonService comparisonService, IMergeService mergeService, InputViewModel inputViewModel)
         {
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
-            _inputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
+            InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
 
-            _inputViewModel.CompareRequested += OnCompareRequested;
-
-            _currentViewModel = _inputViewModel;
+            InputViewModel.CompareRequested += OnCompareRequested;
 
             CopyTextCommand = new RelayCommand(CopyText);
+            ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
         }
 
         private void OnCompareRequested(object? sender, EventArgs e)
@@ -38,28 +46,27 @@
         {
             var settings = new CompareSettings
             {
-                IgnoreWhitespace = _inputViewModel.IgnoreWhitespace,
-                Precision = _inputViewModel.Precision
+                IgnoreWhitespace = InputViewModel.IgnoreWhitespace,
+                Precision = InputViewModel.Precision
             };
 
-            var result = _comparisonService.Compare(_inputViewModel.LeftText, _inputViewModel.RightText, settings);
+            var result = _comparisonService.Compare(InputViewModel.LeftText, InputViewModel.RightText, settings);
 
             var comparisonVM = new ComparisonViewModel(result);
-            comparisonVM.BackRequested += (s, args) => CurrentViewModel = _inputViewModel;
             comparisonVM.MergeRequested += OnMergeRequested;
 
-            CurrentViewModel = comparisonVM;
+            ComparisonViewModel = comparisonVM;
         }
 
         private void OnMergeRequested(object? sender, MergeRequestArgs e)
         {
             if (e.Direction == MergeDirection.LeftToRight)
             {
-                _inputViewModel.RightText = _mergeService.MergeBlock(_inputViewModel.RightText, e.Block, e.Direction);
+                InputViewModel.RightText = _mergeService.MergeBlock(InputViewModel.RightText, e.Block, e.Direction);
             }
             else
             {
-                _inputViewModel.LeftText = _mergeService.MergeBlock(_inputViewModel.LeftText, e.Block, e.Direction);
+                InputViewModel.LeftText = _mergeService.MergeBlock(InputViewModel.LeftText, e.Block, e.Direction);
             }
 
             PerformComparison();
@@ -69,7 +76,7 @@
         {
             if (parameter is Side side)
             {
-                string textToCopy = side == Side.Old ? _inputViewModel.LeftText : _inputViewModel.RightText;
+                string textToCopy = side == Side.Old ? InputViewModel.LeftText : InputViewModel.RightText;
 
                 if (!string.IsNullOrEmpty(textToCopy))
                 {

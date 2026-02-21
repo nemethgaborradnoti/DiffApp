@@ -1,17 +1,10 @@
-﻿using DiffApp.Helpers;
-using DiffApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Windows.Input;
-
-namespace DiffApp.ViewModels
+﻿namespace DiffApp.ViewModels
 {
     public class ComparisonViewModel : ViewModelBase
     {
         private readonly ComparisonResult _comparisonResult;
         private bool _isUnifiedMode;
 
-        public event EventHandler? BackRequested;
         public event EventHandler<MergeRequestArgs>? MergeRequested;
 
         public ComparisonResult ComparisonResult => _comparisonResult;
@@ -24,7 +17,6 @@ namespace DiffApp.ViewModels
             set => SetProperty(ref _isUnifiedMode, value);
         }
 
-        public ICommand BackCommand { get; }
         public ICommand MergeBlockCommand { get; }
 
         public ComparisonViewModel(ComparisonResult comparisonResult)
@@ -32,7 +24,6 @@ namespace DiffApp.ViewModels
             _comparisonResult = comparisonResult;
             UnifiedLines = CreateUnifiedLines();
 
-            BackCommand = new RelayCommand(_ => BackRequested?.Invoke(this, EventArgs.Empty));
             MergeBlockCommand = new RelayCommand(ExecuteMerge);
         }
 

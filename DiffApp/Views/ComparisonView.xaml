@@ -8,264 +8,256 @@
              xmlns:helpers="clr-namespace:DiffApp.Helpers"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="800"
-             FontFamily="Consolas"
-             Background="White">
-    <UserControl.Resources>
-        <converters:ChangeTypeToBrushConverter x:Key="ChangeTypeToBrushConverter" />
-        <converters:MergeParamsConverter x:Key="MergeParamsConverter" />
-        <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+             Background="{StaticResource BrushBackground}">
+	<UserControl.Resources>
+		<converters:ChangeTypeToBrushConverter x:Key="ChangeTypeToBrushConverter" />
+		<converters:MergeParamsConverter x:Key="MergeParamsConverter" />
+		<converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
 
-        <DataTemplate x:Key="LineContentTemplate">
-            <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
-                       TextWrapping="{Binding DataContext.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
+		<DataTemplate x:Key="LineContentTemplate">
+			<TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
+                       TextWrapping="{Binding DataContext.InputViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
                        FontFamily="Consolas" />
-        </DataTemplate>
+		</DataTemplate>
 
-        <DataTemplate x:Key="SideBySideTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+		<DataTemplate x:Key="SideBySideTemplate">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="40" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+				<Grid Grid.Row="0" Margin="0,0,0,5">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="40" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1" Padding="5">
-                        <Grid>
-                            <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
-                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+					<Border Grid.Column="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="5">
+						<Grid>
+							<TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+							<Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.Old}"/>
-                        </Grid>
-                    </Border>
+						</Grid>
+					</Border>
 
-                    <Border Grid.Column="1" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1"/>
+					<Border Grid.Column="1" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1"/>
 
-                    <Border Grid.Column="2" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1" Padding="5">
-                        <Grid>
-                            <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
-                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+					<Border Grid.Column="2" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="5">
+						<Grid>
+							<TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+							<Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.New}"/>
-                        </Grid>
-                    </Border>
-                </Grid>
+						</Grid>
+					</Border>
+				</Grid>
 
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding ComparisonResult.Blocks}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:ChangeBlock}">
-                                <Grid>
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Background" Value="Transparent" />
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#F8F8F8" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
+				<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+					<ItemsControl ItemsSource="{Binding ComparisonResult.Blocks}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate DataType="{x:Type models:ChangeBlock}">
+								<Grid>
+									<Grid.Style>
+										<Style TargetType="Grid">
+											<Setter Property="Background" Value="Transparent" />
+											<Style.Triggers>
+												<Trigger Property="IsMouseOver" Value="True">
+													<Setter Property="Background" Value="#F8F8F8" />
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</Grid.Style>
 
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="40" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="40" />
+										<ColumnDefinition Width="*" />
+									</Grid.ColumnDefinitions>
 
-                                    <ItemsControl Grid.Column="0" ItemsSource="{Binding OldLines}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:ChangeLine}">
-                                                <Grid MinHeight="18">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="40" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                                    <TextBlock Text="{Binding LineNumber}"
-                                                               Foreground="{StaticResource LineNumberForeground}"
+									<ItemsControl Grid.Column="0" ItemsSource="{Binding OldLines}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate DataType="{x:Type models:ChangeLine}">
+												<Grid MinHeight="18">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="40" />
+														<ColumnDefinition Width="*" />
+													</Grid.ColumnDefinitions>
+													<Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+													<TextBlock Text="{Binding LineNumber}"
+                                                               Foreground="{StaticResource BrushLineNumber}"
                                                                TextAlignment="Right"
                                                                Padding="0,0,10,0" />
-                                                    <ContentPresenter Grid.Column="1"
+													<ContentPresenter Grid.Column="1"
                                                                       Content="{Binding}"
                                                                       ContentTemplate="{StaticResource LineContentTemplate}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+												</Grid>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 
-                                    <Border Grid.Column="1" BorderBrush="#e1e4e8" BorderThickness="1,0">
-                                        <StackPanel VerticalAlignment="Center"
+									<Border Grid.Column="1" BorderBrush="{StaticResource BrushBorder}" BorderThickness="1,0">
+										<StackPanel VerticalAlignment="Center"
                                                     Visibility="{Binding IsMergeable, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                                            <Button Content=">>"
+											<Button Content=">>"
                                                     ToolTip="Merge Left to Right"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                <Button.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MergeParamsConverter}">
-                                                        <Binding />
-                                                        <Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
-                                                    </MultiBinding>
-                                                </Button.CommandParameter>
-                                            </Button>
+												<Button.CommandParameter>
+													<MultiBinding Converter="{StaticResource MergeParamsConverter}">
+														<Binding />
+														<Binding Source="{x:Static models:MergeDirection.LeftToRight}" />
+													</MultiBinding>
+												</Button.CommandParameter>
+											</Button>
 
-                                            <Button Content="&lt;&lt;"
+											<Button Content="&lt;&lt;"
                                                     ToolTip="Merge Right to Left"
                                                     Padding="2" Margin="2" FontSize="10" FontWeight="Bold"
                                                     Command="{Binding DataContext.MergeBlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                <Button.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MergeParamsConverter}">
-                                                        <Binding />
-                                                        <Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
-                                                    </MultiBinding>
-                                                </Button.CommandParameter>
-                                            </Button>
-                                        </StackPanel>
-                                    </Border>
+												<Button.CommandParameter>
+													<MultiBinding Converter="{StaticResource MergeParamsConverter}">
+														<Binding />
+														<Binding Source="{x:Static models:MergeDirection.RightToLeft}" />
+													</MultiBinding>
+												</Button.CommandParameter>
+											</Button>
+										</StackPanel>
+									</Border>
 
-                                    <ItemsControl Grid.Column="2" ItemsSource="{Binding NewLines}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:ChangeLine}">
-                                                <Grid MinHeight="18">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="40" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                                    <TextBlock Text="{Binding LineNumber}"
-                                                               Foreground="{StaticResource LineNumberForeground}"
+									<ItemsControl Grid.Column="2" ItemsSource="{Binding NewLines}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate DataType="{x:Type models:ChangeLine}">
+												<Grid MinHeight="18">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="40" />
+														<ColumnDefinition Width="*" />
+													</Grid.ColumnDefinitions>
+													<Border Grid.ColumnSpan="2" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+													<TextBlock Text="{Binding LineNumber}"
+                                                               Foreground="{StaticResource BrushLineNumber}"
                                                                TextAlignment="Right"
                                                                Padding="0,0,10,0" />
-                                                    <ContentPresenter Grid.Column="1"
+													<ContentPresenter Grid.Column="1"
                                                                       Content="{Binding}"
                                                                       ContentTemplate="{StaticResource LineContentTemplate}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </DataTemplate>
+												</Grid>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Grid>
+		</DataTemplate>
 
-        <DataTemplate x:Key="UnifiedTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+		<DataTemplate x:Key="UnifiedTemplate">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+				<Grid Grid.Row="0" Margin="0,0,0,5">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,1,1" Padding="5">
-                        <Grid>
-                            <TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
-                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+					<Border Grid.Column="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,1,1" Padding="5">
+						<Grid>
+							<TextBlock Text="Original" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+							<Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.Old}"/>
-                        </Grid>
-                    </Border>
+						</Grid>
+					</Border>
 
-                    <Border Grid.Column="1" Background="#f6f8fa" BorderBrush="#d1d5da" BorderThickness="0,0,0,1" Padding="5">
-                        <Grid>
-                            <TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
-                            <Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
+					<Border Grid.Column="1" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="5">
+						<Grid>
+							<TextBlock Text="Modified" FontWeight="Bold" VerticalAlignment="Center" Foreground="#586069"/>
+							<Button Content="Copy" HorizontalAlignment="Right" Padding="8,2" FontSize="11"
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{x:Static models:Side.New}"/>
-                        </Grid>
-                    </Border>
-                </Grid>
+						</Grid>
+					</Border>
+				</Grid>
 
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding UnifiedLines}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:ChangeLine}">
-                                <Grid MinHeight="18">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.ColumnSpan="3" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+				<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+					<ItemsControl ItemsSource="{Binding UnifiedLines}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate DataType="{x:Type models:ChangeLine}">
+								<Grid MinHeight="18">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="40" />
+										<ColumnDefinition Width="Auto" />
+										<ColumnDefinition Width="*" />
+									</Grid.ColumnDefinitions>
+									<Border Grid.ColumnSpan="3" Background="{Binding Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
 
-                                    <TextBlock Text="{Binding LineNumber}"
-                                               Foreground="{StaticResource LineNumberForeground}"
+									<TextBlock Text="{Binding LineNumber}"
+                                               Foreground="{StaticResource BrushLineNumber}"
                                                TextAlignment="Right"
                                                Padding="0,0,10,0" />
 
-                                    <TextBlock Grid.Column="1" Foreground="{StaticResource LineNumberForeground}" Padding="5,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value=" "/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Kind}" Value="Inserted">
-                                                        <Setter Property="Text" Value="+"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Kind}" Value="Deleted">
-                                                        <Setter Property="Text" Value="-"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+									<TextBlock Grid.Column="1" Foreground="{StaticResource BrushLineNumber}" Padding="5,0">
+										<TextBlock.Style>
+											<Style TargetType="TextBlock">
+												<Setter Property="Text" Value=" "/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding Kind}" Value="Inserted">
+														<Setter Property="Text" Value="+"/>
+													</DataTrigger>
+													<DataTrigger Binding="{Binding Kind}" Value="Deleted">
+														<Setter Property="Text" Value="-"/>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</TextBlock.Style>
+									</TextBlock>
 
-                                    <ContentPresenter Grid.Column="2"
+									<ContentPresenter Grid.Column="2"
                                                       Content="{Binding}"
                                                       ContentTemplate="{StaticResource LineContentTemplate}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </DataTemplate>
-    </UserControl.Resources>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Grid>
+		</DataTemplate>
+	</UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 
-        <!-- Header with Back Button and View Options -->
-        <Border Grid.Row="0" Background="#f0f0f0" Padding="10" BorderBrush="#cccccc" BorderThickness="0,0,0,1">
-            <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="← Back to Edit" Command="{Binding BackCommand}" Padding="10,5" FontWeight="Bold"/>
-                </StackPanel>
+		<Border Grid.Row="0" Background="{StaticResource BrushSurface}" Padding="10" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1">
+			<Grid>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+					<ToggleButton Content="Unified View" IsChecked="{Binding IsUnifiedMode}" Padding="10,5"/>
+				</StackPanel>
+			</Grid>
+		</Border>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <ToggleButton Content="Unified View" IsChecked="{Binding IsUnifiedMode}" Padding="10,5"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Main Content -->
-        <ContentControl Grid.Row="1" Content="{Binding}">
-            <ContentControl.Style>
-                <Style TargetType="ContentControl">
-                    <Setter Property="ContentTemplate" Value="{StaticResource SideBySideTemplate}" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsUnifiedMode}" Value="True">
-                            <Setter Property="ContentTemplate" Value="{StaticResource UnifiedTemplate}" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ContentControl.Style>
-        </ContentControl>
-    </Grid>
+		<ContentControl Grid.Row="1" Content="{Binding}">
+			<ContentControl.Style>
+				<Style TargetType="ContentControl">
+					<Setter Property="ContentTemplate" Value="{StaticResource SideBySideTemplate}" />
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding IsUnifiedMode}" Value="True">
+							<Setter Property="ContentTemplate" Value="{StaticResource UnifiedTemplate}" />
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</ContentControl.Style>
+		</ContentControl>
+	</Grid>
 </UserControl>

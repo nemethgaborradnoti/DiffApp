@@ -3,20 +3,83 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
-        xmlns:views="clr-namespace:DiffApp.Views"
+        xmlns:converters="clr-namespace:DiffApp.Converters"
+        xmlns:models="clr-namespace:DiffApp.Models"
         mc:Ignorable="d"
         Title="DiffApp" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <DataTemplate DataType="{x:Type viewModels:InputViewModel}">
-            <views:InputView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:ComparisonViewModel}">
-            <views:ComparisonView />
-        </DataTemplate>
+        <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter" />
     </Window.Resources>
 
-    <ContentControl Content="{Binding CurrentViewModel}" Margin="10"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar / Settings Panel -->
+        <Border Grid.Column="0" 
+                Background="{StaticResource BrushSurface}" 
+                BorderBrush="{StaticResource BrushBorder}" 
+                BorderThickness="0,0,1,0" 
+                Padding="15"
+                Width="250"
+                Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <TextBlock Text="Settings" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Button Content="✕" 
+                            Command="{Binding ToggleSettingsCommand}"
+                            HorizontalAlignment="Right" 
+                            Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="5"
+                            Cursor="Hand"/>
+                </Grid>
+
+                <TextBlock Text="Appearance" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <CheckBox Content="Word Wrap" IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Comparison" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <CheckBox Content="Ignore Whitespace" IsChecked="{Binding InputViewModel.IgnoreWhitespace}" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Precision" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <StackPanel>
+                    <RadioButton Content="Word" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
+                                 GroupName="PrecisionGroup" Margin="0,0,0,8"/>
+                    <RadioButton Content="Character" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
+                                 GroupName="PrecisionGroup" Margin="0,0,0,8"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Top Toolbar for Toggle -->
+            <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton Content="☰ Settings" 
+                                  IsChecked="{Binding IsSettingsPanelOpen, Mode=OneWay}"
+                                  Command="{Binding ToggleSettingsCommand}"
+                                  Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                                  Padding="10,5"/>
+                </StackPanel>
+            </Border>
+
+            <ContentControl Grid.Row="1" Content="{Binding ComparisonViewModel}" />
+
+            <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+
+            <ContentControl Grid.Row="3" Content="{Binding InputViewModel}" Margin="10" />
+        </Grid>
+    </Grid>
 </Window>
