@@ -32,6 +32,7 @@ namespace DiffApp.ViewModels
         public ICommand ResetDefaultsCommand { get; }
         public ICommand JumpToTopCommand { get; }
         public ICommand JumpToInputCommand { get; }
+        public ICommand ClearContentCommand { get; }
 
         public MainViewModel(
             IComparisonService comparisonService,
@@ -54,6 +55,7 @@ namespace DiffApp.ViewModels
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
             SwapAllCommand = new RelayCommand(SwapAll);
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
+            ClearContentCommand = new RelayCommand(ClearContent);
 
             JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
             JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
@@ -69,7 +71,17 @@ namespace DiffApp.ViewModels
             InputViewModel.Precision = settings.Precision;
             InputViewModel.ViewMode = settings.ViewMode;
 
-            PerformComparison();
+            if (ComparisonViewModel != null)
+            {
+                PerformComparison();
+            }
+        }
+
+        private void ClearContent(object? parameter)
+        {
+            InputViewModel.LeftText = string.Empty;
+            InputViewModel.RightText = string.Empty;
+            ComparisonViewModel = null;
         }
 
         private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)

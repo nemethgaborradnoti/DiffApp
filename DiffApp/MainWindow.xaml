@@ -13,9 +13,9 @@
     <Window.Resources>
         <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter" />
 
-        <!-- FAB Button Style - Fixed Background Color to White -->
         <Style x:Key="FabButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Width" Value="48"/>
@@ -43,11 +43,10 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#F0F0F0"/>
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccent}"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="border" Property="Background" Value="#004499"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -144,11 +143,16 @@
 
             <Grid Grid.Row="1">
                 <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <ContentControl Content="{Binding ComparisonViewModel}" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                        <ContentControl x:Name="InputSection" Content="{Binding InputViewModel}" Margin="10,50,10,20" MinHeight="500"/>
-                    </StackPanel>
+                        <ContentControl Grid.Row="0" Content="{Binding ComparisonViewModel}" MaxHeight="800" />
+
+                        <ContentControl Grid.Row="1" x:Name="InputSection" Content="{Binding InputViewModel}" Margin="10,0,10,10"/>
+                    </Grid>
                 </ScrollViewer>
 
                 <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="30"
@@ -156,13 +160,13 @@
                     <Button Command="{Binding JumpToTopCommand}"
                             ToolTip="Jump to Top"
                             Style="{StaticResource FabButtonStyle}">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_up}" Style="{StaticResource IconStyle}" FontSize="24"/>
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_up}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="White"/>
                     </Button>
 
                     <Button Command="{Binding JumpToInputCommand}"
                             ToolTip="Jump to Input"
                             Style="{StaticResource FabButtonStyle}">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_down}" Style="{StaticResource IconStyle}" FontSize="24"/>
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_down}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="White"/>
                     </Button>
                 </StackPanel>
             </Grid>
