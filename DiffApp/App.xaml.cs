@@ -19,8 +19,10 @@ namespace DiffApp
                     services.AddSingleton<IComparisonService, ComparisonService>();
                     services.AddSingleton<IMergeService, MergeService>();
 
-                    services.AddTransient<MainViewModel>();
+                    // InputViewModel is Singleton to persist state (text) between navigations
+                    services.AddSingleton<InputViewModel>();
 
+                    services.AddTransient<MainViewModel>();
                     services.AddSingleton<MainWindow>();
                 })
                 .Build();

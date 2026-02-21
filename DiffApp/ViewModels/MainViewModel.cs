@@ -1,185 +1,102 @@
-﻿using DiffApp.Helpers;
-using DiffApp.Models;
+﻿using DiffApp.Models;
 using DiffApp.Services.Interfaces;
 using System;
-using System.Windows;
 using System.Windows.Input;
 
 namespace DiffApp.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private string _leftText = string.Empty;
-        private string _rightText = string.Empty;
-        private bool _isUnifiedMode;
-        private bool _ignoreWhitespace;
-        private bool _isWordWrapEnabled = true;
-        private PrecisionLevel _precision = PrecisionLevel.Word;
-        private ComparisonViewModel? _comparisonViewModel;
         private readonly IComparisonService _comparisonService;
         private readonly IMergeService _mergeService;
+        private readonly InputViewModel _inputViewModel;
 
-        public string LeftText
+        private ViewModelBase _currentViewModel;
+
+        public ViewModelBase CurrentViewModel
         {
-            get => _leftText;
-            set
-            {
-                if (SetProperty(ref _leftText, value))
-                {
-                    (FindDifferenceCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                }
-            }
+            get => _currentViewModel;
+            private set => SetProperty(ref _currentViewModel, value);
         }
 
-        public string RightText
-        {
-            get => _rightText;
-            set
-            {
-                if (SetProperty(ref _rightText, value))
-                {
-                    (FindDifferenceCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        public bool IsUnifiedMode
-        {
-            get => _isUnifiedMode;
-            set => SetProperty(ref _isUnifiedMode, value);
-        }
-
-        public bool IsWordWrapEnabled
-        {
-            get => _isWordWrapEnabled;
-            set => SetProperty(ref _isWordWrapEnabled, value);
-        }
-
-        public bool IgnoreWhitespace
-        {
-            get => _ignoreWhitespace;
-            set
-            {
-                if (SetProperty(ref _ignoreWhitespace, value))
-                {
-                    if (CanFindDifference(null)) FindDifference(null);
-                }
-            }
-        }
-
-        public PrecisionLevel Precision
-        {
-            get => _precision;
-            set
-            {
-                if (SetProperty(ref _precision, value))
-                {
-                    if (CanFindDifference(null)) FindDifference(null);
-                }
-            }
-        }
-
-        public ComparisonViewModel? ComparisonViewModel
-        {
-            get => _comparisonViewModel;
-            private set => SetProperty(ref _comparisonViewModel, value);
-        }
-
-        public ICommand FindDifferenceCommand { get; }
-        public ICommand MergeBlockCommand { get; }
         public ICommand CopyTextCommand { get; }
-        public ICommand SwapTextsCommand { get; }
 
-        public MainViewModel(IComparisonService comparisonService, IMergeService mergeService)
+        public MainViewModel(IComparisonService comparisonService, IMergeService mergeService, InputViewModel inputViewModel)
         {
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
+            _inputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
 
-            FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
-            MergeBlockCommand = new RelayCommand(MergeBlock);
-            CopyTextCommand = new RelayCommand(CopyText);
-            SwapTextsCommand = new RelayCommand(SwapTexts);
+            // Setup Navigation
+            _inputViewModel.CompareRequested += OnCompareRequested;
 
-            LoadSampleText();
+            // Start with Input View
+            _currentViewModel = _inputViewModel;
+
+            // Global commands (like Copy) can remain here or move to specific VMs. 
+            // For now, let's keep Copy here or handle in Views. 
+            // Actually, CopyCommand was used in Views via RelativeSource. 
+            // We will need to expose it or let views handle it. 
+            // For simplicity in Phase 4, we'll let Views handle clipboard directly or re-bind.
+            // But to avoid breaking existing bindings in ComparisonView too much:
+            CopyTextCommand = new Helpers.RelayCommand(CopyText);
         }
 
-        private void FindDifference(object? parameter)
+        private void OnCompareRequested(object? sender, EventArgs e)
         {
-            var options = new CompareSettings
+            PerformComparison();
+        }
+
+        private void PerformComparison()
+        {
+            var settings = new CompareSettings
             {
-                IgnoreWhitespace = IgnoreWhitespace,
-                Precision = Precision
+                IgnoreWhitespace = _inputViewModel.IgnoreWhitespace,
+                Precision = _inputViewModel.Precision
             };
 
-            var result = _comparisonService.Compare(LeftText, RightText, options);
-            ComparisonViewModel = new ComparisonViewModel(result);
+            var result = _comparisonService.Compare(_inputViewModel.LeftText, _inputViewModel.RightText, settings);
+
+            var comparisonVM = new ComparisonViewModel(result);
+            comparisonVM.BackRequested += (s, args) => CurrentViewModel = _inputViewModel;
+            comparisonVM.MergeRequested += OnMergeRequested;
+
+            CurrentViewModel = comparisonVM;
         }
 
-        private bool CanFindDifference(object? parameter)
+        private void OnMergeRequested(object? sender, MergeRequestArgs e)
         {
-            return !string.IsNullOrEmpty(LeftText) || !string.IsNullOrEmpty(RightText);
-        }
-
-        private void MergeBlock(object? parameter)
-        {
-            if (parameter is object[] args && args.Length == 2)
+            if (e.Direction == MergeDirection.LeftToRight)
             {
-                if (args[0] is ChangeBlock block && args[1] is MergeDirection direction)
-                {
-                    PerformMerge(block, direction);
-                }
+                _inputViewModel.RightText = _mergeService.MergeBlock(_inputViewModel.RightText, e.Block, e.Direction);
             }
+            else
+            {
+                _inputViewModel.LeftText = _mergeService.MergeBlock(_inputViewModel.LeftText, e.Block, e.Direction);
+            }
+
+            // Re-run comparison to refresh the view
+            PerformComparison();
         }
 
         private void CopyText(object? parameter)
         {
             if (parameter is Side side)
             {
-                string textToCopy = side == Side.Old ? LeftText : RightText;
+                string textToCopy = side == Side.Old ? _inputViewModel.LeftText : _inputViewModel.RightText;
 
                 if (!string.IsNullOrEmpty(textToCopy))
                 {
                     try
                     {
-                        Clipboard.SetText(textToCopy);
+                        System.Windows.Clipboard.SetText(textToCopy);
                     }
                     catch (Exception)
                     {
+                        // Ignore clipboard errors
                     }
                 }
             }
-        }
-
-        private void SwapTexts(object? parameter)
-        {
-            string temp = LeftText;
-            LeftText = RightText;
-            RightText = temp;
-
-            if (CanFindDifference(null))
-            {
-                FindDifference(null);
-            }
-        }
-
-        private void PerformMerge(ChangeBlock block, MergeDirection direction)
-        {
-            if (direction == MergeDirection.LeftToRight)
-            {
-                RightText = _mergeService.MergeBlock(RightText, block, direction);
-            }
-            else
-            {
-                LeftText = _mergeService.MergeBlock(LeftText, block, direction);
-            }
-
-            FindDifference(null);
-        }
-
-        private void LoadSampleText()
-        {
-            LeftText = "// Comment\nProgram code\nThis is the original text.\nIt has several lines.\n// Comment here\n// More comment\n// So much comment\nBanana\nBean\nSome lines are unique to this side.\n\n\n.\n \nwill remove this\nwill remove this";
-            RightText = "Program code\nThis is the modified text.\nIt has several lines.\nBanana\nBean\nSome lines are unique to the other side.\nAnd an extra line here.\n\nThere\nWill\nBe\nSo\nMuch\nMore\nThan\nThis";
         }
     }
 }
