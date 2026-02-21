@@ -12,6 +12,48 @@
 
     <Window.Resources>
         <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter" />
+
+        <!-- FAB Button Style - Fixed Background Color to White -->
+        <Style x:Key="FabButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="ShadowBorder" CornerRadius="24" Background="Black" Opacity="0.15" Margin="0,2,-2,0">
+                                <Border.Effect>
+                                    <BlurEffect Radius="6"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="24"
+                                    SnapsToDevicePixels="true">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F0F0F0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccent}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -43,8 +85,8 @@
                 </Grid>
 
                 <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
-                <CheckBox Content="Word Wrap" 
-                          IsChecked="{Binding InputViewModel.IsWordWrapEnabled}" 
+                <CheckBox Content="Word Wrap"
+                          IsChecked="{Binding InputViewModel.IsWordWrapEnabled}"
                           Style="{StaticResource ToggleSwitchStyle}"
                           Margin="0,0,0,20"/>
 
@@ -57,8 +99,8 @@
                 </StackPanel>
 
                 <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}"/>
-                <CheckBox Content="Ignore Whitespace" 
-                          IsChecked="{Binding InputViewModel.IgnoreWhitespace}" 
+                <CheckBox Content="Ignore Whitespace"
+                          IsChecked="{Binding InputViewModel.IgnoreWhitespace}"
                           Style="{StaticResource ToggleSwitchStyle}"
                           Margin="0,0,0,20"/>
 
@@ -72,9 +114,9 @@
                                FontSize="11" Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
 
-                <Button Content="Reset to defaults" 
+                <Button Content="Reset to defaults"
                          Command="{Binding ResetDefaultsCommand}"
-                         Style="{StaticResource SecondaryButton}" 
+                         Style="{StaticResource SecondaryButton}"
                          Margin="0,20,0,0"/>
             </StackPanel>
         </Border>
@@ -82,39 +124,7 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition>
-                    <RowDefinition.Style>
-                        <Style TargetType="RowDefinition">
-                            <Setter Property="Height" Value="*" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
-                                    <Setter Property="Height" Value="0" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </RowDefinition.Style>
-                </RowDefinition>
-
-                <RowDefinition Height="Auto" />
-
-                <RowDefinition>
-                    <RowDefinition.Style>
-                        <Style TargetType="RowDefinition">
-                            <Setter Property="MinHeight" Value="0"/>
-                            <Setter Property="Height" Value="*" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="False">
-                                    <Setter Property="Height" Value="0" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="True">
-                                    <Setter Property="MinHeight" Value="150"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </RowDefinition.Style>
-                </RowDefinition>
-
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
@@ -132,48 +142,30 @@
                 </StackPanel>
             </Border>
 
-            <ContentControl Grid.Row="1" Content="{Binding ComparisonViewModel}" />
+            <Grid Grid.Row="1">
+                <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <ContentControl Content="{Binding ComparisonViewModel}" />
 
-            <GridSplitter Grid.Row="2"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Stretch"
-                          Height="5"
-                          ResizeBehavior="PreviousAndNext">
-                <GridSplitter.Style>
-                    <Style TargetType="GridSplitter">
-                        <Setter Property="Visibility" Value="Visible" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsInputPanelOpen}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding ComparisonViewModel}" Value="{x:Null}">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </GridSplitter.Style>
-            </GridSplitter>
+                        <ContentControl x:Name="InputSection" Content="{Binding InputViewModel}" Margin="10,50,10,20" MinHeight="500"/>
+                    </StackPanel>
+                </ScrollViewer>
 
-            <ContentControl Grid.Row="3"
-                            Content="{Binding InputViewModel}"
-                            Margin="10"
-                            Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="30"
+                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Button Command="{Binding JumpToTopCommand}"
+                            ToolTip="Jump to Top"
+                            Style="{StaticResource FabButtonStyle}">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_up}" Style="{StaticResource IconStyle}" FontSize="24"/>
+                    </Button>
 
-            <Button Grid.Row="4"
-                    Command="{Binding ToggleInputPanelCommand}"
-                    Visibility="{Binding IsInputPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                    Style="{StaticResource PrimaryButton}"
-                    Height="40"
-                    Margin="0"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Cursor="Hand"
-                    BorderThickness="0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.edit}" Style="{StaticResource IconStyle}" Margin="0,0,8,0"/>
-                    <TextBlock Text="EDIT INPUTS" FontWeight="Bold"/>
+                    <Button Command="{Binding JumpToInputCommand}"
+                            ToolTip="Jump to Input"
+                            Style="{StaticResource FabButtonStyle}">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_down}" Style="{StaticResource IconStyle}" FontSize="24"/>
+                    </Button>
                 </StackPanel>
-            </Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

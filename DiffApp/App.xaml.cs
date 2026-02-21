@@ -15,6 +15,7 @@ namespace DiffApp
                     services.AddSingleton<ISettingsService, SettingsService>();
                     services.AddSingleton<IComparisonService, ComparisonService>();
                     services.AddSingleton<IMergeService, MergeService>();
+                    services.AddSingleton<IScrollService, ScrollService>();
                     services.AddSingleton<InputViewModel>();
                     services.AddTransient<MainViewModel>();
                     services.AddSingleton<MainWindow>();

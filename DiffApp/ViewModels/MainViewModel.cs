@@ -1,5 +1,4 @@
-﻿using DiffApp.Services.Interfaces;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace DiffApp.ViewModels
 {
@@ -8,10 +7,10 @@ namespace DiffApp.ViewModels
         private readonly IComparisonService _comparisonService;
         private readonly IMergeService _mergeService;
         private readonly ISettingsService _settingsService;
+        private readonly IScrollService _scrollService;
 
         private ComparisonViewModel? _comparisonViewModel;
         private bool _isSettingsPanelOpen = true;
-        private bool _isInputPanelOpen = true;
 
         public InputViewModel InputViewModel { get; }
 
@@ -27,27 +26,24 @@ namespace DiffApp.ViewModels
             set => SetProperty(ref _isSettingsPanelOpen, value);
         }
 
-        public bool IsInputPanelOpen
-        {
-            get => _isInputPanelOpen;
-            set => SetProperty(ref _isInputPanelOpen, value);
-        }
-
         public ICommand CopyTextCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
-        public ICommand ToggleInputPanelCommand { get; }
         public ICommand SwapAllCommand { get; }
         public ICommand ResetDefaultsCommand { get; }
+        public ICommand JumpToTopCommand { get; }
+        public ICommand JumpToInputCommand { get; }
 
         public MainViewModel(
             IComparisonService comparisonService,
             IMergeService mergeService,
             ISettingsService settingsService,
+            IScrollService scrollService,
             InputViewModel inputViewModel)
         {
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _scrollService = scrollService ?? throw new ArgumentNullException(nameof(scrollService));
             InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
 
             InputViewModel.CompareRequested += OnCompareRequested;
@@ -56,11 +52,11 @@ namespace DiffApp.ViewModels
 
             CopyTextCommand = new RelayCommand(CopyText);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
-            ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelOpen = !IsInputPanelOpen);
             SwapAllCommand = new RelayCommand(SwapAll);
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
 
-            IsInputPanelOpen = true;
+            JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
+            JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
         }
 
         private void ResetDefaults(object? parameter)
@@ -95,7 +91,7 @@ namespace DiffApp.ViewModels
         private void OnCompareRequested(object? sender, EventArgs e)
         {
             PerformComparison();
-            IsInputPanelOpen = false;
+            Application.Current.Dispatcher.InvokeAsync(() => _scrollService.ScrollToTop());
         }
 
         private void PerformComparison()

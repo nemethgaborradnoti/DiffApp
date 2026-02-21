@@ -71,7 +71,6 @@
                 if (SetProperty(ref _viewMode, value))
                 {
                     SaveCurrentSettings();
-                    // This change often requires a re-render in MainViewModel
                 }
             }
         }
@@ -101,7 +100,6 @@
 
         private void SaveCurrentSettings()
         {
-            // Note: InputPanelHeight is managed by MainViewModel, but we can preserve it by loading first
             var current = _settingsService.LoadSettings();
             current.IgnoreWhitespace = IgnoreWhitespace;
             current.IsWordWrapEnabled = IsWordWrapEnabled;

@@ -6,11 +6,11 @@
              xmlns:converters="clr-namespace:DiffApp.Converters"
              xmlns:fonts="clr-namespace:Fonts"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="400" d:DesignWidth="800">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -23,13 +23,15 @@
             <Grid Grid.Column="0" Margin="0,5,2,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Text="Original Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+
                 <TextBox Grid.Row="1"
                          Text="{Binding LeftText, UpdateSourceTrigger=PropertyChanged}"
                          AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto"
+                         Height="300"
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
                          Padding="5"/>
@@ -38,35 +40,16 @@
             <Grid Grid.Column="1" Margin="2,5,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="Changed Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
-
-                    <Button Grid.Column="1" 
-                             Style="{StaticResource IconButtonStyle}"
-                             Command="{Binding DataContext.ToggleInputPanelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                             VerticalAlignment="Center"
-                             Padding="2"
-                             Width="24"
-                             Height="24"
-                             MinHeight="24"
-                             MinWidth="24"
-                             ToolTip="Collapse Input Panel">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_down}" Style="{StaticResource IconStyle}" FontSize="20"/>
-                    </Button>
-                </Grid>
+                <TextBlock Grid.Row="0" Text="Changed Text" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
 
                 <TextBox Grid.Row="1"
                          Text="{Binding RightText, UpdateSourceTrigger=PropertyChanged}"
                          AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto"
+                         Height="300"
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
                          Padding="5"/>
@@ -74,7 +57,7 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,10">
-            <Button Command="{Binding FindDifferenceCommand}" 
+            <Button Command="{Binding FindDifferenceCommand}"
                     Padding="20,10"
                     Style="{StaticResource PrimaryButton}">
                 <StackPanel Orientation="Horizontal">
