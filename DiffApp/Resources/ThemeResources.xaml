@@ -28,6 +28,9 @@
 	<SolidColorBrush x:Key="DiffBackgroundUnchanged" Color="Transparent" />
 	<SolidColorBrush x:Key="DiffHighlightUnchanged" Color="Transparent" />
 
+	<!-- Selection / Hover Color -->
+	<SolidColorBrush x:Key="BrushHighlightSelected" Color="#E6F7FF" />
+
 	<Thickness x:Key="ThicknessStandard">10</Thickness>
 	<Thickness x:Key="ThicknessSmall">5</Thickness>
 	<CornerRadius x:Key="CornerRadiusStandard">4</CornerRadius>

@@ -112,4 +112,19 @@
         <Setter Property="Background" Value="{StaticResource BrushBorder}"/>
     </Style>
 
+    <!-- Specific Styles for Merge Action Bar -->
+    <Style x:Key="MergeButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="15,6" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="CloseSelectionButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="Foreground" Value="#586069"/>
+    </Style>
+
 </ResourceDictionary>

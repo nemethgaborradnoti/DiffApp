@@ -34,6 +34,8 @@
         public string RightResultText => _rightResultText;
 
         public ICommand MergeBlockCommand { get; }
+        public ICommand SelectBlockCommand { get; }
+        public ICommand DeselectAllCommand { get; }
 
         public ComparisonViewModel(
             ComparisonResult initialResult,
@@ -53,6 +55,8 @@
             _unifiedLines = CreateUnifiedLines();
 
             MergeBlockCommand = new RelayCommand(ExecuteMerge);
+            SelectBlockCommand = new RelayCommand(SelectBlock);
+            DeselectAllCommand = new RelayCommand(_ => DeselectAll());
         }
 
         private void ExecuteMerge(object? parameter)
@@ -78,6 +82,30 @@
             }
 
             RefreshComparison();
+            DeselectAll();
+        }
+
+        private void SelectBlock(object? parameter)
+        {
+            if (ComparisonResult?.Blocks == null) return;
+
+            if (parameter is ChangeBlock targetBlock && targetBlock.IsMergeable)
+            {
+                foreach (var block in ComparisonResult.Blocks)
+                {
+                    block.IsSelected = block == targetBlock;
+                }
+            }
+        }
+
+        private void DeselectAll()
+        {
+            if (ComparisonResult?.Blocks == null) return;
+
+            foreach (var block in ComparisonResult.Blocks)
+            {
+                block.IsSelected = false;
+            }
         }
 
         private void RefreshComparison()
