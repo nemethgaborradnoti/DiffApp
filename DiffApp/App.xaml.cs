@@ -1,9 +1,5 @@
-﻿using DiffApp.Services;
-using DiffApp.Services.Interfaces;
-using DiffApp.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Windows;
 
 namespace DiffApp
 {
@@ -18,10 +14,7 @@ namespace DiffApp
                 {
                     services.AddSingleton<IComparisonService, ComparisonService>();
                     services.AddSingleton<IMergeService, MergeService>();
-
-                    // InputViewModel is Singleton to persist state (text) between navigations
                     services.AddSingleton<InputViewModel>();
-
                     services.AddTransient<MainViewModel>();
                     services.AddSingleton<MainWindow>();
                 })

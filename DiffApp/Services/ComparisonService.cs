@@ -1,13 +1,7 @@
-﻿using DiffApp.Models;
-using DiffApp.Services.Interfaces;
-using DiffPlex;
+﻿using DiffPlex;
 using DiffPlex.Chunkers;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using DiffPlexPiece = DiffPlex.DiffBuilder.Model.DiffPiece;
 using DiffPlexChangeType = DiffPlex.DiffBuilder.Model.ChangeType;
 

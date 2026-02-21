@@ -1,9 +1,4 @@
-﻿using DiffApp.Models;
-using DiffApp.Services.Interfaces;
-using System;
-using System.Windows.Input;
-
-namespace DiffApp.ViewModels
+﻿namespace DiffApp.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
@@ -27,19 +22,11 @@ namespace DiffApp.ViewModels
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _inputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
 
-            // Setup Navigation
             _inputViewModel.CompareRequested += OnCompareRequested;
 
-            // Start with Input View
             _currentViewModel = _inputViewModel;
 
-            // Global commands (like Copy) can remain here or move to specific VMs. 
-            // For now, let's keep Copy here or handle in Views. 
-            // Actually, CopyCommand was used in Views via RelativeSource. 
-            // We will need to expose it or let views handle it. 
-            // For simplicity in Phase 4, we'll let Views handle clipboard directly or re-bind.
-            // But to avoid breaking existing bindings in ComparisonView too much:
-            CopyTextCommand = new Helpers.RelayCommand(CopyText);
+            CopyTextCommand = new RelayCommand(CopyText);
         }
 
         private void OnCompareRequested(object? sender, EventArgs e)
@@ -75,7 +62,6 @@ namespace DiffApp.ViewModels
                 _inputViewModel.LeftText = _mergeService.MergeBlock(_inputViewModel.LeftText, e.Block, e.Direction);
             }
 
-            // Re-run comparison to refresh the view
             PerformComparison();
         }
 
@@ -89,11 +75,10 @@ namespace DiffApp.ViewModels
                 {
                     try
                     {
-                        System.Windows.Clipboard.SetText(textToCopy);
+                        Clipboard.SetText(textToCopy);
                     }
                     catch (Exception)
                     {
-                        // Ignore clipboard errors
                     }
                 }
             }
