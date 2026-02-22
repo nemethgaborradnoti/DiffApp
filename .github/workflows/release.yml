@@ -23,19 +23,31 @@ jobs:
       id: extract_info
       shell: pwsh
       run: |
-        $projectFile = Get-ChildItem -Recurse -Filter "DiffApp.csproj" | Select-Object -First 1
-        if (-not $projectFile) { throw "DiffApp.csproj not found in the repository." }
+        $projectFiles = Get-ChildItem -Recurse -Filter "DiffApp.csproj"
+        if ($projectFiles.Count -eq 0) { throw "DiffApp.csproj not found." }
+        $projectFile = $projectFiles | Select-Object -First 1
+        
         [xml]$xml = Get-Content $projectFile.FullName
         $version = $xml.Project.PropertyGroup.Version
         if (-not $version) { throw "Version tag missing in .csproj" }
-        "APP_VERSION=v$version" >> $env:GITHUB_ENV
-        "PROJECT_PATH=$($projectFile.FullName)" >> $env:GITHUB_ENV
+        
+        Add-Content -Path $env:GITHUB_ENV -Value "APP_VERSION=v$version"
+        Add-Content -Path $env:GITHUB_ENV -Value "PROJECT_PATH=$($projectFile.FullName)"
 
     - name: Restore dependencies
       run: dotnet restore "${{ env.PROJECT_PATH }}"
 
     - name: Build and publish
       run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true --output ./publish
+
+    - name: Rename Executable
+      run: |
+        $exePath = "./publish/DiffApp.exe"
+        if (Test-Path $exePath) {
+            Rename-Item -Path $exePath -NewName "DiffApp_${{ env.APP_VERSION }}.exe"
+        } else {
+            Write-Error "DiffApp.exe was not found in ./publish folder."
+        }
 
     - name: Zip the artifacts
       run: Compress-Archive -Path ./publish/* -DestinationPath DiffApp-${{ env.APP_VERSION }}.zip
