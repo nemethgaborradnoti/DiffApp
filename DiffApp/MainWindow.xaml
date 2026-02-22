@@ -106,12 +106,6 @@
                           Style="{StaticResource ToggleSwitchStyle}"
                           Margin="0,0,0,20"/>
 
-                <TextBlock Text="View" Style="{StaticResource SectionHeaderStyle}"/>
-                <Button Content="Reset window"
-                        Command="{Binding ResetWindowCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        Margin="0,0,0,20"/>
-
                 <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
                 <StackPanel Margin="0,0,0,20">
                     <RadioButton Content="Split" IsChecked="{Binding InputViewModel.ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
@@ -127,14 +121,18 @@
                           Margin="0,0,0,20"/>
 
                 <TextBlock Text="Highlight Precision" Style="{StaticResource SectionHeaderStyle}"/>
-                <StackPanel>
+                <StackPanel Margin="0,0,0,20">
                     <RadioButton Content="Word Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
                     <RadioButton Content="Character Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
                                  GroupName="PrecisionGroup" Margin="0,0,0,8"/>
-                    <TextBlock Text="Switching precision only affects highlighting, not calculation."
-                               FontSize="11" Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
+
+                <TextBlock Text="View" Style="{StaticResource SectionHeaderStyle}"/>
+                <Button Content="Reset window"
+                        Command="{Binding ResetWindowCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="0,0,0,20"/>
 
                 <Button Content="Reset to defaults"
                          Command="{Binding ResetDefaultsCommand}"
