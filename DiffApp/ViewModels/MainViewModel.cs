@@ -1,77 +1,195 @@
-﻿using DiffApp.Helpers;
-using DiffApp.Services;
-using System.Windows.Input;
+﻿using System.ComponentModel;
 
 namespace DiffApp.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private string _leftText = string.Empty;
-        private string _rightText = string.Empty;
-        private bool _isUnifiedMode;
-        private DiffViewModel? _diffViewModel;
-        private readonly IDiffEngine _diffEngine;
+        private readonly IComparisonService _comparisonService;
+        private readonly IMergeService _mergeService;
+        private readonly ISettingsService _settingsService;
+        private readonly IScrollService _scrollService;
 
-        public string LeftText
+        private ComparisonViewModel? _comparisonViewModel;
+        private bool _isSettingsPanelOpen = true;
+        private bool _isInputPanelExpanded = true;
+
+        public InputViewModel InputViewModel { get; }
+
+        public ComparisonViewModel? ComparisonViewModel
         {
-            get => _leftText;
-            set
+            get => _comparisonViewModel;
+            private set => SetProperty(ref _comparisonViewModel, value);
+        }
+
+        public bool IsSettingsPanelOpen
+        {
+            get => _isSettingsPanelOpen;
+            set => SetProperty(ref _isSettingsPanelOpen, value);
+        }
+
+        public bool IsInputPanelExpanded
+        {
+            get => _isInputPanelExpanded;
+            set => SetProperty(ref _isInputPanelExpanded, value);
+        }
+
+        public ICommand CopyTextCommand { get; }
+        public ICommand ToggleSettingsCommand { get; }
+        public ICommand ToggleInputPanelCommand { get; }
+        public ICommand SwapAllCommand { get; }
+        public ICommand ResetDefaultsCommand { get; }
+        public ICommand JumpToTopCommand { get; }
+        public ICommand JumpToInputCommand { get; }
+        public ICommand ClearContentCommand { get; }
+
+        public MainViewModel(
+            IComparisonService comparisonService,
+            IMergeService mergeService,
+            ISettingsService settingsService,
+            IScrollService scrollService,
+            InputViewModel inputViewModel)
+        {
+            _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
+            _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _scrollService = scrollService ?? throw new ArgumentNullException(nameof(scrollService));
+            InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
+
+            InputViewModel.CompareRequested += OnCompareRequested;
+            InputViewModel.SettingsChanged += OnSettingsChanged;
+            InputViewModel.PropertyChanged += InputViewModel_PropertyChanged;
+
+            CopyTextCommand = new RelayCommand(CopyText);
+            ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
+            ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelExpanded = !IsInputPanelExpanded);
+            SwapAllCommand = new RelayCommand(SwapAll);
+            ResetDefaultsCommand = new RelayCommand(ResetDefaults);
+            ClearContentCommand = new RelayCommand(ClearContent);
+
+            JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
+            JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
+        }
+
+        private void ResetDefaults(object? parameter)
+        {
+            _settingsService.ResetToDefaults();
+            var settings = _settingsService.LoadSettings();
+
+            InputViewModel.IsWordWrapEnabled = settings.IsWordWrapEnabled;
+            InputViewModel.IgnoreWhitespace = settings.IgnoreWhitespace;
+            InputViewModel.Precision = settings.Precision;
+            InputViewModel.ViewMode = settings.ViewMode;
+
+            if (ComparisonViewModel != null)
             {
-                if (SetProperty(ref _leftText, value))
-                {
-                    (FindDifferenceCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                }
+                PerformComparison();
             }
         }
 
-        public string RightText
+        private void ClearContent(object? parameter)
         {
-            get => _rightText;
-            set
+            InputViewModel.LeftText = string.Empty;
+            InputViewModel.RightText = string.Empty;
+            ComparisonViewModel = null;
+            IsInputPanelExpanded = true;
+        }
+
+        private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(InputViewModel.ViewMode) && ComparisonViewModel != null)
             {
-                if (SetProperty(ref _rightText, value))
-                {
-                    (FindDifferenceCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                }
+                ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
             }
         }
 
-        public bool IsUnifiedMode
+        private void OnSettingsChanged(object? sender, EventArgs e)
         {
-            get => _isUnifiedMode;
-            set => SetProperty(ref _isUnifiedMode, value);
+            if (ComparisonViewModel != null)
+            {
+                PerformComparison();
+            }
         }
 
-        public DiffViewModel? DiffViewModel
+        private void OnCompareRequested(object? sender, EventArgs e)
         {
-            get => _diffViewModel;
-            private set => SetProperty(ref _diffViewModel, value);
+            PerformComparison();
+            Application.Current.Dispatcher.InvokeAsync(() => _scrollService.ScrollToTop());
         }
 
-        public ICommand FindDifferenceCommand { get; }
-
-        public MainViewModel()
+        private void PerformComparison()
         {
-            _diffEngine = new DiffEngine();
-            FindDifferenceCommand = new RelayCommand(FindDifference, CanFindDifference);
-            LoadSampleText();
+            var settings = new CompareSettings
+            {
+                IgnoreWhitespace = InputViewModel.IgnoreWhitespace,
+                Precision = InputViewModel.Precision
+            };
+
+            string left = InputViewModel.LeftText;
+            string right = InputViewModel.RightText;
+
+            var result = _comparisonService.Compare(left, right, settings);
+
+            ComparisonViewModel = new ComparisonViewModel(
+                result,
+                left,
+                right,
+                settings,
+                _comparisonService,
+                _mergeService,
+                (side, text) =>
+                {
+                    if (side == Side.Old)
+                    {
+                        InputViewModel.LeftText = text;
+                    }
+                    else
+                    {
+                        InputViewModel.RightText = text;
+                    }
+                }
+            );
+
+            ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
+
+            // Auto-collapse input panel after successful comparison
+            IsInputPanelExpanded = false;
         }
 
-        private void FindDifference(object? parameter)
+        private void SwapAll(object? parameter)
         {
-            var result = _diffEngine.Compare(LeftText, RightText);
-            DiffViewModel = new DiffViewModel(result);
+            string temp = InputViewModel.LeftText;
+            InputViewModel.LeftText = InputViewModel.RightText;
+            InputViewModel.RightText = temp;
+
+            PerformComparison();
         }
 
-        private bool CanFindDifference(object? parameter)
+        private void CopyText(object? parameter)
         {
-            return !string.IsNullOrEmpty(LeftText) || !string.IsNullOrEmpty(RightText);
-        }
+            if (parameter is Side side)
+            {
+                string textToCopy = string.Empty;
 
-        private void LoadSampleText()
-        {
-            LeftText = "// Comment\nProgram code\nThis is the original text.\nIt has several lines.\n// Comment here\n// More comment\n// So much comment\nBanana\nBean\nSome lines are unique to this side.\n\n\n.\n \nwill remove this\nwill remove this";
-            RightText = "Program code\nThis is the modified text.\nIt has several lines.\nBanana\nBean\nSome lines are unique to the other side.\nAnd an extra line here.\n\nThere\nWill\nBe\nSo\nMuch\nMore\nThan\nThis";
+                if (ComparisonViewModel != null)
+                {
+                    textToCopy = side == Side.Old ? ComparisonViewModel.LeftResultText : ComparisonViewModel.RightResultText;
+                }
+                else
+                {
+                    textToCopy = side == Side.Old ? InputViewModel.LeftText : InputViewModel.RightText;
+                }
+
+                if (!string.IsNullOrEmpty(textToCopy))
+                {
+                    try
+                    {
+                        Clipboard.SetText(textToCopy);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
         }
     }
 }

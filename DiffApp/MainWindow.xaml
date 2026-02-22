@@ -3,81 +3,237 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
-        xmlns:views="clr-namespace:DiffApp.Views"
         xmlns:converters="clr-namespace:DiffApp.Converters"
+        xmlns:models="clr-namespace:DiffApp.Models"
+        xmlns:fonts="clr-namespace:Fonts"
         mc:Ignorable="d"
-        Title="DiffApp" Height="800" Width="1200">
-
-    <Window.DataContext>
-        <viewModels:MainViewModel/>
-    </Window.DataContext>
+        Title="DiffApp" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter" />
+
+        <Style x:Key="FabButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="ShadowBorder" CornerRadius="24" Background="Black" Opacity="0.15" Margin="0,2,-2,0">
+                                <Border.Effect>
+                                    <BlurEffect Radius="6"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="24"
+                                    SnapsToDevicePixels="true">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#004499"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="160" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="#555555" BorderThickness="1" Margin="0,0,0,5">
-            <Grid>
-                <TextBlock Text="Press 'Find Difference' to see the result." 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Center" 
-                           Foreground="Gray">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DiffViewModel}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <views:DiffView DataContext="{Binding DiffViewModel}" 
-                                Visibility="{Binding DiffViewModel, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            </Grid>
+        <Border Grid.Column="0"
+                Background="{StaticResource BrushSurface}"
+                BorderBrush="{StaticResource BrushBorder}"
+                BorderThickness="0,0,1,0"
+                Padding="15"
+                Width="280"
+                Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
+                        <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
+                    </StackPanel>
+
+                    <Button Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ToggleSettingsCommand}"
+                            HorizontalAlignment="Right"
+                            ToolTip="Close Settings">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}"/>
+                    </Button>
+                </Grid>
+
+                <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox Content="Word Wrap"
+                          IsChecked="{Binding InputViewModel.IsWordWrapEnabled}"
+                          Style="{StaticResource ToggleSwitchStyle}"
+                          Margin="0,0,0,20"/>
+
+                <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
+                <StackPanel Margin="0,0,0,20">
+                    <RadioButton Content="Split" IsChecked="{Binding InputViewModel.ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
+                                 GroupName="ViewModeGroup" Margin="0,0,0,8"/>
+                    <RadioButton Content="Unified" IsChecked="{Binding InputViewModel.ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Unified}}"
+                                 GroupName="ViewModeGroup" Margin="0,0,0,8"/>
+                </StackPanel>
+
+                <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}"/>
+                <CheckBox Content="Ignore Whitespace"
+                          IsChecked="{Binding InputViewModel.IgnoreWhitespace}"
+                          Style="{StaticResource ToggleSwitchStyle}"
+                          Margin="0,0,0,20"/>
+
+                <TextBlock Text="Highlight Precision" Style="{StaticResource SectionHeaderStyle}"/>
+                <StackPanel>
+                    <RadioButton Content="Word Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
+                                 GroupName="PrecisionGroup" Margin="0,0,0,8"/>
+                    <RadioButton Content="Character Level" IsChecked="{Binding InputViewModel.Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
+                                 GroupName="PrecisionGroup" Margin="0,0,0,8"/>
+                    <TextBlock Text="Switching precision only affects highlighting, not calculation."
+                               FontSize="11" Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Button Content="Reset to defaults"
+                         Command="{Binding ResetDefaultsCommand}"
+                         Style="{StaticResource DangerButton}"
+                         Margin="0,20,0,0"/>
+            </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Top Bar -->
+                <RowDefinition Height="*"/>
+                <!-- Comparison View -->
+                <RowDefinition Height="Auto"/>
+                <!-- Input Toggle Bar -->
+                <RowDefinition Height="Auto"/>
+                <!-- Input View -->
+            </Grid.RowDefinitions>
 
-            <TextBox Grid.Column="0" 
-                     Text="{Binding LeftText, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     TextWrapping="NoWrap"
-                     Margin="0,5,0,0" 
-                     FontFamily="Consolas"/>
+            <!-- Row 0: Top Bar -->
+            <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ToggleSettingsCommand}"
+                            Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                            ToolTip="Open Settings"
+                            Padding="10,6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="20"/>
+                            <TextBlock Text="Settings" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
 
-            <TextBox Grid.Column="2" 
-                     Text="{Binding RightText, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     TextWrapping="NoWrap"
-                     Margin="0,5,0,0" 
-                     FontFamily="Consolas"/>
+            <!-- Row 1: Comparison View -->
+            <ContentControl Grid.Row="1" 
+                            Content="{Binding ComparisonViewModel}"
+                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+            <!-- Placeholder text when no comparison is active and input is collapsed -->
+            <TextBlock Grid.Row="1" 
+                       Text="No comparison generated yet." 
+                       Foreground="{StaticResource GrayTextBrush}"
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding ComparisonViewModel}" Value="{x:Null}"/>
+                                    <Condition Binding="{Binding IsInputPanelExpanded}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <!-- Row 2: Input Toggle Bar -->
+            <Button Grid.Row="2" 
+                    Command="{Binding ToggleInputPanelCommand}"
+                    Background="{StaticResource BrushAccent}"
+                    BorderBrush="{StaticResource BrushBorder}"
+                    BorderThickness="0,1,0,0"
+                    Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="10,5">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                    <!-- Icon changes based on expansion state -->
+                                    <TextBlock Foreground="White" FontSize="24">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_more}"/>
+                                                <!-- Down Arrow -->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+                                                        <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_less}"/>
+                                                        <!-- Up Arrow -->
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- Row 3: Input View -->
+            <ContentControl Grid.Row="3" Content="{Binding InputViewModel}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+
         </Grid>
-
-        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <Button Content="Find Difference" Command="{Binding FindDifferenceCommand}" />
-            <ToggleButton Content="Unified Diff" IsChecked="{Binding IsUnifiedMode}" Margin="20,0,0,0" />
-        </StackPanel>
     </Grid>
 </Window>
-

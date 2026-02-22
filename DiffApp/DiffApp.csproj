@@ -1,15 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DiffPlex" Version="1.8.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\Fonts\Inter_24pt-Regular.ttf" />
+		<None Remove="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
+		<None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DiffPlex" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\Fonts\Inter_24pt-Regular.ttf" />
+		<Resource Include="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
+		<Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Themes\Styles\" />
+	</ItemGroup>
 
 </Project>

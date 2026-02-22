@@ -2,9 +2,9 @@
 
 namespace DiffApp.Views
 {
-    public partial class DiffView : UserControl
+    public partial class InputView : UserControl
     {
-        public DiffView()
+        public InputView()
         {
             InitializeComponent();
         }

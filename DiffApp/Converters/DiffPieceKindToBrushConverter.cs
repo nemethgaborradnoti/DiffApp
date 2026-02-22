@@ -13,14 +13,14 @@ namespace DiffApp.Converters
         {
             if (value is not ChangeType type)
             {
-                return Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush;
+                return (Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush) ?? Brushes.Transparent;
             }
 
             return type switch
             {
-                ChangeType.Inserted => Application.Current.TryFindResource("DiffHighlightAdded") as Brush,
-                ChangeType.Deleted => Application.Current.TryFindResource("DiffHighlightRemoved") as Brush,
-                _ => Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush,
+                ChangeType.Inserted => (Application.Current.TryFindResource("DiffHighlightAdded") as Brush) ?? Brushes.Transparent,
+                ChangeType.Deleted => (Application.Current.TryFindResource("DiffHighlightRemoved") as Brush) ?? Brushes.Transparent,
+                _ => (Application.Current.TryFindResource("DiffHighlightUnchanged") as Brush) ?? Brushes.Transparent,
             };
         }
 
