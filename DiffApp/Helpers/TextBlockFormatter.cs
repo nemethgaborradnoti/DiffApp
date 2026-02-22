@@ -70,9 +70,29 @@ namespace DiffApp.Helpers
 
         private static void Render(TextBlock textBlock, IEnumerable<TextFragment> fragments, PrecisionLevel precision, bool enabled)
         {
-            textBlock.Inlines.Clear();
+            if (fragments == null)
+            {
+                textBlock.Text = string.Empty;
+                return;
+            }
 
-            if (fragments == null) return;
+            // OPTIMIZATION: If highlights are disabled (e.g. Unchanged/Added/Removed blocks where whole line is colored),
+            // or if the line has no fragments, use simple Text property to avoid creating heavy Run objects.
+            if (!enabled || !fragments.Any())
+            {
+                // Join text and set directly. This is O(1) for the layout engine compared to O(N) Runs.
+                var sb = new StringBuilder();
+                foreach (var f in fragments)
+                {
+                    sb.Append(f.Text);
+                }
+                textBlock.Text = sb.ToString();
+                return;
+            }
+
+            // Clear text before adding inlines
+            textBlock.Text = null;
+            textBlock.Inlines.Clear();
 
             if (precision == PrecisionLevel.Character)
             {

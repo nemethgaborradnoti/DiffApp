@@ -11,6 +11,7 @@ namespace DiffApp.ViewModels
 
         private ComparisonViewModel? _comparisonViewModel;
         private bool _isSettingsPanelOpen = true;
+        private bool _isInputPanelExpanded = true;
 
         public InputViewModel InputViewModel { get; }
 
@@ -26,8 +27,15 @@ namespace DiffApp.ViewModels
             set => SetProperty(ref _isSettingsPanelOpen, value);
         }
 
+        public bool IsInputPanelExpanded
+        {
+            get => _isInputPanelExpanded;
+            set => SetProperty(ref _isInputPanelExpanded, value);
+        }
+
         public ICommand CopyTextCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
+        public ICommand ToggleInputPanelCommand { get; }
         public ICommand SwapAllCommand { get; }
         public ICommand ResetDefaultsCommand { get; }
         public ICommand JumpToTopCommand { get; }
@@ -53,6 +61,7 @@ namespace DiffApp.ViewModels
 
             CopyTextCommand = new RelayCommand(CopyText);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
+            ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelExpanded = !IsInputPanelExpanded);
             SwapAllCommand = new RelayCommand(SwapAll);
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
             ClearContentCommand = new RelayCommand(ClearContent);
@@ -82,6 +91,7 @@ namespace DiffApp.ViewModels
             InputViewModel.LeftText = string.Empty;
             InputViewModel.RightText = string.Empty;
             ComparisonViewModel = null;
+            IsInputPanelExpanded = true;
         }
 
         private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -140,6 +150,9 @@ namespace DiffApp.ViewModels
             );
 
             ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
+
+            // Auto-collapse input panel after successful comparison
+            IsInputPanelExpanded = false;
         }
 
         private void SwapAll(object? parameter)

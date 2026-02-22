@@ -1,4 +1,7 @@
-﻿namespace DiffApp.ViewModels
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+
+namespace DiffApp.ViewModels
 {
     public class ComparisonViewModel : ViewModelBase
     {
@@ -8,10 +11,11 @@
         private readonly Action<Side, string>? _onSourceUpdated;
 
         private ComparisonResult _comparisonResult;
-        private IReadOnlyList<ChangeLine> _unifiedLines;
+        private ObservableCollection<DiffLineViewModel> _diffLines;
         private bool _isUnifiedMode;
         private string _leftResultText;
         private string _rightResultText;
+        private bool _isBusy;
 
         public ComparisonResult ComparisonResult
         {
@@ -19,16 +23,38 @@
             private set => SetProperty(ref _comparisonResult, value);
         }
 
-        public IReadOnlyList<ChangeLine> UnifiedLines
+        public ObservableCollection<DiffLineViewModel> DiffLines
         {
-            get => _unifiedLines;
-            private set => SetProperty(ref _unifiedLines, value);
+            get => _diffLines;
+            private set => SetProperty(ref _diffLines, value);
         }
 
         public bool IsUnifiedMode
         {
             get => _isUnifiedMode;
-            set => SetProperty(ref _isUnifiedMode, value);
+            set
+            {
+                if (SetProperty(ref _isUnifiedMode, value))
+                {
+                    if (_comparisonResult != null)
+                    {
+                        if (value)
+                        {
+                            FlattenUnifiedResults(_comparisonResult);
+                        }
+                        else
+                        {
+                            FlattenSideBySideResults(_comparisonResult);
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
         }
 
         public string LeftResultText
@@ -79,7 +105,7 @@
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _onSourceUpdated = onSourceUpdated;
 
-            _unifiedLines = CreateUnifiedLines();
+            FlattenSideBySideResults(initialResult);
 
             MergeBlockCommand = new RelayCommand(ExecuteMerge);
             SelectBlockCommand = new RelayCommand(SelectBlock);
@@ -90,6 +116,98 @@
         {
             if (string.IsNullOrEmpty(text)) return 0;
             return text.Replace("\r\n", "\n").Split('\n').Length;
+        }
+
+        private void FlattenSideBySideResults(ComparisonResult result)
+        {
+            var flatList = new List<DiffLineViewModel>();
+
+            if (result?.Blocks != null)
+            {
+                foreach (var block in result.Blocks)
+                {
+                    int oldLinesCount = block.OldLines.Count;
+                    int newLinesCount = block.NewLines.Count;
+                    int maxCount = Math.Max(oldLinesCount, newLinesCount);
+
+                    for (int i = 0; i < maxCount; i++)
+                    {
+                        var leftLine = i < oldLinesCount ? block.OldLines[i] : null;
+                        var rightLine = i < newLinesCount ? block.NewLines[i] : null;
+                        bool isFirst = (i == 0);
+                        bool isLast = (i == maxCount - 1);
+
+                        flatList.Add(new DiffLineViewModel(block, leftLine, rightLine, isFirst, isLast));
+                    }
+                }
+            }
+
+            DiffLines = new ObservableCollection<DiffLineViewModel>(flatList);
+        }
+
+        private void FlattenUnifiedResults(ComparisonResult result)
+        {
+            var flatList = new List<DiffLineViewModel>();
+
+            if (result?.Blocks != null)
+            {
+                foreach (var block in result.Blocks)
+                {
+                    int totalLinesInBlock = 0;
+                    if (block.Kind == BlockType.Modified)
+                    {
+                        totalLinesInBlock = block.OldLines.Count + block.NewLines.Count;
+                        int current = 0;
+
+                        foreach (var line in block.OldLines)
+                        {
+                            bool isFirst = (current == 0);
+                            bool isLast = (current == totalLinesInBlock - 1);
+                            flatList.Add(new DiffLineViewModel(block, line, null, isFirst, isLast));
+                            current++;
+                        }
+                        foreach (var line in block.NewLines)
+                        {
+                            bool isFirst = (current == 0);
+                            bool isLast = (current == totalLinesInBlock - 1);
+                            flatList.Add(new DiffLineViewModel(block, null, line, isFirst, isLast));
+                            current++;
+                        }
+                    }
+                    else if (block.Kind == BlockType.Added)
+                    {
+                        totalLinesInBlock = block.NewLines.Count;
+                        for (int i = 0; i < totalLinesInBlock; i++)
+                        {
+                            bool isFirst = (i == 0);
+                            bool isLast = (i == totalLinesInBlock - 1);
+                            flatList.Add(new DiffLineViewModel(block, null, block.NewLines[i], isFirst, isLast));
+                        }
+                    }
+                    else if (block.Kind == BlockType.Removed)
+                    {
+                        totalLinesInBlock = block.OldLines.Count;
+                        for (int i = 0; i < totalLinesInBlock; i++)
+                        {
+                            bool isFirst = (i == 0);
+                            bool isLast = (i == totalLinesInBlock - 1);
+                            flatList.Add(new DiffLineViewModel(block, block.OldLines[i], null, isFirst, isLast));
+                        }
+                    }
+                    else
+                    {
+                        totalLinesInBlock = block.OldLines.Count;
+                        for (int i = 0; i < totalLinesInBlock; i++)
+                        {
+                            bool isFirst = (i == 0);
+                            bool isLast = (i == totalLinesInBlock - 1);
+                            flatList.Add(new DiffLineViewModel(block, block.OldLines[i], block.NewLines[i], isFirst, isLast));
+                        }
+                    }
+                }
+            }
+
+            DiffLines = new ObservableCollection<DiffLineViewModel>(flatList);
         }
 
         private void ExecuteMerge(object? parameter)
@@ -122,9 +240,18 @@
 
         private void SelectBlock(object? parameter)
         {
-            if (ComparisonResult?.Blocks == null) return;
+            ChangeBlock? targetBlock = null;
 
-            if (parameter is ChangeBlock targetBlock && targetBlock.IsMergeable)
+            if (parameter is DiffLineViewModel lineVm)
+            {
+                targetBlock = lineVm.ParentBlock;
+            }
+            else if (parameter is ChangeBlock block)
+            {
+                targetBlock = block;
+            }
+
+            if (targetBlock != null && targetBlock.IsMergeable && ComparisonResult?.Blocks != null)
             {
                 foreach (var block in ComparisonResult.Blocks)
                 {
@@ -143,36 +270,27 @@
             }
         }
 
-        private void RefreshComparison()
+        private async void RefreshComparison()
         {
-            var result = _comparisonService.Compare(LeftResultText, RightResultText, _settings);
-            ComparisonResult = result;
-            UnifiedLines = CreateUnifiedLines();
-        }
-
-        private List<ChangeLine> CreateUnifiedLines()
-        {
-            var lines = new List<ChangeLine>();
-            if (_comparisonResult?.Blocks == null) return lines;
-
-            foreach (var block in _comparisonResult.Blocks)
+            IsBusy = true;
+            try
             {
-                switch (block.Kind)
+                var result = await Task.Run(() => _comparisonService.Compare(LeftResultText, RightResultText, _settings));
+                ComparisonResult = result;
+
+                if (IsUnifiedMode)
                 {
-                    case BlockType.Unchanged:
-                    case BlockType.Removed:
-                        lines.AddRange(block.OldLines);
-                        break;
-                    case BlockType.Added:
-                        lines.AddRange(block.NewLines);
-                        break;
-                    case BlockType.Modified:
-                        lines.AddRange(block.OldLines);
-                        lines.AddRange(block.NewLines);
-                        break;
+                    FlattenUnifiedResults(result);
+                }
+                else
+                {
+                    FlattenSideBySideResults(result);
                 }
             }
-            return lines;
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

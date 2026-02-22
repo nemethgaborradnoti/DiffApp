@@ -10,26 +10,19 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Margin="0,10,0,5" Padding="5">
-            <TextBlock Text="Input view"
-                       HorizontalAlignment="Center"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Foreground="{StaticResource TextBrush}"/>
-        </Border>
-
-        <Grid Grid.Row="1">
+        <!-- Input Fields Area -->
+        <Grid Grid.Row="0" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Margin="0,5,2,0">
+            <!-- Left Input -->
+            <Grid Grid.Column="0" Margin="0,0,2,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
@@ -44,12 +37,13 @@
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
                          Padding="5"
-                         MinHeight="300"
-                         MaxHeight="600"
-                         VerticalAlignment="Top"/>
+                         MinHeight="200"
+                         MaxHeight="400"
+                         VerticalAlignment="Stretch"/>
             </Grid>
 
-            <Grid Grid.Column="1" Margin="2,5,0,0">
+            <!-- Right Input -->
+            <Grid Grid.Column="1" Margin="2,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
@@ -65,13 +59,14 @@
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
                          Padding="5"
-                         MinHeight="300"
-                         MaxHeight="600"
-                         VerticalAlignment="Top"/>
+                         MinHeight="200"
+                         MaxHeight="400"
+                         VerticalAlignment="Stretch"/>
             </Grid>
         </Grid>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,10">
+        <!-- Action Button Area -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,10">
             <Button Command="{Binding FindDifferenceCommand}"
                     Padding="20,10"
                     Style="{StaticResource PrimaryButton}">
