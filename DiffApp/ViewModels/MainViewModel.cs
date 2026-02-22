@@ -52,6 +52,7 @@ namespace DiffApp.ViewModels
         public ICommand ClearContentCommand { get; }
         public ICommand OpenHistoryCommand { get; }
         public ICommand CloseHistoryCommand { get; }
+        public ICommand ResetWindowCommand { get; }
 
         public MainViewModel(
             IComparisonService comparisonService,
@@ -88,6 +89,24 @@ namespace DiffApp.ViewModels
 
             OpenHistoryCommand = new RelayCommand(OpenHistory);
             CloseHistoryCommand = new RelayCommand(_ => IsHistoryOpen = false);
+            ResetWindowCommand = new RelayCommand(ResetWindow);
+        }
+
+        private void ResetWindow(object? parameter)
+        {
+            var window = Application.Current.MainWindow;
+            if (window != null)
+            {
+                window.WindowState = WindowState.Normal;
+                window.Width = 1200;
+                window.Height = 800;
+
+                double screenWidth = SystemParameters.PrimaryScreenWidth;
+                double screenHeight = SystemParameters.PrimaryScreenHeight;
+
+                window.Left = (screenWidth - window.Width) / 2;
+                window.Top = (screenHeight - window.Height) / 2;
+            }
         }
 
         private void OpenHistory(object? parameter)

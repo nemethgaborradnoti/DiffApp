@@ -1,16 +1,24 @@
-﻿namespace DiffApp.Services
+﻿using DiffApp.Views;
+
+namespace DiffApp.Services
 {
     public class DialogService : IDialogService
     {
-        public bool Confirm(string message, string title)
+        public DialogResult ShowDialog(string message, string title, DialogButtons buttons, DialogImage image)
         {
-            var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
-            return result == MessageBoxResult.Yes;
-        }
+            var viewModel = new CustomDialogViewModel(message, title, buttons, image);
 
-        public void Alert(string message, string title)
-        {
-            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+            var window = new CustomDialogWindow
+            {
+                DataContext = viewModel,
+                Owner = Application.Current.MainWindow
+            };
+
+            viewModel.CloseAction = () => window.Close();
+
+            window.ShowDialog();
+
+            return viewModel.Result;
         }
     }
 }

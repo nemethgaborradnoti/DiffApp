@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using DiffApp.Models;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace DiffApp.ViewModels
@@ -15,8 +16,16 @@ namespace DiffApp.ViewModels
         public ObservableCollection<HistoryItemViewModel> HistoryItems
         {
             get => _historyItems;
-            set => SetProperty(ref _historyItems, value);
+            set
+            {
+                if (SetProperty(ref _historyItems, value))
+                {
+                    OnPropertyChanged(nameof(HasItems));
+                }
+            }
         }
+
+        public bool HasItems => HistoryItems.Count > 0;
 
         public bool IsLoading
         {
@@ -58,19 +67,29 @@ namespace DiffApp.ViewModels
 
         private async Task DeleteItemAsync(object? parameter)
         {
-            if (parameter is HistoryItemViewModel item)
+            var result = _dialogService.ShowDialog(
+                "Delete this item?",
+                "Delete Item",
+                DialogButtons.YesNo,
+                DialogImage.Question);
+
+            if (result == DialogResult.Yes)
             {
-                await _historyService.DeleteAsync(item.Id);
-                HistoryItems.Remove(item);
-            }
-            else if (parameter is Guid id)
-            {
-                await _historyService.DeleteAsync(id);
-                var itemToRemove = HistoryItems.FirstOrDefault(x => x.Id == id);
-                if (itemToRemove != null)
+                if (parameter is HistoryItemViewModel item)
                 {
-                    HistoryItems.Remove(itemToRemove);
+                    await _historyService.DeleteAsync(item.Id);
+                    HistoryItems.Remove(item);
                 }
+                else if (parameter is Guid id)
+                {
+                    await _historyService.DeleteAsync(id);
+                    var itemToRemove = HistoryItems.FirstOrDefault(x => x.Id == id);
+                    if (itemToRemove != null)
+                    {
+                        HistoryItems.Remove(itemToRemove);
+                    }
+                }
+                OnPropertyChanged(nameof(HasItems));
             }
         }
 
@@ -78,14 +97,17 @@ namespace DiffApp.ViewModels
         {
             if (HistoryItems.Count == 0) return;
 
-            bool confirm = _dialogService.Confirm(
-                "Are you sure you want to delete all history items? This action cannot be undone.",
-                "Delete All History");
+            var result = _dialogService.ShowDialog(
+                "You are about to delete the whole history database",
+                "Delete All History",
+                DialogButtons.ConfirmCancel,
+                DialogImage.Warning);
 
-            if (confirm)
+            if (result == DialogResult.Confirm)
             {
                 await _historyService.ClearAllAsync();
                 HistoryItems.Clear();
+                OnPropertyChanged(nameof(HasItems));
             }
         }
 
