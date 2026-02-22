@@ -8,6 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Resources\Fonts\Inter_24pt-Regular.ttf" />
+		<None Remove="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
 		<None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 
@@ -18,6 +20,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Resource Include="Resources\Fonts\Inter_24pt-Regular.ttf" />
+		<Resource Include="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
 		<Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 

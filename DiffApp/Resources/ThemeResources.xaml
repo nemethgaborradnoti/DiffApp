@@ -34,6 +34,7 @@
 	<Thickness x:Key="ThicknessSmall">5</Thickness>
 	<CornerRadius x:Key="CornerRadiusStandard">4</CornerRadius>
 
+	<FontFamily x:Key="AppFont">pack://application:,,,/Resources/Fonts/#Inter</FontFamily>
 	<FontFamily x:Key="MaterialIconsFont">pack://application:,,,/Resources/Fonts/MaterialIcons-Regular.ttf#Material Icons</FontFamily>
 
 	<Style TargetType="TextBlock">

@@ -8,7 +8,8 @@
     <Style TargetType="Window">
         <Setter Property="Background" Value="{StaticResource BrushBackground}"/>
         <Setter Property="Foreground" Value="{StaticResource BrushPrimary}"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
+        <Setter Property="FontSize" Value="14"/>
     </Style>
 
     <Style TargetType="Button">
