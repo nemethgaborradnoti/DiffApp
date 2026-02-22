@@ -23,7 +23,7 @@
                        helpers:TextBlockFormatter.Precision="{Binding DataContext.InputViewModel.Precision, RelativeSource={RelativeSource AncestorType=Window}}"
                        helpers:TextBlockFormatter.AreHighlightsEnabled="{Binding IsInModifiedBlock}"
                        TextWrapping="{Binding DataContext.InputViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
-                       FontFamily="Consolas" />
+                       FontFamily="{StaticResource CodeFont}" />
         </DataTemplate>
 
         <!-- Template for a single row in Side-by-Side View -->
@@ -105,7 +105,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.ColumnSpan="2" Background="{Binding LeftLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
-                                <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="Consolas"/>
+                                <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}"/>
                                 <ContentPresenter Grid.Column="1" Content="{Binding LeftLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
 
@@ -116,7 +116,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.ColumnSpan="2" Background="{Binding RightLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
-                                <TextBlock Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="Consolas"/>
+                                <TextBlock Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}"/>
                                 <ContentPresenter Grid.Column="1" Content="{Binding RightLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
                         </Grid>
@@ -254,8 +254,8 @@
                             </Border.Style>
                         </Border>
 
-                        <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="Consolas" />
-                        <TextBlock Grid.Column="1" Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="Consolas" />
+                        <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
+                        <TextBlock Grid.Column="1" Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
 
                         <TextBlock Grid.Column="2" Foreground="{StaticResource BrushLineNumber}" Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock.Style>

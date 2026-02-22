@@ -25,24 +25,24 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.description}" 
-                           Style="{StaticResource IconStyle}" 
-                           Foreground="{StaticResource GrayTextBrush}" 
+                <TextBlock Text="{x:Static fonts:MaterialIcons.description}"
+                           Style="{StaticResource IconStyle}"
+                           Foreground="{StaticResource GrayTextBrush}"
                            FontSize="16"
                            Margin="0,0,8,0"/>
-                <TextBlock Text="Original Text" 
-                           Style="{StaticResource HeaderTextStyle}" 
+                <TextBlock Text="Original Text"
+                           Style="{StaticResource HeaderTextStyle}"
                            FontSize="14"/>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.edit_note}" 
-                           Style="{StaticResource IconStyle}" 
-                           Foreground="{StaticResource GrayTextBrush}" 
+                <TextBlock Text="{x:Static fonts:MaterialIcons.edit_note}"
+                           Style="{StaticResource IconStyle}"
+                           Foreground="{StaticResource GrayTextBrush}"
                            FontSize="16"
                            Margin="0,0,8,0"/>
-                <TextBlock Text="Changed Text" 
-                           Style="{StaticResource HeaderTextStyle}" 
+                <TextBlock Text="Changed Text"
+                           Style="{StaticResource HeaderTextStyle}"
                            FontSize="14"/>
             </StackPanel>
         </Grid>
@@ -64,10 +64,11 @@
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Auto"
                      TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
-                     FontFamily="Consolas"
+                     FontFamily="{StaticResource CodeFont}"
                      FontSize="13"
                      VerticalContentAlignment="Top"
                      Padding="8"
+                     MinHeight="200"
                      MaxHeight="400"
                      VerticalAlignment="Stretch"/>
 
@@ -80,10 +81,11 @@
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Auto"
                      TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
-                     FontFamily="Consolas"
+                     FontFamily="{StaticResource CodeFont}"
                      FontSize="13"
                      VerticalContentAlignment="Top"
                      Padding="8"
+                     MinHeight="200"
                      MaxHeight="400"
                      VerticalAlignment="Stretch"/>
         </Grid>
@@ -95,9 +97,9 @@
                     Padding="25,10"
                     FontSize="14">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.compare_arrows}" 
-                               Style="{StaticResource IconStyle}" 
-                               Foreground="White" 
+                    <TextBlock Text="{x:Static fonts:MaterialIcons.compare_arrows}"
+                               Style="{StaticResource IconStyle}"
+                               Foreground="White"
                                FontSize="18"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Find Difference" FontWeight="SemiBold"/>

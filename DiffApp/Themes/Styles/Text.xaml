@@ -3,25 +3,29 @@
 
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="Colors.xaml"/>
+		<ResourceDictionary Source="/Resources/ThemeResources.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
-	<FontFamily x:Key="MaterialIcons">pack://application:,,,/DiffApp;component/Resources/Fonts/MaterialIcons-Regular.ttf#Material Icons</FontFamily>
 
 	<Style x:Key="IconStyle" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource MaterialIcons}" />
+		<Setter Property="FontFamily" Value="{StaticResource MaterialIconsFont}" />
 		<Setter Property="FontSize" Value="20" />
 		<Setter Property="VerticalAlignment" Value="Center" />
 		<Setter Property="HorizontalAlignment" Value="Center" />
 		<Setter Property="TextAlignment" Value="Center" />
+		<Setter Property="Foreground" Value="{StaticResource BrushPrimary}" />
 	</Style>
 
+
 	<Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="{StaticResource AppFont}" />
 		<Setter Property="FontSize" Value="18"/>
 		<Setter Property="FontWeight" Value="Bold"/>
 		<Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
 	</Style>
 
 	<Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="{StaticResource AppFont}" />
 		<Setter Property="FontWeight" Value="SemiBold"/>
 		<Setter Property="Margin" Value="0,0,0,10"/>
 		<Setter Property="Foreground" Value="{StaticResource GrayTextBrush}"/>
