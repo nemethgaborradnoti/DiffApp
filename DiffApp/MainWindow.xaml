@@ -157,21 +157,6 @@
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
-
-                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="30"
-                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Button Command="{Binding JumpToTopCommand}"
-                            ToolTip="Jump to Top"
-                            Style="{StaticResource FabButtonStyle}">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_up}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="White"/>
-                    </Button>
-
-                    <Button Command="{Binding JumpToInputCommand}"
-                            ToolTip="Jump to Input"
-                            Style="{StaticResource FabButtonStyle}">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_circle_down}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="White"/>
-                    </Button>
-                </StackPanel>
             </Grid>
         </Grid>
     </Grid>
