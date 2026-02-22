@@ -241,31 +241,24 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.ColumnSpan="4">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Background" Value="{Binding LeftLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding LeftLine}" Value="{x:Null}">
-                                            <Setter Property="Background" Value="{Binding RightLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                        </Border>
+                        <!-- Background Coloring -->
+                        <Border Grid.ColumnSpan="4" 
+                                Background="{Binding UnifiedLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
 
+                        <!-- Line Numbers -->
                         <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
                         <TextBlock Grid.Column="1" Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
 
+                        <!-- Change Indicator (+/-) -->
                         <TextBlock Grid.Column="2" Foreground="{StaticResource BrushLineNumber}" Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Text" Value=" "/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RightLine.Kind}" Value="Inserted">
+                                        <DataTrigger Binding="{Binding UnifiedLine.Kind}" Value="Inserted">
                                             <Setter Property="Text" Value="+"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding LeftLine.Kind}" Value="Deleted">
+                                        <DataTrigger Binding="{Binding UnifiedLine.Kind}" Value="Deleted">
                                             <Setter Property="Text" Value="-"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -273,18 +266,12 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <ContentPresenter Grid.Column="3" Margin="5,0,0,0" VerticalAlignment="Center" ContentTemplate="{StaticResource LineContentTemplate}">
-                            <ContentPresenter.Style>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Content" Value="{Binding LeftLine}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding LeftLine}" Value="{x:Null}">
-                                            <Setter Property="Content" Value="{Binding RightLine}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ContentPresenter.Style>
-                        </ContentPresenter>
+                        <!-- Content -->
+                        <ContentPresenter Grid.Column="3" 
+                                          Margin="5,0,0,0" 
+                                          VerticalAlignment="Center" 
+                                          ContentTemplate="{StaticResource LineContentTemplate}"
+                                          Content="{Binding UnifiedLine}"/>
                     </Grid>
                 </Border>
             </Grid>

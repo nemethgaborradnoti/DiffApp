@@ -14,13 +14,14 @@ namespace DiffApp.ViewModels
             IsFirstLine = isFirstLine;
             IsLastLine = isLastLine;
 
-            _parentBlock.PropertyChanged += OnParentBlockPropertyChanged;
+            PropertyChangedEventManager.AddHandler(_parentBlock, OnParentBlockPropertyChanged, string.Empty);
         }
 
         public ChangeLine? LeftLine { get; }
         public ChangeLine? RightLine { get; }
         public bool IsFirstLine { get; }
         public bool IsLastLine { get; }
+        public ChangeLine? UnifiedLine => LeftLine ?? RightLine;
 
         public ChangeBlock ParentBlock => _parentBlock;
 
