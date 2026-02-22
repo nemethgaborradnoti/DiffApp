@@ -13,11 +13,16 @@ namespace DiffApp
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<ISettingsService, SettingsService>();
+                    services.AddSingleton<IDialogService, DialogService>();
                     services.AddSingleton<IComparisonService, ComparisonService>();
                     services.AddSingleton<IMergeService, MergeService>();
                     services.AddSingleton<IScrollService, ScrollService>();
+                    services.AddSingleton<IHistoryService, HistoryService>();
+
                     services.AddSingleton<InputViewModel>();
+                    services.AddTransient<HistoryViewModel>();
                     services.AddTransient<MainViewModel>();
+
                     services.AddSingleton<MainWindow>();
                 })
                 .Build();

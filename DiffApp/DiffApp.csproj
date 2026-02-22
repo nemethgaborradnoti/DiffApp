@@ -20,6 +20,7 @@
 		<PackageReference Include="DiffPlex" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="LiteDB" />
 	</ItemGroup>
 
 	<ItemGroup>

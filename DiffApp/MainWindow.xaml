@@ -5,13 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:DiffApp.Converters"
         xmlns:models="clr-namespace:DiffApp.Models"
+        xmlns:views="clr-namespace:DiffApp.Views"
         xmlns:fonts="clr-namespace:Fonts"
         mc:Ignorable="d"
         Title="DiffApp" Height="800" Width="1200"
-        WindowStartupLocation="CenterScreen">
+        MinHeight="500" MinWidth="700"
+        WindowStartupLocation="Manual"
+        SourceInitialized="Window_SourceInitialized"
+        Closing="Window_Closing">
 
     <Window.Resources>
         <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
         <Style x:Key="FabButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
             <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
@@ -83,6 +88,18 @@
                     </Button>
                 </Grid>
 
+                <Button Command="{Binding OpenHistoryCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="0,0,0,20"
+                        HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{x:Static fonts:MaterialIcons.history}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="18"/>
+                        <TextBlock Text="View History" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+
+                <Separator Margin="0,0,0,20" Background="{StaticResource BrushBorder}"/>
+
                 <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
                 <CheckBox Content="Word Wrap"
                           IsChecked="{Binding InputViewModel.IsWordWrapEnabled}"
@@ -120,119 +137,143 @@
             </StackPanel>
         </Border>
 
-        <!-- Main Content Area -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Top Bar -->
                 <RowDefinition Height="*"/>
-                <!-- Comparison View -->
                 <RowDefinition Height="Auto"/>
-                <!-- Input Toggle Bar -->
                 <RowDefinition Height="Auto"/>
-                <!-- Input View -->
             </Grid.RowDefinitions>
 
-            <!-- Row 0: Top Bar -->
-            <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
-                <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource IconButtonStyle}"
-                            Command="{Binding ToggleSettingsCommand}"
-                            Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                            ToolTip="Open Settings"
-                            Padding="10,6">
+            <Grid Grid.Row="0" Grid.RowSpan="4" 
+                  Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding ToggleSettingsCommand}"
+                                Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                                ToolTip="Open Settings"
+                                Padding="10,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="20"/>
+                                <TextBlock Text="Settings" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <ContentControl Grid.Row="1"
+                                Content="{Binding ComparisonViewModel}"
+                                Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                <TextBlock Grid.Row="1"
+                           Text="No comparison generated yet."
+                           Foreground="{StaticResource GrayTextBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding ComparisonViewModel}" Value="{x:Null}"/>
+                                        <Condition Binding="{Binding IsInputPanelExpanded}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Button Grid.Row="2"
+                        Command="{Binding ToggleInputPanelCommand}"
+                        Background="{StaticResource BrushAccent}"
+                        BorderBrush="{StaticResource BrushBorder}"
+                        BorderThickness="0,1,0,0"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="10,5">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                        <TextBlock Foreground="White" FontSize="24">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_more}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+                                                            <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_less}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <ContentControl Grid.Row="3" Content="{Binding InputViewModel}">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+            </Grid>
+
+            <Grid Grid.Row="0" Grid.RowSpan="4" 
+                  Background="{StaticResource BrushBackground}"
+                  Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="{StaticResource BrushSurface}" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="10">
+                    <Grid>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="20"/>
-                            <TextBlock Text="Settings" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Border>
-
-            <!-- Row 1: Comparison View -->
-            <ContentControl Grid.Row="1" 
-                            Content="{Binding ComparisonViewModel}"
-                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}"/>
-
-            <!-- Placeholder text when no comparison is active and input is collapsed -->
-            <TextBlock Grid.Row="1" 
-                       Text="No comparison generated yet." 
-                       Foreground="{StaticResource GrayTextBrush}"
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding ComparisonViewModel}" Value="{x:Null}"/>
-                                    <Condition Binding="{Binding IsInputPanelExpanded}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-
-            <!-- Row 2: Input Toggle Bar -->
-            <Button Grid.Row="2" 
-                    Command="{Binding ToggleInputPanelCommand}"
-                    Background="{StaticResource BrushAccent}"
-                    BorderBrush="{StaticResource BrushBorder}"
-                    BorderThickness="0,1,0,0"
-                    Cursor="Hand">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="10,5">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
-
-                                    <!-- Icon changes based on expansion state -->
-                                    <TextBlock Foreground="White" FontSize="24">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
-                                                <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_more}"/>
-                                                <!-- Down Arrow -->
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
-                                                        <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_less}"/>
-                                                        <!-- Up Arrow -->
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                            <Button Style="{StaticResource IconButtonStyle}"
+                                    Command="{Binding CloseHistoryCommand}"
+                                    ToolTip="Back to Editor">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.arrow_back}" Style="{StaticResource IconStyle}" Margin="0,0,10,0" FontSize="20"/>
+                                    <TextBlock Text="Back to Editor" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-            <!-- Row 3: Input View -->
-            <ContentControl Grid.Row="3" Content="{Binding InputViewModel}">
-                <ContentControl.Style>
-                    <Style TargetType="ContentControl">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentControl.Style>
-            </ContentControl>
+                <views:HistoryView Grid.Row="1" DataContext="{Binding HistoryViewModel}"/>
+            </Grid>
 
         </Grid>
     </Grid>

@@ -8,12 +8,15 @@ namespace DiffApp.ViewModels
         private readonly IMergeService _mergeService;
         private readonly ISettingsService _settingsService;
         private readonly IScrollService _scrollService;
+        private readonly IHistoryService _historyService;
 
         private ComparisonViewModel? _comparisonViewModel;
         private bool _isSettingsPanelOpen = true;
         private bool _isInputPanelExpanded = true;
+        private bool _isHistoryOpen;
 
         public InputViewModel InputViewModel { get; }
+        public HistoryViewModel HistoryViewModel { get; }
 
         public ComparisonViewModel? ComparisonViewModel
         {
@@ -33,6 +36,12 @@ namespace DiffApp.ViewModels
             set => SetProperty(ref _isInputPanelExpanded, value);
         }
 
+        public bool IsHistoryOpen
+        {
+            get => _isHistoryOpen;
+            set => SetProperty(ref _isHistoryOpen, value);
+        }
+
         public ICommand CopyTextCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ToggleInputPanelCommand { get; }
@@ -41,23 +50,31 @@ namespace DiffApp.ViewModels
         public ICommand JumpToTopCommand { get; }
         public ICommand JumpToInputCommand { get; }
         public ICommand ClearContentCommand { get; }
+        public ICommand OpenHistoryCommand { get; }
+        public ICommand CloseHistoryCommand { get; }
 
         public MainViewModel(
             IComparisonService comparisonService,
             IMergeService mergeService,
             ISettingsService settingsService,
             IScrollService scrollService,
-            InputViewModel inputViewModel)
+            IHistoryService historyService,
+            InputViewModel inputViewModel,
+            HistoryViewModel historyViewModel)
         {
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             _scrollService = scrollService ?? throw new ArgumentNullException(nameof(scrollService));
+            _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
+
             InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
+            HistoryViewModel = historyViewModel ?? throw new ArgumentNullException(nameof(historyViewModel));
 
             InputViewModel.CompareRequested += OnCompareRequested;
             InputViewModel.SettingsChanged += OnSettingsChanged;
             InputViewModel.PropertyChanged += InputViewModel_PropertyChanged;
+            HistoryViewModel.RestoreRequested += OnHistoryRestoreRequested;
 
             CopyTextCommand = new RelayCommand(CopyText);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
@@ -68,6 +85,29 @@ namespace DiffApp.ViewModels
 
             JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
             JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
+
+            OpenHistoryCommand = new RelayCommand(OpenHistory);
+            CloseHistoryCommand = new RelayCommand(_ => IsHistoryOpen = false);
+        }
+
+        private void OpenHistory(object? parameter)
+        {
+            IsHistoryOpen = true;
+            IsSettingsPanelOpen = false;
+            if (HistoryViewModel.LoadHistoryCommand.CanExecute(null))
+            {
+                HistoryViewModel.LoadHistoryCommand.Execute(null);
+            }
+        }
+
+        private void OnHistoryRestoreRequested(object? sender, DiffHistoryItem item)
+        {
+            IsHistoryOpen = false;
+
+            InputViewModel.LeftText = item.OriginalText;
+            InputViewModel.RightText = item.ModifiedText;
+
+            PerformComparison(saveToHistory: false);
         }
 
         private void ResetDefaults(object? parameter)
@@ -112,11 +152,11 @@ namespace DiffApp.ViewModels
 
         private void OnCompareRequested(object? sender, EventArgs e)
         {
-            PerformComparison();
+            PerformComparison(saveToHistory: true);
             Application.Current.Dispatcher.InvokeAsync(() => _scrollService.ScrollToTop());
         }
 
-        private void PerformComparison()
+        private void PerformComparison(bool saveToHistory = false)
         {
             var settings = new CompareSettings
             {
@@ -151,8 +191,12 @@ namespace DiffApp.ViewModels
 
             ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
 
-            // Auto-collapse input panel after successful comparison
             IsInputPanelExpanded = false;
+
+            if (saveToHistory && (!string.IsNullOrEmpty(left) || !string.IsNullOrEmpty(right)))
+            {
+                _ = _historyService.AddAsync(left, right);
+            }
         }
 
         private void SwapAll(object? parameter)
@@ -161,7 +205,7 @@ namespace DiffApp.ViewModels
             InputViewModel.LeftText = InputViewModel.RightText;
             InputViewModel.RightText = temp;
 
-            PerformComparison();
+            PerformComparison(saveToHistory: true);
         }
 
         private void CopyText(object? parameter)
