@@ -19,19 +19,23 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Extract Version
-      id: extract_version
+    - name: Extract Version and Path
+      id: extract_info
       shell: pwsh
       run: |
-        [xml]$xml = Get-Content DiffApp.csproj
+        $projectFile = Get-ChildItem -Recurse -Filter "DiffApp.csproj" | Select-Object -First 1
+        if (-not $projectFile) { throw "DiffApp.csproj not found in the repository." }
+        [xml]$xml = Get-Content $projectFile.FullName
         $version = $xml.Project.PropertyGroup.Version
-        echo "APP_VERSION=v$version" >> $env:GITHUB_ENV
+        if (-not $version) { throw "Version tag missing in .csproj" }
+        "APP_VERSION=v$version" >> $env:GITHUB_ENV
+        "PROJECT_PATH=$($projectFile.FullName)" >> $env:GITHUB_ENV
 
     - name: Restore dependencies
-      run: dotnet restore DiffApp.csproj
+      run: dotnet restore "${{ env.PROJECT_PATH }}"
 
     - name: Build and publish
-      run: dotnet publish DiffApp.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true --output ./publish
+      run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true --output ./publish
 
     - name: Zip the artifacts
       run: Compress-Archive -Path ./publish/* -DestinationPath DiffApp-${{ env.APP_VERSION }}.zip
