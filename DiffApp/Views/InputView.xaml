@@ -16,10 +16,10 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Margin="0,10,0,5" Padding="5">
-            <TextBlock Text="Input view" 
-                       HorizontalAlignment="Center" 
-                       FontSize="18" 
-                       FontWeight="Bold" 
+            <TextBlock Text="Input view"
+                       HorizontalAlignment="Center"
+                       FontSize="18"
+                       FontWeight="Bold"
                        Foreground="{StaticResource TextBrush}"/>
         </Border>
 
@@ -43,7 +43,10 @@
                          HorizontalScrollBarVisibility="Auto"
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
-                         Padding="5"/>
+                         Padding="5"
+                         MinHeight="300"
+                         MaxHeight="600"
+                         VerticalAlignment="Top"/>
             </Grid>
 
             <Grid Grid.Column="1" Margin="2,5,0,0">
@@ -61,7 +64,10 @@
                          HorizontalScrollBarVisibility="Auto"
                          TextWrapping="{Binding IsWordWrapEnabled, Converter={x:Static converters:BoolToTextWrappingConverter.Instance}}"
                          FontFamily="Consolas"
-                         Padding="5"/>
+                         Padding="5"
+                         MinHeight="300"
+                         MaxHeight="600"
+                         VerticalAlignment="Top"/>
             </Grid>
         </Grid>
 
