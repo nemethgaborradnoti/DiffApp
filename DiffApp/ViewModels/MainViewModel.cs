@@ -18,7 +18,6 @@ namespace DiffApp.ViewModels
 
         public ICommand NavigateToEditorCommand { get; }
         public ICommand NavigateToHistoryCommand { get; }
-        public ICommand ToggleSettingsCommand { get; }
 
         public MainViewModel(
             EditorViewModel editorViewModel,
@@ -40,15 +39,6 @@ namespace DiffApp.ViewModels
                 {
                     HistoryViewModel.LoadHistoryCommand.Execute(null);
                 }
-            });
-
-            ToggleSettingsCommand = new RelayCommand(_ =>
-            {
-                if (CurrentViewModel != EditorViewModel)
-                {
-                    CurrentViewModel = EditorViewModel;
-                }
-                EditorViewModel.IsSettingsPanelOpen = !EditorViewModel.IsSettingsPanelOpen;
             });
         }
 

@@ -1,69 +1,74 @@
 <UserControl x:Class="DiffApp.Views.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
              xmlns:models="clr-namespace:DiffApp.Models"
              xmlns:fonts="clr-namespace:Fonts"
              xmlns:converters="clr-namespace:DiffApp.Converters"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="300">
 
     <StackPanel>
-        <Grid Margin="0,0,0,20">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
-                <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
-            </StackPanel>
+        <!-- Comparison Section -->
+        <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,10"/>
+        <CheckBox Content="Ignore Whitespace"
+                  IsChecked="{Binding IgnoreWhitespace}"
+                  Style="{StaticResource ToggleSwitchStyle}"
+                  Margin="0,0,0,10"/>
 
-            <Button Style="{StaticResource IconButtonStyle}"
-                    Command="{Binding DataContext.CloseSettingsCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=2}}"
-                    HorizontalAlignment="Right"
-                    ToolTip="Close Settings">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}"/>
-            </Button>
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton Grid.Column="0" Content="Word" 
+                         IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
+                         GroupName="PrecisionGroup"
+                         Style="{StaticResource SegmentedRadioLeftStyle}"/>
+            <RadioButton Grid.Column="1" Content="Char" 
+                         IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
+                         GroupName="PrecisionGroup"
+                         Style="{StaticResource SegmentedRadioRightStyle}"/>
         </Grid>
 
-        <Separator Margin="0,0,0,20" Background="{StaticResource BrushBorder}"/>
-
+        <!-- Appearance Section -->
         <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox Content="Word Wrap"
                   IsChecked="{Binding IsWordWrapEnabled}"
                   Style="{StaticResource ToggleSwitchStyle}"
                   Margin="0,0,0,20"/>
 
+        <!-- Layout Section -->
         <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
-        <StackPanel Margin="0,0,0,20">
-            <RadioButton Content="Split" IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
-                         GroupName="ViewModeGroup" Margin="0,0,0,8"/>
-            <RadioButton Content="Unified" IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Unified}}"
-                         GroupName="ViewModeGroup" Margin="0,0,0,8"/>
-        </StackPanel>
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton Grid.Column="0" Content="Split" 
+                         IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
+                         GroupName="ViewModeGroup"
+                         Style="{StaticResource SegmentedRadioLeftStyle}"/>
+            <RadioButton Grid.Column="1" Content="Unified" 
+                         IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Unified}}"
+                         GroupName="ViewModeGroup"
+                         Style="{StaticResource SegmentedRadioRightStyle}"/>
+        </Grid>
 
-        <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}"/>
-        <CheckBox Content="Ignore Whitespace"
-                  IsChecked="{Binding IgnoreWhitespace}"
-                  Style="{StaticResource ToggleSwitchStyle}"
-                  Margin="0,0,0,20"/>
-
-        <TextBlock Text="Highlight Precision" Style="{StaticResource SectionHeaderStyle}"/>
-        <StackPanel Margin="0,0,0,20">
-            <RadioButton Content="Word Level" IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
-                         GroupName="PrecisionGroup" Margin="0,0,0,8"/>
-            <RadioButton Content="Character Level" IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
-                         GroupName="PrecisionGroup" Margin="0,0,0,8"/>
-        </StackPanel>
-
+        <!-- View Section -->
         <TextBlock Text="View" Style="{StaticResource SectionHeaderStyle}"/>
         <Button Content="Reset window"
                 Command="{Binding ResetWindowCommand}"
                 Style="{StaticResource SecondaryButton}"
                 Margin="0,0,0,20"/>
 
+        <!-- Separator and Reset Defaults -->
+        <Separator Background="{StaticResource BrushBorder}" Margin="0,20,0,20"/>
+
         <Button Content="Reset to defaults"
                  Command="{Binding ResetDefaultsCommand}"
-                 Style="{StaticResource DangerButton}"
-                 Margin="0,20,0,0"/>
+                 Style="{StaticResource DangerButton}"/>
     </StackPanel>
 </UserControl>

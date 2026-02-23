@@ -16,7 +16,6 @@
         Closing="Window_Closing">
 
     <Window.Resources>
-        <!-- Header Navigation Button Style -->
         <Style x:Key="NavButtonStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -52,12 +51,9 @@
     <Grid Background="{StaticResource BrushSurface}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Header -->
             <RowDefinition Height="*"/>
-            <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="15,0">
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
@@ -66,13 +62,11 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- App Logo/Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,30,0">
                     <TextBlock Text="{x:Static fonts:MaterialIcons.difference}" Style="{StaticResource IconStyle}" FontSize="28" Foreground="{StaticResource BrushAccent}" Margin="0,0,10,0"/>
                     <TextBlock Text="DiffApp" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Navigation Tabs -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <RadioButton Content="Editor"
                                  GroupName="Nav"
@@ -86,19 +80,9 @@
                                  Style="{StaticResource NavButtonStyle}"
                                  IsChecked="{Binding CurrentViewModel, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Type viewModels:HistoryViewModel}, Mode=OneWay}"/>
                 </StackPanel>
-
-                <!-- Settings Button -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Command="{Binding ToggleSettingsCommand}"
-                            Style="{StaticResource IconButtonStyle}"
-                            ToolTip="Settings">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="{StaticResource GrayTextBrush}"/>
-                    </Button>
-                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Main Content -->
         <Border Grid.Row="1" Background="{StaticResource BrushBackground}">
             <ContentControl Content="{Binding CurrentViewModel}"/>
         </Border>

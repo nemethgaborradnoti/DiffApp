@@ -97,7 +97,7 @@
                     Padding="25,10"
                     FontSize="14">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.compare_arrows}"
+                    <TextBlock Text="{x:Static fonts:MaterialIcons.search}"
                                Style="{StaticResource IconStyle}"
                                Foreground="White"
                                FontSize="18"

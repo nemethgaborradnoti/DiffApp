@@ -1,7 +1,4 @@
-﻿using DiffApp.Services.Interfaces;
-using DiffApp.Helpers;
-using DiffApp.Models;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace DiffApp.ViewModels
@@ -59,7 +56,7 @@ namespace DiffApp.ViewModels
         public ICommand JumpToTopCommand { get; }
         public ICommand JumpToInputCommand { get; }
         public ICommand ClearContentCommand { get; }
-        public ICommand CloseSettingsCommand { get; }
+        public ICommand ToggleSettingsPanelCommand { get; }
 
         public EditorViewModel(
             IComparisonService comparisonService,
@@ -80,13 +77,15 @@ namespace DiffApp.ViewModels
             InputViewModel.SettingsChanged += OnSettingsChanged;
             InputViewModel.PropertyChanged += InputViewModel_PropertyChanged;
 
+            SettingsViewModel.SettingsChanged += OnSettingsChanged;
+
             CopyTextCommand = new RelayCommand(async p => await CopyTextAsync(p), CanCopyText);
             ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelExpanded = !IsInputPanelExpanded);
             SwapAllCommand = new RelayCommand(SwapAll);
             ClearContentCommand = new RelayCommand(ClearContent);
             JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
             JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
-            CloseSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = false);
+            ToggleSettingsPanelCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
         }
 
         public void LoadFromHistory(DiffHistoryItem item)
@@ -99,8 +98,11 @@ namespace DiffApp.ViewModels
         private void OnSettingsChanged(object? sender, EventArgs e)
         {
             InputViewModel.ReloadSettings();
+
             if (ComparisonViewModel != null)
             {
+                ComparisonViewModel.IsUnifiedMode = SettingsViewModel.ViewMode == ViewMode.Unified;
+
                 PerformComparison();
             }
         }
