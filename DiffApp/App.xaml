@@ -12,6 +12,7 @@
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter"/>
 
             <DataTemplate DataType="{x:Type viewModels:InputViewModel}">
                 <views:InputView />
@@ -19,6 +20,18 @@
 
             <DataTemplate DataType="{x:Type viewModels:ComparisonViewModel}">
                 <views:ComparisonView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:HistoryViewModel}">
+                <views:HistoryView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:EditorViewModel}">
+                <views:EditorView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

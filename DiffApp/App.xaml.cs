@@ -20,7 +20,11 @@ namespace DiffApp
                     services.AddSingleton<IHistoryService, HistoryService>();
 
                     services.AddSingleton<InputViewModel>();
+                    services.AddSingleton<SettingsViewModel>();
                     services.AddTransient<HistoryViewModel>();
+
+                    services.AddSingleton<EditorViewModel>();
+
                     services.AddTransient<MainViewModel>();
 
                     services.AddSingleton<MainWindow>();

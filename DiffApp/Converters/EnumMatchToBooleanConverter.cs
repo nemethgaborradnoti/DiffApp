@@ -13,6 +13,12 @@ namespace DiffApp.Converters
             if (value == null || parameter == null)
                 return false;
 
+            // Handle Type checks for ViewModel navigation
+            if (parameter is Type typeParameter && value != null)
+            {
+                return value.GetType() == typeParameter;
+            }
+
             return value.Equals(parameter);
         }
 

@@ -32,7 +32,6 @@
             {
                 if (SetProperty(ref _ignoreWhitespace, value))
                 {
-                    SaveCurrentSettings();
                     SettingsChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -41,13 +40,7 @@
         public bool IsWordWrapEnabled
         {
             get => _isWordWrapEnabled;
-            set
-            {
-                if (SetProperty(ref _isWordWrapEnabled, value))
-                {
-                    SaveCurrentSettings();
-                }
-            }
+            set => SetProperty(ref _isWordWrapEnabled, value);
         }
 
         public PrecisionLevel Precision
@@ -57,7 +50,6 @@
             {
                 if (SetProperty(ref _precision, value))
                 {
-                    SaveCurrentSettings();
                     SettingsChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -66,13 +58,7 @@
         public ViewMode ViewMode
         {
             get => _viewMode;
-            set
-            {
-                if (SetProperty(ref _viewMode, value))
-                {
-                    SaveCurrentSettings();
-                }
-            }
+            set => SetProperty(ref _viewMode, value);
         }
 
         public ICommand SwapTextsCommand { get; }
@@ -85,27 +71,17 @@
             SwapTextsCommand = new RelayCommand(SwapTexts);
             FindDifferenceCommand = new RelayCommand(OnFindDifference, CanFindDifference);
 
-            LoadSettings();
+            ReloadSettings();
             LoadSampleText();
         }
 
-        private void LoadSettings()
+        public void ReloadSettings()
         {
             var settings = _settingsService.LoadSettings();
-            _ignoreWhitespace = settings.IgnoreWhitespace;
-            _isWordWrapEnabled = settings.IsWordWrapEnabled;
-            _precision = settings.Precision;
-            _viewMode = settings.ViewMode;
-        }
-
-        private void SaveCurrentSettings()
-        {
-            var current = _settingsService.LoadSettings();
-            current.IgnoreWhitespace = IgnoreWhitespace;
-            current.IsWordWrapEnabled = IsWordWrapEnabled;
-            current.Precision = Precision;
-            current.ViewMode = ViewMode;
-            _settingsService.SaveSettings(current);
+            IgnoreWhitespace = settings.IgnoreWhitespace;
+            IsWordWrapEnabled = settings.IsWordWrapEnabled;
+            Precision = settings.Precision;
+            ViewMode = settings.ViewMode;
         }
 
         private void OnFindDifference(object? parameter)

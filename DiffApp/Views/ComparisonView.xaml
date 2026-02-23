@@ -7,6 +7,7 @@
              xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
              xmlns:converters="clr-namespace:DiffApp.Converters"
              xmlns:helpers="clr-namespace:DiffApp.Helpers"
+             xmlns:views="clr-namespace:DiffApp.Views"
              xmlns:fonts="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800"
@@ -20,9 +21,9 @@
 
         <DataTemplate x:Key="LineContentTemplate">
             <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
-                       helpers:TextBlockFormatter.Precision="{Binding DataContext.InputViewModel.Precision, RelativeSource={RelativeSource AncestorType=Window}}"
+                       helpers:TextBlockFormatter.Precision="{Binding DataContext.SettingsViewModel.Precision, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        helpers:TextBlockFormatter.AreHighlightsEnabled="{Binding IsInModifiedBlock}"
-                       TextWrapping="{Binding DataContext.InputViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
+                       TextWrapping="{Binding DataContext.SettingsViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
                        FontFamily="{StaticResource CodeFont}" />
         </DataTemplate>
 
@@ -37,11 +38,8 @@
                         <Style TargetType="Border">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderBrush" Value="Transparent"/>
-                            <!-- Default thickness reserves space to prevent jumping -->
                             <Setter Property="BorderThickness" Value="2,0,2,0"/>
-
                             <Style.Triggers>
-                                <!-- Geometry Triggers (Persistent) -->
                                 <DataTrigger Binding="{Binding IsFirstLine}" Value="True">
                                     <Setter Property="BorderThickness" Value="2,2,2,0"/>
                                 </DataTrigger>
@@ -55,8 +53,6 @@
                                     </MultiDataTrigger.Conditions>
                                     <Setter Property="BorderThickness" Value="2,2,2,2"/>
                                 </MultiDataTrigger>
-
-                                <!-- Visual Triggers (Hover/Selection) -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding IsBlockHovered}" Value="True"/>
@@ -65,12 +61,10 @@
                                     <Setter Property="Background" Value="#F8F8F8"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
                                 </MultiDataTrigger>
-
                                 <DataTrigger Binding="{Binding IsBlockSelected}" Value="True">
                                     <Setter Property="Background" Value="#F0F8FF"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
                                 </DataTrigger>
-
                                 <DataTrigger Binding="{Binding IsMergeable}" Value="True">
                                     <Setter Property="Cursor" Value="Hand"/>
                                 </DataTrigger>
@@ -88,7 +82,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
-                            <!-- Row for Merge Controls -->
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0">
@@ -121,7 +114,7 @@
                             </Grid>
                         </Grid>
 
-                        <!-- MERGE CONTROLS (Embedded, no Popup) -->
+                        <!-- MERGE CONTROLS -->
                         <Border Grid.Row="1"
                                 Background="White"
                                 BorderBrush="{StaticResource BrushSelectionBorder}"
@@ -190,11 +183,8 @@
                         <Style TargetType="Border">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderBrush" Value="Transparent"/>
-                            <!-- Default thickness reserves space to prevent jumping -->
                             <Setter Property="BorderThickness" Value="2,0,2,0"/>
-
                             <Style.Triggers>
-                                <!-- Geometry Triggers (Persistent) -->
                                 <DataTrigger Binding="{Binding IsFirstLine}" Value="True">
                                     <Setter Property="BorderThickness" Value="2,2,2,0"/>
                                 </DataTrigger>
@@ -208,8 +198,6 @@
                                     </MultiDataTrigger.Conditions>
                                     <Setter Property="BorderThickness" Value="2,2,2,2"/>
                                 </MultiDataTrigger>
-
-                                <!-- Visual Triggers (Hover/Selection) -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding IsBlockHovered}" Value="True"/>
@@ -218,7 +206,6 @@
                                     <Setter Property="Background" Value="#F8F8F8"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
                                 </MultiDataTrigger>
-
                                 <DataTrigger Binding="{Binding IsBlockSelected}" Value="True">
                                     <Setter Property="Background" Value="#F0F8FF"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
@@ -240,16 +227,10 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-
-                        <!-- Background Coloring -->
-                        <Border Grid.ColumnSpan="4" 
+                        <Border Grid.ColumnSpan="4"
                                 Background="{Binding UnifiedLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-
-                        <!-- Line Numbers -->
                         <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
                         <TextBlock Grid.Column="1" Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
-
-                        <!-- Change Indicator (+/-) -->
                         <TextBlock Grid.Column="2" Foreground="{StaticResource BrushLineNumber}" Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -265,11 +246,9 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-
-                        <!-- Content -->
-                        <ContentPresenter Grid.Column="3" 
-                                          Margin="5,0,0,0" 
-                                          VerticalAlignment="Center" 
+                        <ContentPresenter Grid.Column="3"
+                                          Margin="5,0,0,0"
+                                          VerticalAlignment="Center"
                                           ContentTemplate="{StaticResource LineContentTemplate}"
                                           Content="{Binding UnifiedLine}"/>
                     </Grid>
@@ -308,16 +287,46 @@
                             <Button Style="{StaticResource IconButtonStyle}"
                                     HorizontalAlignment="Right"
                                     ToolTip="Copy Original Text"
-                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                     CommandParameter="{x:Static models:Side.Old}">
-                                <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="18"/>
+                                <Grid>
+                                    <!-- Normal Icon -->
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                <Setter Property="FontSize" Value="18"/>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <!-- Check Icon -->
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                <Setter Property="FontSize" Value="18"/>
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                             </Button>
                         </Grid>
 
                         <!-- Center Swap -->
                         <Button Grid.Column="1"
                                 Style="{StaticResource IconButtonStyle}"
-                                Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                 ToolTip="Swap Sides"
                                 Margin="15,0">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="22"/>
@@ -334,9 +343,39 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Style="{StaticResource IconButtonStyle}"
                                         ToolTip="Copy Modified Text"
-                                        Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                         CommandParameter="{x:Static models:Side.New}">
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}" Style="{StaticResource IconStyle}" FontSize="18"/>
+                                    <Grid>
+                                        <!-- Normal Icon -->
+                                        <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="FontSize" Value="18"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsRightCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <!-- Check Icon -->
+                                        <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="FontSize" Value="18"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsRightCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
                                 </Button>
 
                                 <Rectangle Width="1" Height="20" Fill="{StaticResource BrushBorder}" Margin="8,0"/>
@@ -345,7 +384,7 @@
                                         Margin="8,0,0,0"
                                         Padding="12,6"
                                         ToolTip="Clear Content"
-                                        Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                        Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
                                         <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
@@ -421,7 +460,7 @@
                             <Button Style="{StaticResource DangerButton}"
                                     Padding="12,6"
                                     ToolTip="Clear Content"
-                                    Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                                    Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
                                     <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
