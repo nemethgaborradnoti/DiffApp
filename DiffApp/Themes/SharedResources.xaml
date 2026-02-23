@@ -9,6 +9,7 @@
         <ResourceDictionary Source="/Themes/Styles/Inputs.xaml" />
         <ResourceDictionary Source="/Themes/Styles/DataDisplay.xaml" />
         <ResourceDictionary Source="/Themes/Styles/Layout.xaml" />
+        <ResourceDictionary Source="/Themes/Styles/ScrollBars.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <Style TargetType="{x:Type Window}">

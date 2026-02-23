@@ -19,8 +19,8 @@
         <Style x:Key="NavButtonStyle" TargetType="RadioButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,10"/>
-            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Foreground" Value="{StaticResource GrayTextBrush}"/>
@@ -55,7 +55,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,1" Padding="15,0">
-            <Grid Height="60">
+            <Grid Height="48">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -63,8 +63,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,30,0">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.difference}" Style="{StaticResource IconStyle}" FontSize="28" Foreground="{StaticResource BrushAccent}" Margin="0,0,10,0"/>
-                    <TextBlock Text="DiffApp" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Static fonts:MaterialIcons.difference}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="{StaticResource BrushAccent}" Margin="0,0,10,0"/>
+                    <TextBlock Text="DiffApp" FontSize="18" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">

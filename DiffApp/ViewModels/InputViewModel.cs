@@ -9,6 +9,7 @@
         private bool _isWordWrapEnabled = true;
         private PrecisionLevel _precision = PrecisionLevel.Word;
         private ViewMode _viewMode = ViewMode.Split;
+        private double _fontSize = 14.0;
 
         public event EventHandler? CompareRequested;
         public event EventHandler? SettingsChanged;
@@ -61,6 +62,12 @@
             set => SetProperty(ref _viewMode, value);
         }
 
+        public double FontSize
+        {
+            get => _fontSize;
+            set => SetProperty(ref _fontSize, value);
+        }
+
         public ICommand SwapTextsCommand { get; }
         public ICommand FindDifferenceCommand { get; }
 
@@ -82,6 +89,7 @@
             IsWordWrapEnabled = settings.IsWordWrapEnabled;
             Precision = settings.Precision;
             ViewMode = settings.ViewMode;
+            FontSize = settings.FontSize;
         }
 
         private void OnFindDifference(object? parameter)

@@ -24,13 +24,12 @@
                        helpers:TextBlockFormatter.Precision="{Binding DataContext.SettingsViewModel.Precision, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        helpers:TextBlockFormatter.AreHighlightsEnabled="{Binding IsInModifiedBlock}"
                        TextWrapping="{Binding DataContext.SettingsViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
+                       FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        FontFamily="{StaticResource CodeFont}" />
         </DataTemplate>
 
-        <!-- Template for a single row in Side-by-Side View -->
         <DataTemplate x:Key="SideBySideRowTemplate" DataType="{x:Type viewModels:DiffLineViewModel}">
             <Grid>
-                <!-- Normal Data Row -->
                 <Border x:Name="RowBorder" Padding="0"
                         MouseEnter="OnRowMouseEnter"
                         MouseLeave="OnRowMouseLeave">
@@ -91,30 +90,39 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <!-- Left Side -->
                             <Grid Grid.Column="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.ColumnSpan="2" Background="{Binding LeftLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
-                                <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}"/>
+                                <TextBlock Text="{Binding LeftLine.LineNumber}" 
+                                           Foreground="{StaticResource BrushLineNumber}" 
+                                           Background="#F6F8FA" 
+                                           TextAlignment="Right" 
+                                           Padding="0,2,8,2" 
+                                           FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                           FontFamily="{StaticResource CodeFont}"/>
                                 <ContentPresenter Grid.Column="1" Content="{Binding LeftLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
 
-                            <!-- Right Side -->
                             <Grid Grid.Column="2" Margin="2,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.ColumnSpan="2" Background="{Binding RightLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
-                                <TextBlock Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}"/>
+                                <TextBlock Text="{Binding RightLine.LineNumber}" 
+                                           Foreground="{StaticResource BrushLineNumber}" 
+                                           Background="#F6F8FA" 
+                                           TextAlignment="Right" 
+                                           Padding="0,2,8,2" 
+                                           FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                           FontFamily="{StaticResource CodeFont}"/>
                                 <ContentPresenter Grid.Column="1" Content="{Binding RightLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
                         </Grid>
 
-                        <!-- MERGE CONTROLS -->
                         <Border Grid.Row="1"
                                 Background="White"
                                 BorderBrush="{StaticResource BrushSelectionBorder}"
@@ -229,9 +237,28 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.ColumnSpan="4"
                                 Background="{Binding UnifiedLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
-                        <TextBlock Text="{Binding LeftLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
-                        <TextBlock Grid.Column="1" Text="{Binding RightLine.LineNumber}" Foreground="{StaticResource BrushLineNumber}" Background="#F6F8FA" TextAlignment="Right" Padding="0,2,8,2" FontSize="11" FontFamily="{StaticResource CodeFont}" />
-                        <TextBlock Grid.Column="2" Foreground="{StaticResource BrushLineNumber}" Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding LeftLine.LineNumber}" 
+                                   Foreground="{StaticResource BrushLineNumber}" 
+                                   Background="#F6F8FA" 
+                                   TextAlignment="Right" 
+                                   Padding="0,2,8,2" 
+                                   FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                   FontFamily="{StaticResource CodeFont}" />
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding RightLine.LineNumber}" 
+                                   Foreground="{StaticResource BrushLineNumber}" 
+                                   Background="#F6F8FA" 
+                                   TextAlignment="Right" 
+                                   Padding="0,2,8,2" 
+                                   FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                   FontFamily="{StaticResource CodeFont}" />
+                        <TextBlock Grid.Column="2" 
+                                   Foreground="{StaticResource BrushLineNumber}" 
+                                   Padding="5,0" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                   FontFamily="{StaticResource CodeFont}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Text" Value=" "/>
@@ -263,7 +290,6 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Header -->
                 <Border Grid.Row="0"
                         Background="{StaticResource BrushSurface}"
                         BorderBrush="{StaticResource BrushBorder}"
@@ -276,7 +302,6 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Left Header -->
                         <Grid Grid.Column="0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
@@ -290,7 +315,6 @@
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                     CommandParameter="{x:Static models:Side.Old}">
                                 <Grid>
-                                    <!-- Normal Icon -->
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -304,7 +328,6 @@
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
-                                    <!-- Check Icon -->
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -323,7 +346,6 @@
                             </Button>
                         </Grid>
 
-                        <!-- Center Swap -->
                         <Button Grid.Column="1"
                                 Style="{StaticResource IconButtonStyle}"
                                 Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
@@ -332,7 +354,6 @@
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="22"/>
                         </Button>
 
-                        <!-- Right Header -->
                         <Grid Grid.Column="2">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.edit_note}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
@@ -346,7 +367,6 @@
                                         Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                         CommandParameter="{x:Static models:Side.New}">
                                     <Grid>
-                                        <!-- Normal Icon -->
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -360,7 +380,6 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <!-- Check Icon -->
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -395,7 +414,6 @@
                     </Grid>
                 </Border>
 
-                <!-- VIRTUALIZED LIST VIEW -->
                 <ListView Grid.Row="1"
                           ItemsSource="{Binding DiffLines}"
                           ItemTemplate="{StaticResource SideBySideRowTemplate}"
@@ -443,7 +461,6 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Combined Header Info -->
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
                             <TextBlock Text="Unified View" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
@@ -455,7 +472,6 @@
                             <TextBlock Text="{Binding RightLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <!-- Global Actions -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Style="{StaticResource DangerButton}"
                                     Padding="12,6"

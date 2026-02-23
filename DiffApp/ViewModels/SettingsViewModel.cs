@@ -7,6 +7,7 @@
         private bool _ignoreWhitespace;
         private PrecisionLevel _precision;
         private ViewMode _viewMode;
+        private double _fontSize;
 
         public event EventHandler? SettingsChanged;
 
@@ -62,6 +63,19 @@
             }
         }
 
+        public double FontSize
+        {
+            get => _fontSize;
+            set
+            {
+                if (SetProperty(ref _fontSize, value))
+                {
+                    SaveSettings();
+                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
         public ICommand ResetWindowCommand { get; }
         public ICommand ResetDefaultsCommand { get; }
 
@@ -82,11 +96,13 @@
             _ignoreWhitespace = settings.IgnoreWhitespace;
             _precision = settings.Precision;
             _viewMode = settings.ViewMode;
+            _fontSize = settings.FontSize;
 
             OnPropertyChanged(nameof(IsWordWrapEnabled));
             OnPropertyChanged(nameof(IgnoreWhitespace));
             OnPropertyChanged(nameof(Precision));
             OnPropertyChanged(nameof(ViewMode));
+            OnPropertyChanged(nameof(FontSize));
         }
 
         private void SaveSettings()
@@ -96,6 +112,7 @@
             settings.IgnoreWhitespace = IgnoreWhitespace;
             settings.Precision = Precision;
             settings.ViewMode = ViewMode;
+            settings.FontSize = FontSize;
             _settingsService.SaveSettings(settings);
         }
 
