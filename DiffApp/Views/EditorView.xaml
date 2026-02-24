@@ -18,18 +18,30 @@
 
 		<Grid Grid.Column="0" Background="{StaticResource BrushSurface}">
 
-			<Border Width="40"
+			<Button Width="40"
+                    Command="{Binding ToggleSettingsPanelCommand}"
+                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}, ConverterParameter=Invert}"
+                    Background="{StaticResource BrushSurface}"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,0,1,0"
-                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}, ConverterParameter=Invert}">
-				<Button Command="{Binding ToggleSettingsPanelCommand}"
-                        Style="{StaticResource BorderlessIconButton}"
-                        VerticalAlignment="Top"
-                        Margin="0,15,0,0"
-                        ToolTip="Open Settings">
-					<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}" Style="{StaticResource IconStyle}"/>
-				</Button>
-			</Border>
+                    Cursor="Hand"
+                    ToolTip="Open Settings">
+				<Button.Template>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Button.Template>
+				<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}" Style="{StaticResource IconStyle}"/>
+			</Button>
 
 			<Border Width="240"
                     BorderBrush="{StaticResource BrushBorder}"
@@ -41,19 +53,34 @@
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 
-					<Grid Grid.Row="0" Margin="15,15,15,5">
-						<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-							<TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
-							<TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
-						</StackPanel>
-
-						<Button Style="{StaticResource BorderlessIconButton}"
-                                Command="{Binding ToggleSettingsPanelCommand}"
-                                HorizontalAlignment="Right"
-                                ToolTip="Close Settings">
-							<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}" Style="{StaticResource IconStyle}"/>
-						</Button>
-					</Grid>
+					<Button Grid.Row="0"
+                            Command="{Binding ToggleSettingsPanelCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Close Settings">
+						<Button.Template>
+							<ControlTemplate TargetType="Button">
+								<Border Background="{TemplateBinding Background}" Padding="15">
+									<Grid>
+										<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+											<TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
+											<TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" VerticalAlignment="Center"/>
+										</StackPanel>
+										<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}"
+                                                   Style="{StaticResource IconStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"/>
+									</Grid>
+								</Border>
+								<ControlTemplate.Triggers>
+									<Trigger Property="IsMouseOver" Value="True">
+										<Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+									</Trigger>
+								</ControlTemplate.Triggers>
+							</ControlTemplate>
+						</Button.Template>
+					</Button>
 
 					<Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="0,0,0,0" Background="{StaticResource BrushBorder}"/>
 

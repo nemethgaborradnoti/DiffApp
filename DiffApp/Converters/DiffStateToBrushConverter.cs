@@ -53,6 +53,10 @@ namespace DiffApp.Converters
                     {
                         return GetResourceBrush("DiffBackgroundAdded");
                     }
+                    else
+                    {
+                        return GetResourceBrush("DiffBackgroundImaginary");
+                    }
                 }
 
                 if (block.Kind == BlockType.Removed)
@@ -60,6 +64,10 @@ namespace DiffApp.Converters
                     if (string.Equals(sideOrContext, "Old", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(sideOrContext))
                     {
                         return GetResourceBrush("DiffBackgroundRemoved");
+                    }
+                    else
+                    {
+                        return GetResourceBrush("DiffBackgroundImaginary");
                     }
                 }
 
