@@ -23,15 +23,28 @@ namespace DiffApp.Services
                 using var db = new LiteDatabase(_dbPath);
                 var col = db.GetCollection<DiffHistoryItem>(CollectionName);
 
-                var item = new DiffHistoryItem
-                {
-                    OriginalText = original,
-                    ModifiedText = modified,
-                    CreatedAt = DateTime.Now
-                };
+                var existingItem = col.FindOne(x => x.OriginalText == original && x.ModifiedText == modified);
 
-                col.Insert(item);
+                if (existingItem != null)
+                {
+                    existingItem.CreatedAt = DateTime.Now;
+                    col.Update(existingItem);
+                }
+                else
+                {
+                    var item = new DiffHistoryItem
+                    {
+                        OriginalText = original,
+                        ModifiedText = modified,
+                        CreatedAt = DateTime.Now,
+                        IsBookmarked = false
+                    };
+
+                    col.Insert(item);
+                }
+
                 col.EnsureIndex(x => x.CreatedAt);
+                col.EnsureIndex(x => x.IsBookmarked);
             });
         }
 
@@ -42,8 +55,28 @@ namespace DiffApp.Services
                 using var db = new LiteDatabase(_dbPath);
                 var col = db.GetCollection<DiffHistoryItem>(CollectionName);
 
-                // Return explicitly as list to avoid disposing issues with deferred execution
-                return (IEnumerable<DiffHistoryItem>)col.FindAll().OrderByDescending(x => x.CreatedAt).ToList();
+                var allItems = col.FindAll();
+
+                return (IEnumerable<DiffHistoryItem>)allItems
+                    .OrderByDescending(x => x.IsBookmarked)
+                    .ThenByDescending(x => x.CreatedAt)
+                    .ToList();
+            });
+        }
+
+        public Task UpdateBookmarkAsync(Guid id, bool isBookmarked)
+        {
+            return Task.Run(() =>
+            {
+                using var db = new LiteDatabase(_dbPath);
+                var col = db.GetCollection<DiffHistoryItem>(CollectionName);
+
+                var item = col.FindById(id);
+                if (item != null)
+                {
+                    item.IsBookmarked = isBookmarked;
+                    col.Update(item);
+                }
             });
         }
 

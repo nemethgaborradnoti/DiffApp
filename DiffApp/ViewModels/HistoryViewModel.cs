@@ -37,6 +37,7 @@ namespace DiffApp.ViewModels
         public ICommand DeleteItemCommand { get; }
         public ICommand DeleteAllCommand { get; }
         public ICommand RestoreItemCommand { get; }
+        public ICommand ToggleBookmarkCommand { get; }
 
         public HistoryViewModel(IHistoryService historyService, IDialogService dialogService)
         {
@@ -47,6 +48,7 @@ namespace DiffApp.ViewModels
             DeleteItemCommand = new RelayCommand(async p => await DeleteItemAsync(p));
             DeleteAllCommand = new RelayCommand(async _ => await DeleteAllAsync());
             RestoreItemCommand = new RelayCommand(RestoreItem);
+            ToggleBookmarkCommand = new RelayCommand(async p => await ToggleBookmarkAsync(p));
         }
 
         public async Task LoadHistoryAsync()
@@ -55,6 +57,8 @@ namespace DiffApp.ViewModels
             try
             {
                 var items = await _historyService.GetAllAsync();
+
+                // The service already returns them sorted, but we ensure ViewModel consistency here
                 var viewModels = items.Select(x => new HistoryItemViewModel(x));
 
                 HistoryItems = new ObservableCollection<HistoryItemViewModel>(viewModels);
@@ -63,6 +67,34 @@ namespace DiffApp.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private async Task ToggleBookmarkAsync(object? parameter)
+        {
+            if (parameter is HistoryItemViewModel item)
+            {
+                // Toggle state
+                bool newState = !item.IsBookmarked;
+                item.IsBookmarked = newState;
+
+                // Update Database
+                await _historyService.UpdateBookmarkAsync(item.Id, newState);
+
+                // Re-sort list to reflect changes immediately (Bookmarks top, then Date)
+                SortHistoryItems();
+            }
+        }
+
+        private void SortHistoryItems()
+        {
+            var sorted = HistoryItems
+                .OrderByDescending(x => x.IsBookmarked)
+                .ThenByDescending(x => x.CreatedAt)
+                .ToList();
+
+            // We update the existing collection to avoid breaking bindings if possible, 
+            // but replacing the collection is cleaner for bulk sort operations in MVVM without advanced CollectionViews.
+            HistoryItems = new ObservableCollection<HistoryItemViewModel>(sorted);
         }
 
         private async Task DeleteItemAsync(object? parameter)
@@ -118,9 +150,10 @@ namespace DiffApp.ViewModels
                 RestoreRequested?.Invoke(this, new DiffHistoryItem
                 {
                     Id = item.Id,
-                    OriginalText = item.OriginalFull,
-                    ModifiedText = item.ModifiedFull,
-                    CreatedAt = item.CreatedAt
+                    OriginalText = item.DisplayOriginal, // Use full text accessed via properties
+                    ModifiedText = item.DisplayModified,
+                    CreatedAt = item.CreatedAt,
+                    IsBookmarked = item.IsBookmarked
                 });
             }
         }
