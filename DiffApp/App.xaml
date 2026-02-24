@@ -11,6 +11,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:UniversalVisibilityConverter x:Key="VisibilityConverter"/>
+            <converters:DiffStateToBrushConverter x:Key="DiffStateToBrushConverter"/>
+            <converters:MultiValueToArrayConverter x:Key="MultiValueToArrayConverter"/>
             <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter"/>
 
             <DataTemplate DataType="{x:Type viewModels:InputViewModel}">
