@@ -10,8 +10,7 @@
                 <ResourceDictionary Source="/Themes/SharedResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:UniversalVisibilityConverter x:Key="VisibilityConverter"/>
             <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter"/>
 
             <DataTemplate DataType="{x:Type viewModels:InputViewModel}">

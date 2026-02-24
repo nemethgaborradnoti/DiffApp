@@ -9,149 +9,145 @@
              xmlns:fonts="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
-    <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Background="{StaticResource BrushSurface}">
+		<Grid Grid.Column="0" Background="{StaticResource BrushSurface}">
 
-            <Border Width="40"
+			<Border Width="40"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,0,1,0"
-                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
-                <Button Command="{Binding ToggleSettingsPanelCommand}"
+                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}, ConverterParameter=Invert}">
+				<Button Command="{Binding ToggleSettingsPanelCommand}"
                         Style="{StaticResource BorderlessIconButton}"
                         VerticalAlignment="Top"
                         Margin="0,15,0,0"
                         ToolTip="Open Settings">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}" Style="{StaticResource IconStyle}"/>
-                </Button>
-            </Border>
+					<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}" Style="{StaticResource IconStyle}"/>
+				</Button>
+			</Border>
 
-            <Border Width="240"
+			<Border Width="240"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,0,1,0"
-                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}}">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="15,15,15,5">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
-                            <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
-                        </StackPanel>
+					<Grid Grid.Row="0" Margin="15,15,15,5">
+						<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+							<TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
+							<TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}"/>
+						</StackPanel>
 
-                        <Button Style="{StaticResource BorderlessIconButton}"
+						<Button Style="{StaticResource BorderlessIconButton}"
                                 Command="{Binding ToggleSettingsPanelCommand}"
                                 HorizontalAlignment="Right"
                                 ToolTip="Close Settings">
-                            <TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}" Style="{StaticResource IconStyle}"/>
-                        </Button>
-                    </Grid>
+							<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}" Style="{StaticResource IconStyle}"/>
+						</Button>
+					</Grid>
 
-                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="0,0,0,0" Background="{StaticResource BrushBorder}"/>
+					<Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="0,0,0,0" Background="{StaticResource BrushBorder}"/>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="15">
-                        <views:SettingsView DataContext="{Binding SettingsViewModel}" />
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Grid>
+					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="15">
+						<views:SettingsView DataContext="{Binding SettingsViewModel}" />
+					</ScrollViewer>
+				</Grid>
+			</Border>
+		</Grid>
 
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+		<Grid Grid.Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
 
-            <ContentControl Grid.Row="0"
+			<ContentControl Grid.Row="0"
                             Content="{Binding ComparisonViewModel}"
-                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            Visibility="{Binding ComparisonViewModel, Converter={StaticResource VisibilityConverter}}"/>
 
-            <TextBlock Grid.Row="0"
+			<TextBlock Grid.Row="0"
                        Text="No comparison generated yet."
                        Foreground="{StaticResource GrayTextBrush}"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding ComparisonViewModel}" Value="{x:Null}"/>
-                                    <Condition Binding="{Binding IsInputPanelExpanded}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
+				<TextBlock.Style>
+					<Style TargetType="TextBlock">
+						<Setter Property="Visibility" Value="Collapsed"/>
+						<Style.Triggers>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding ComparisonViewModel}" Value="{x:Null}"/>
+									<Condition Binding="{Binding IsInputPanelExpanded}" Value="False"/>
+								</MultiDataTrigger.Conditions>
+								<Setter Property="Visibility" Value="Visible"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</TextBlock.Style>
+			</TextBlock>
 
-            <Button Grid.Row="1"
+			<Button Grid.Row="1"
                     Command="{Binding ToggleInputPanelCommand}"
                     Background="{StaticResource BrushAccent}"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,1,0,0"
                     Cursor="Hand">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
+				<Button.Template>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="10,5">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+							<Grid>
+								<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+									<TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
-                                    <TextBlock Foreground="White" FontSize="24">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
-                                                <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_more}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
-                                                        <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_less}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+									<TextBlock Foreground="White" FontSize="24">
+										<TextBlock.Style>
+											<Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+												<Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_more}"/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+														<Setter Property="Text" Value="{x:Static fonts:MaterialIcons.expand_less}"/>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</TextBlock.Style>
+									</TextBlock>
+								</StackPanel>
+							</Grid>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
 
-            <ContentControl Grid.Row="2" Content="{Binding InputViewModel}">
-                <ContentControl.Style>
-                    <Style TargetType="ContentControl">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentControl.Style>
-            </ContentControl>
-        </Grid>
-    </Grid>
+			<ContentControl Grid.Row="2" Content="{Binding InputViewModel}">
+				<ContentControl.Style>
+					<Style TargetType="ContentControl">
+						<Setter Property="Visibility" Value="Visible"/>
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding IsInputPanelExpanded}" Value="False">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ContentControl.Style>
+			</ContentControl>
+		</Grid>
+	</Grid>
 </UserControl>

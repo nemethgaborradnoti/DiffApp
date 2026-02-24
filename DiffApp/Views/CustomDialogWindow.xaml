@@ -7,7 +7,7 @@
         xmlns:models="clr-namespace:DiffApp.Models"
         xmlns:converters="clr-namespace:DiffApp.Converters"
         mc:Ignorable="d"
-        Title="Dialog" 
+        Title="Dialog"
         Height="Auto" Width="400"
         SizeToContent="Height"
         WindowStyle="None"
@@ -17,112 +17,108 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
 
-    <Window.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-    </Window.Resources>
-
-    <Border Background="{StaticResource BrushSurface}"
+	<Border Background="{StaticResource BrushSurface}"
             BorderBrush="{StaticResource BrushBorder}"
             BorderThickness="1"
             CornerRadius="8"
             Margin="10">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="15" ShadowDepth="5" Direction="270" Color="Black" Opacity="0.2"/>
-        </Border.Effect>
+		<Border.Effect>
+			<DropShadowEffect BlurRadius="15" ShadowDepth="5" Direction="270" Color="Black" Opacity="0.2"/>
+		</Border.Effect>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Padding="20,15,20,10" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,0">
-                <TextBlock Text="{Binding Title}" 
-                           Style="{StaticResource HeaderTextStyle}" 
+			<Border Grid.Row="0" Padding="20,15,20,10" BorderBrush="{StaticResource BrushBorder}" BorderThickness="0,0,0,0">
+				<TextBlock Text="{Binding Title}"
+                           Style="{StaticResource HeaderTextStyle}"
                            FontSize="18"/>
-            </Border>
+			</Border>
 
-            <Border Grid.Row="1" Padding="20,10,20,20">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+			<Border Grid.Row="1" Padding="20,10,20,20">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
+					<TextBlock Grid.Column="0"
                                Text="{Binding IconText}"
                                FontFamily="{StaticResource MaterialIconsFont}"
                                FontSize="32"
                                VerticalAlignment="Top"
                                Margin="0,0,15,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{StaticResource BrushPrimary}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IconColorKey}" Value="BrushAccent">
-                                        <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IconColorKey}" Value="WarningBrush">
-                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IconColorKey}" Value="DangerBrush">
-                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+						<TextBlock.Style>
+							<Style TargetType="TextBlock">
+								<Setter Property="Foreground" Value="{StaticResource BrushPrimary}"/>
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding IconColorKey}" Value="BrushAccent">
+										<Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
+									</DataTrigger>
+									<DataTrigger Binding="{Binding IconColorKey}" Value="WarningBrush">
+										<Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+									</DataTrigger>
+									<DataTrigger Binding="{Binding IconColorKey}" Value="DangerBrush">
+										<Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</TextBlock.Style>
+					</TextBlock>
 
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding Message}" 
-                               TextWrapping="Wrap" 
-                               FontSize="14" 
+					<TextBlock Grid.Column="1"
+                               Text="{Binding Message}"
+                               TextWrapping="Wrap"
+                               FontSize="14"
                                Foreground="{StaticResource TextBrush}"
                                VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
+				</Grid>
+			</Border>
 
-            <Border Grid.Row="2" Background="{StaticResource BrushBackground}" CornerRadius="0,0,8,8" Padding="15">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+			<Border Grid.Row="2" Background="{StaticResource BrushBackground}" CornerRadius="0,0,8,8" Padding="15">
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
-                    <Button Content="OK"
+					<Button Content="OK"
                             Command="{Binding ResultCommand}"
                             CommandParameter="{x:Static models:DialogResult.Ok}"
                             Style="{StaticResource PrimaryButton}"
-                            Visibility="{Binding IsOkVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Visibility="{Binding IsOkVisible, Converter={StaticResource VisibilityConverter}}"
                             MinWidth="80"/>
 
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsYesNoVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Button Content="Yes"
+					<StackPanel Orientation="Horizontal" Visibility="{Binding IsYesNoVisible, Converter={StaticResource VisibilityConverter}}">
+						<Button Content="Yes"
                                 Command="{Binding ResultCommand}"
                                 CommandParameter="{x:Static models:DialogResult.Yes}"
                                 Style="{StaticResource PrimaryButton}"
                                 Margin="0,0,10,0"
                                 MinWidth="80"/>
-                        <Button Content="No"
+						<Button Content="No"
                                 Command="{Binding ResultCommand}"
                                 CommandParameter="{x:Static models:DialogResult.No}"
                                 Style="{StaticResource SecondaryButton}"
                                 MinWidth="80"/>
-                    </StackPanel>
+					</StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsConfirmCancelVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Button Content="Confirm"
+					<StackPanel Orientation="Horizontal" Visibility="{Binding IsConfirmCancelVisible, Converter={StaticResource VisibilityConverter}}">
+						<Button Content="Confirm"
                                 Command="{Binding ResultCommand}"
                                 CommandParameter="{x:Static models:DialogResult.Confirm}"
                                 Style="{StaticResource DangerButton}"
                                 Margin="0,0,10,0"
                                 MinWidth="80"/>
-                        <Button Content="Cancel"
+						<Button Content="Cancel"
                                 Command="{Binding ResultCommand}"
                                 CommandParameter="{x:Static models:DialogResult.Cancel}"
                                 Style="{StaticResource SecondaryButton}"
                                 MinWidth="80"/>
-                    </StackPanel>
+					</StackPanel>
 
-                </StackPanel>
-            </Border>
-        </Grid>
-    </Border>
+				</StackPanel>
+			</Border>
+		</Grid>
+	</Border>
 </Window>

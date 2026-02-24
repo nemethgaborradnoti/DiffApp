@@ -13,109 +13,107 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <SolidColorBrush x:Key="BrushLightBlueBorder" Color="#D0E3F0"/>
+	<UserControl.Resources>
+		<SolidColorBrush x:Key="BrushLightBlueBorder" Color="#D0E3F0"/>
 
-        <!-- Updated to use Shared Resource for Hover Color -->
-        <Style x:Key="DeleteIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+		<Style x:Key="DeleteIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+			<Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
-        <Style x:Key="BookmarkIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-            <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
+		<Style x:Key="BookmarkIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+			<Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
+		<Border Grid.Row="0"
                 Background="{StaticResource BrushSurface}"
                 BorderBrush="{StaticResource BrushBorder}"
                 BorderThickness="0,0,0,1"
                 Padding="20,15">
-            <Grid>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{x:Static fonts:MaterialIcons.history}" Style="{StaticResource IconStyle}" FontSize="24" Margin="0,0,10,0" Foreground="{StaticResource GrayTextBrush}"/>
-                    <TextBlock Text="History" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}"/>
-                </StackPanel>
+			<Grid>
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+					<TextBlock Text="{x:Static fonts:MaterialIcons.history}" Style="{StaticResource IconStyle}" FontSize="24" Margin="0,0,10,0" Foreground="{StaticResource GrayTextBrush}"/>
+					<TextBlock Text="History" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}"/>
+				</StackPanel>
 
-                <Button HorizontalAlignment="Right"
+				<Button HorizontalAlignment="Right"
                         Style="{StaticResource DangerButton}"
                         Command="{Binding DeleteAllCommand}"
-                        Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Visibility="{Binding HasItems, Converter={StaticResource VisibilityConverter}}"
                         ToolTip="Clear all history">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="White" Margin="0,0,5,0"/>
-                        <TextBlock Text="Delete All" Foreground="White" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
-            </Grid>
-        </Border>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="White" Margin="0,0,5,0"/>
+						<TextBlock Text="Delete All" Foreground="White" FontWeight="SemiBold"/>
+					</StackPanel>
+				</Button>
+			</Grid>
+		</Border>
 
-        <Grid Grid.Row="1" Panel.ZIndex="1">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding HistoryItems.Count}" Value="0">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
+		<Grid Grid.Row="1" Panel.ZIndex="1">
+			<Grid.Style>
+				<Style TargetType="Grid">
+					<Setter Property="Visibility" Value="Collapsed"/>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding HistoryItems.Count}" Value="0">
+							<Setter Property="Visibility" Value="Visible"/>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
 
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.history_toggle_off}"
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Text="{x:Static fonts:MaterialIcons.history_toggle_off}"
                            Style="{StaticResource IconStyle}"
                            FontSize="64"
                            Foreground="{StaticResource BrushBorder}"
                            Margin="0,0,0,20"/>
-                <TextBlock Text="No history yet"
+				<TextBlock Text="No history yet"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource GrayTextBrush}"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Comparisons will appear here automatically."
+				<TextBlock Text="Comparisons will appear here automatically."
                            FontSize="14"
                            Foreground="{StaticResource GrayTextBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,5,0,0"/>
-            </StackPanel>
-        </Grid>
+			</StackPanel>
+		</Grid>
 
-        <ListView Grid.Row="1"
+		<ListView Grid.Row="1"
                   ItemsSource="{Binding HistoryItems}"
                   HorizontalContentAlignment="Stretch"
                   ScrollViewer.CanContentScroll="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   BorderThickness="0"
                   Padding="10">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Margin" Value="0,0,0,8"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                    <Setter Property="Cursor" Value="Hand"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListViewItem">
-                                <Border x:Name="CardBorder"
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+					<Setter Property="Margin" Value="0,0,0,8"/>
+					<Setter Property="Background" Value="Transparent"/>
+					<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+					<Setter Property="Cursor" Value="Hand"/>
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="ListViewItem">
+								<Border x:Name="CardBorder"
                                         Background="White"
                                         BorderBrush="{StaticResource BrushLightBlueBorder}"
                                         BorderThickness="1"
@@ -123,118 +121,118 @@
                                         CornerRadius="6"
                                         Padding="0">
 
-                                    <Border.InputBindings>
-                                        <MouseBinding MouseAction="LeftClick"
+									<Border.InputBindings>
+										<MouseBinding MouseAction="LeftClick"
                                                       Command="{Binding DataContext.RestoreItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                       CommandParameter="{Binding}"/>
-                                    </Border.InputBindings>
+									</Border.InputBindings>
 
-                                    <Grid>
-                                        <ContentPresenter />
+									<Grid>
+										<ContentPresenter />
 
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
-                                            
-                                            <Button Style="{StaticResource BookmarkIconButtonStyle}"
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
+
+											<Button Style="{StaticResource BookmarkIconButtonStyle}"
                                                     ToolTip="Bookmark this item"
                                                     Command="{Binding DataContext.ToggleBookmarkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}">
-                                                <TextBlock FontSize="20" 
+												<TextBlock FontSize="20"
                                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
-                                                            <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark_border}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsBookmarked}" Value="True">
-                                                                    <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </Button>
+													<TextBlock.Style>
+														<Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+															<Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark_border}"/>
+															<Style.Triggers>
+																<DataTrigger Binding="{Binding IsBookmarked}" Value="True">
+																	<Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark}"/>
+																</DataTrigger>
+															</Style.Triggers>
+														</Style>
+													</TextBlock.Style>
+												</TextBlock>
+											</Button>
 
-                                            <Button Style="{StaticResource DeleteIconButtonStyle}"
+											<Button Style="{StaticResource DeleteIconButtonStyle}"
                                                     ToolTip="Delete this item"
                                                     Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}">
-                                                <TextBlock Text="{x:Static fonts:MaterialIcons.delete}"
+												<TextBlock Text="{x:Static fonts:MaterialIcons.delete}"
                                                            Style="{StaticResource IconStyle}"
                                                            FontSize="20"
                                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
+											</Button>
+										</StackPanel>
+									</Grid>
 
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Direction="270" Color="#000000" Opacity="0.05"/>
-                                    </Border.Effect>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
-                                        <Setter TargetName="CardBorder" Property="Background" Value="White"/>
-                                        <Setter TargetName="CardBorder" Property="BorderThickness" Value="2"/>
-                                        <Setter TargetName="CardBorder" Property="Margin" Value="0"/>
-                                    </Trigger>
+									<Border.Effect>
+										<DropShadowEffect BlurRadius="5" ShadowDepth="1" Direction="270" Color="#000000" Opacity="0.05"/>
+									</Border.Effect>
+								</Border>
+								<ControlTemplate.Triggers>
+									<Trigger Property="IsMouseOver" Value="True">
+										<Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+										<Setter TargetName="CardBorder" Property="Background" Value="White"/>
+										<Setter TargetName="CardBorder" Property="BorderThickness" Value="2"/>
+										<Setter TargetName="CardBorder" Property="Margin" Value="0"/>
+									</Trigger>
 
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
-                                        <Setter TargetName="CardBorder" Property="Background" Value="White"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListView.ItemContainerStyle>
+									<Trigger Property="IsSelected" Value="True">
+										<Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+										<Setter TargetName="CardBorder" Property="Background" Value="White"/>
+									</Trigger>
+								</ControlTemplate.Triggers>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</ListView.ItemContainerStyle>
 
-            <ListView.ItemTemplate>
-                <DataTemplate DataType="{x:Type viewModels:HistoryItemViewModel}">
-                    <Grid Margin="15,12">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+			<ListView.ItemTemplate>
+				<DataTemplate DataType="{x:Type viewModels:HistoryItemViewModel}">
+					<Grid Margin="15,12">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+						</Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0"
+						<TextBlock Grid.Row="0"
                                    Text="{Binding RelativeTime}"
                                    FontSize="11"
                                    Foreground="{StaticResource BrushAccent}"
-                                   FontWeight="Bold" 
+                                   FontWeight="Bold"
                                    Margin="0,0,0,8"/>
 
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="30"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="70"/> 
-                            </Grid.ColumnDefinitions>
+						<Grid Grid.Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="30"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="70"/>
+							</Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0"
+							<Border Grid.Column="0"
                                     Background="{StaticResource BrushSurface}"
                                     CornerRadius="4"
                                     Padding="8,6">
-                                <TextBlock Text="{Binding DisplayOriginal}"
+								<TextBlock Text="{Binding DisplayOriginal}"
                                            FontFamily="{StaticResource CodeFont}"
                                            FontSize="12"
                                            Foreground="{StaticResource GrayTextBrush}"
                                            TextWrapping="Wrap"
                                            TextTrimming="CharacterEllipsis"
                                            MaxHeight="60"/>
-                            </Border>
+							</Border>
 
-                            <TextBlock Grid.Column="1"
+							<TextBlock Grid.Column="1"
                                        Text="{x:Static fonts:MaterialIcons.arrow_forward}"
                                        Style="{StaticResource IconStyle}"
                                        FontSize="16"
                                        Foreground="{StaticResource GrayTextBrush}"/>
 
-                            <Border Grid.Column="2"
+							<Border Grid.Column="2"
                                     Background="{StaticResource BrushSurface}"
                                     CornerRadius="4"
                                     Padding="8,6">
-                                <TextBlock Text="{Binding DisplayModified}"
+								<TextBlock Text="{Binding DisplayModified}"
                                            FontFamily="{StaticResource CodeFont}"
                                            FontSize="12"
                                            Foreground="{StaticResource TextBrush}"
@@ -242,11 +240,11 @@
                                            TextWrapping="Wrap"
                                            TextTrimming="CharacterEllipsis"
                                            MaxHeight="60"/>
-                            </Border>
-                        </Grid>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+							</Border>
+						</Grid>
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
 </UserControl>

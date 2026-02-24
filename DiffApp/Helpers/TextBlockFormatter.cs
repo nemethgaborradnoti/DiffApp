@@ -94,7 +94,6 @@ namespace DiffApp.Helpers
                 return;
             }
 
-            // OPTIMIZATION: If highlights are disabled or no fragments, use simple Text property.
             if (!enabled || !fragments.Any())
             {
                 var sb = new StringBuilder();
@@ -106,7 +105,6 @@ namespace DiffApp.Helpers
                 return;
             }
 
-            // Clear text before adding inlines
             textBlock.Text = null;
             textBlock.Inlines.Clear();
 
@@ -127,7 +125,6 @@ namespace DiffApp.Helpers
                 var run = new Run(fragment.Text);
                 if (enabled)
                 {
-                    // Apply color only if we are NOT ignoring whitespace, OR if it's NOT a whitespace change
                     if (!ignoreWhitespace || !fragment.IsWhitespaceChange)
                     {
                         var brush = GetBrushForChangeType(fragment.Kind);

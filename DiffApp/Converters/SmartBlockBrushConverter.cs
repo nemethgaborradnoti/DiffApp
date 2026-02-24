@@ -1,8 +1,4 @@
-﻿using DiffApp.Models;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Media;
+﻿using System.Globalization;
 
 namespace DiffApp.Converters
 {
@@ -15,7 +11,6 @@ namespace DiffApp.Converters
                 return Brushes.Transparent;
             }
 
-            // If ignore whitespace is ON and the whole block is just a whitespace change, return Transparent
             if (ignoreWhitespace && block.IsWhitespaceChange)
             {
                 return Brushes.Transparent;
@@ -23,9 +18,6 @@ namespace DiffApp.Converters
 
             string side = parameter as string ?? string.Empty;
 
-            // Handle Modified blocks explicitly:
-            // Modified block on "Old" side acts like Removed (Red background)
-            // Modified block on "New" side acts like Added (Green background)
             if (block.Kind == BlockType.Modified)
             {
                 if (side.Equals("Old", StringComparison.OrdinalIgnoreCase))

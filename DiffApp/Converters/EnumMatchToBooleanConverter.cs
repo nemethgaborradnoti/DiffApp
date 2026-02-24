@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows.Data;
+﻿using System.Globalization;
 
 namespace DiffApp.Converters
 {
@@ -13,7 +11,6 @@ namespace DiffApp.Converters
             if (value == null || parameter == null)
                 return false;
 
-            // Handle Type checks for ViewModel navigation
             if (parameter is Type typeParameter && value != null)
             {
                 return value.GetType() == typeParameter;

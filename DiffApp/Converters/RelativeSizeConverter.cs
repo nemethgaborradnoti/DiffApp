@@ -8,7 +8,6 @@ namespace DiffApp.Converters
         {
             if (values.Length == 2 && values[0] is double percentage && values[1] is double totalSize)
             {
-                // Ensure percentage is valid
                 if (double.IsNaN(percentage) || double.IsInfinity(percentage)) return 0.0;
                 if (double.IsNaN(totalSize) || double.IsInfinity(totalSize)) return 0.0;
 

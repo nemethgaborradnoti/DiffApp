@@ -18,8 +18,6 @@
         <converters:SmartBlockBrushConverter x:Key="SmartBlockBrushConverter" />
         <converters:MergeParamsConverter x:Key="MergeParamsConverter" />
         <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
         <DataTemplate x:Key="LineContentTemplate">
             <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
@@ -154,7 +152,7 @@
                                 BorderBrush="{StaticResource BrushSelectionBorder}"
                                 BorderThickness="0,1,0,0"
                                 Padding="10,5"
-                                Visibility="{Binding ShowMergeControls, Converter={StaticResource BoolToVisibilityConverter}}">
+                                Visibility="{Binding ShowMergeControls, Converter={StaticResource VisibilityConverter}}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
