@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:DiffApp.Converters"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="16"
+             d:DesignHeight="450" d:DesignWidth="12"
              Background="Transparent">
 
     <UserControl.Resources>
@@ -16,7 +16,7 @@
     <Border Background="{Binding TrackColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
             BorderBrush="{StaticResource BrushBorder}"
             BorderThickness="1,0,1,0"
-            Width="16">
+            Width="12">
         <ItemsControl ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -33,14 +33,13 @@
                             </MultiBinding>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Width" Value="14"/>
+                    <Setter Property="Width" Value="10"/>
                 </Style>
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Width="14"
-                               SnapsToDevicePixels="True"
-                               Cursor="Hand">
+                    <Rectangle Width="10"
+                               SnapsToDevicePixels="True">
                         <Rectangle.Style>
                             <Style TargetType="Rectangle">
                                 <Setter Property="Fill">
@@ -53,10 +52,23 @@
                                     </Setter.Value>
                                 </Setter>
                                 <Setter Property="Opacity" Value="1.0"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="IsHitTestVisible" Value="True"/>
+
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter Property="Opacity" Value="0.6"/>
                                     </Trigger>
+
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Path=IgnoreWhitespace, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True" />
+                                            <Condition Binding="{Binding Block.IsWhitespaceChange}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Cursor" Value="Arrow"/>
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                        <Setter Property="ToolTip" Value="{x:Null}"/>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Rectangle.Style>

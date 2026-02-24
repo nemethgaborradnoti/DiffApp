@@ -19,7 +19,7 @@
                 <ControlTemplate TargetType="{x:Type Thumb}">
                     <Border x:Name="thumbBorder"
                             Background="{StaticResource ScrollBarThumb}"
-                            CornerRadius="4"
+                            CornerRadius="6"
                             Margin="2"
                             SnapsToDevicePixels="True"/>
                     <ControlTemplate.Triggers>
@@ -36,7 +36,6 @@
     </Style>
 
     <!-- Invisible Button Style for Track Page Up/Down -->
-    <!-- FIX: Removed Opacity="0", kept Background="Transparent" to ensure hit-testing and proper layout sizing -->
     <Style x:Key="ScrollBarPageButtonStyle" TargetType="{x:Type RepeatButton}">
         <Setter Property="OverridesDefaultStyle" Value="true"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -54,7 +53,6 @@
     <!-- Vertical Template -->
     <ControlTemplate x:Key="VerticalScrollBarTemplate" TargetType="{x:Type ScrollBar}">
         <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="{TemplateBinding Background}">
-            <!-- FIX: Removed complex RowDefinitions. Track naturally fills the Grid. -->
             <Track x:Name="PART_Track" IsDirectionReversed="true">
                 <Track.DecreaseRepeatButton>
                     <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource ScrollBarPageButtonStyle}"/>
@@ -72,7 +70,6 @@
     <!-- Horizontal Template -->
     <ControlTemplate x:Key="HorizontalScrollBarTemplate" TargetType="{x:Type ScrollBar}">
         <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="{TemplateBinding Background}">
-            <!-- FIX: Removed complex ColumnDefinitions. -->
             <Track x:Name="PART_Track" IsDirectionReversed="False">
                 <Track.DecreaseRepeatButton>
                     <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Style="{StaticResource ScrollBarPageButtonStyle}"/>
@@ -94,8 +91,10 @@
         <Setter Property="Background" Value="{StaticResource ScrollBarTrack}"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource ScrollBarThumb}"/>
-        <Setter Property="Width" Value="10"/>
-        <Setter Property="MinWidth" Value="10"/>
+
+        <!-- INCREASED WIDTH: 10 -> 14 -->
+        <Setter Property="Width" Value="14"/>
+        <Setter Property="MinWidth" Value="14"/>
 
         <Setter Property="Template" Value="{StaticResource VerticalScrollBarTemplate}"/>
 
@@ -103,8 +102,9 @@
             <Trigger Property="Orientation" Value="Horizontal">
                 <Setter Property="Width" Value="Auto"/>
                 <Setter Property="MinWidth" Value="0"/>
-                <Setter Property="Height" Value="10"/>
-                <Setter Property="MinHeight" Value="10"/>
+                <!-- INCREASED HEIGHT: 10 -> 14 -->
+                <Setter Property="Height" Value="14"/>
+                <Setter Property="MinHeight" Value="14"/>
                 <Setter Property="Template" Value="{StaticResource HorizontalScrollBarTemplate}"/>
             </Trigger>
         </Style.Triggers>

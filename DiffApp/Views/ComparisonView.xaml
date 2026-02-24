@@ -21,7 +21,6 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
-        <!-- 1. Line Content Template (Shared) -->
         <DataTemplate x:Key="LineContentTemplate">
             <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
                        helpers:TextBlockFormatter.Precision="{Binding DataContext.SettingsViewModel.Precision, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
@@ -32,7 +31,6 @@
                        FontFamily="{StaticResource CodeFont}" />
         </DataTemplate>
 
-        <!-- 2. Side-by-Side Row Template -->
         <DataTemplate x:Key="SideBySideRowTemplate" DataType="{x:Type viewModels:DiffLineViewModel}">
             <Grid>
                 <Border x:Name="RowBorder" Padding="0"
@@ -72,7 +70,6 @@
                                 <DataTrigger Binding="{Binding IsMergeable}" Value="True">
                                     <Setter Property="Cursor" Value="Hand"/>
                                 </DataTrigger>
-                                <!-- Disable Interaction for Whitespace-only blocks when ignored -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True"/>
@@ -105,7 +102,6 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <!-- Left Side -->
                             <Grid Grid.Column="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
@@ -129,7 +125,6 @@
                                 <ContentPresenter Grid.Column="1" Content="{Binding LeftLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
 
-                            <!-- Right Side -->
                             <Grid Grid.Column="2" Margin="2,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
@@ -154,7 +149,6 @@
                             </Grid>
                         </Grid>
 
-                        <!-- Merge Controls -->
                         <Border Grid.Row="1"
                                 Background="White"
                                 BorderBrush="{StaticResource BrushSelectionBorder}"
@@ -214,7 +208,6 @@
             </Grid>
         </DataTemplate>
 
-        <!-- 3. Unified Row Template -->
         <DataTemplate x:Key="UnifiedRowTemplate" DataType="{x:Type viewModels:DiffLineViewModel}">
             <Grid>
                 <Border x:Name="RowBorder" Padding="0"
@@ -251,7 +244,6 @@
                                     <Setter Property="Background" Value="#F0F8FF"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
                                 </DataTrigger>
-                                <!-- Disable Interaction for Whitespace-only blocks when ignored -->
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True"/>
@@ -354,7 +346,6 @@
             </Grid>
         </DataTemplate>
 
-        <!-- 4. Unified Template (Structure) -->
         <DataTemplate x:Key="UnifiedTemplate">
             <Grid>
                 <Grid.RowDefinitions>
@@ -438,19 +429,18 @@
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="4,0,2,0"/>
+                                              Margin="0,0,1,0"/>
                         <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="2,0,4,0"/>
+                                              Margin="1,0,4,0"/>
                     </StackPanel>
                 </Grid>
             </Grid>
         </DataTemplate>
 
-        <!-- 5. Side-by-Side Template (Structure) -->
         <DataTemplate x:Key="SideBySideTemplate">
             <Grid>
                 <Grid.RowDefinitions>
@@ -624,13 +614,13 @@
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="4,0,2,0"/>
+                                              Margin="0,0,1,0"/>
                         <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="2,0,4,0"/>
+                                              Margin="1,0,4,0"/>
                     </StackPanel>
                 </Grid>
             </Grid>
