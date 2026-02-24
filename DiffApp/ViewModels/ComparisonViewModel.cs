@@ -182,7 +182,7 @@ namespace DiffApp.ViewModels
             var leftSegments = new List<MinimapSegment>();
             var rightSegments = new List<MinimapSegment>();
 
-            double mergeThreshold = 0.005;
+            // REMOVED: Merging logic (threshold). We want strict 1:1 mapping for clickability.
 
             foreach (var block in _comparisonResult.Blocks)
             {
@@ -193,12 +193,14 @@ namespace DiffApp.ViewModels
                     double offsetPct = currentVisualIndex / totalVisualHeight;
                     double heightPct = height / totalVisualHeight;
 
+                    // Ensure visible minimum height for very small blocks is still useful,
+                    // but allow them to stack/overlap if necessary instead of merging.
                     if (heightPct < 0.002) heightPct = 0.002;
 
                     // Left Side Logic (Red)
                     if (block.Kind == BlockType.Removed || block.Kind == BlockType.Modified)
                     {
-                        AddOrMergeSegment(leftSegments, new MinimapSegment
+                        leftSegments.Add(new MinimapSegment
                         {
                             Side = Side.Old,
                             Type = BlockType.Removed,
@@ -206,13 +208,13 @@ namespace DiffApp.ViewModels
                             HeightPercentage = heightPct,
                             TargetLineIndex = currentVisualIndex,
                             Block = block
-                        }, mergeThreshold);
+                        });
                     }
 
                     // Right Side Logic (Green)
                     if (block.Kind == BlockType.Added || block.Kind == BlockType.Modified)
                     {
-                        AddOrMergeSegment(rightSegments, new MinimapSegment
+                        rightSegments.Add(new MinimapSegment
                         {
                             Side = Side.New,
                             Type = BlockType.Added,
@@ -220,7 +222,7 @@ namespace DiffApp.ViewModels
                             HeightPercentage = heightPct,
                             TargetLineIndex = currentVisualIndex,
                             Block = block
-                        }, mergeThreshold);
+                        });
                     }
                 }
 
@@ -246,40 +248,7 @@ namespace DiffApp.ViewModels
             }
         }
 
-        private void AddOrMergeSegment(List<MinimapSegment> list, MinimapSegment newSegment, double threshold)
-        {
-            if (list.Count > 0)
-            {
-                var last = list[list.Count - 1];
-
-                // Only merge if the underlying block is the same or if they are very close.
-                // However, for precise clicking, merging different blocks into one segment prevents selecting the correct block.
-                // We will disable merging if we want precise block selection, OR strictly merge only identical blocks.
-                // Given the visual requirement was for performance on large files, we keep merging but update logic:
-                // If we merge, we keep the Block reference of the *start* of the merged segment.
-                // But typically, blocks are distinct. The merging logic was for adjacent blocks of same type.
-
-                // NOTE: To support correct selection of individual blocks, strictly we shouldn't merge distinct blocks.
-                // But if they are adjacent and same type, they might be effectively one region.
-                // For now, we allow merging to keep visual performance, accepting that clicking a merged segment 
-                // selects the first block of that segment.
-
-                if (last.Type == newSegment.Type)
-                {
-                    double gap = newSegment.OffsetPercentage - (last.OffsetPercentage + last.HeightPercentage);
-
-                    if (gap < threshold)
-                    {
-                        double newEnd = newSegment.OffsetPercentage + newSegment.HeightPercentage;
-                        last.HeightPercentage = newEnd - last.OffsetPercentage;
-                        // Keep last.Block as the primary target for the merged segment
-                        return;
-                    }
-                }
-            }
-
-            list.Add(newSegment);
-        }
+        // REMOVED: AddOrMergeSegment method to prevent combining distinct blocks.
 
         private void ExecuteMerge(object? parameter)
         {

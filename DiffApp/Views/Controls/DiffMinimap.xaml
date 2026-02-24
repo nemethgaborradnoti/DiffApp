@@ -38,10 +38,20 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="{Binding Type, Converter={StaticResource MinimapBrushConverter}}"
-                               Width="14"
+                    <Rectangle Width="14"
                                SnapsToDevicePixels="True"
                                Cursor="Hand">
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Setter Property="Fill" Value="{Binding Type, Converter={StaticResource MinimapBrushConverter}}"/>
+                                <Setter Property="Opacity" Value="1.0"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
                         <Rectangle.InputBindings>
                             <MouseBinding MouseAction="LeftClick"
                                           Command="{Binding ItemClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
