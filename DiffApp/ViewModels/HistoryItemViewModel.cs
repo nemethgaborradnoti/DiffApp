@@ -9,7 +9,6 @@
         public string ModifiedFull => _model.ModifiedText;
         public DateTime CreatedAt => _model.CreatedAt;
 
-        // Removing truncation logic here, View will handle layout
         public string DisplayOriginal => _model.OriginalText;
         public string DisplayModified => _model.ModifiedText;
 
@@ -18,13 +17,6 @@
         {
             get => _relativeTime;
             set => SetProperty(ref _relativeTime, value);
-        }
-
-        private FontWeight _timeFontWeight;
-        public FontWeight TimeFontWeight
-        {
-            get => _timeFontWeight;
-            set => SetProperty(ref _timeFontWeight, value);
         }
 
         public bool IsBookmarked
@@ -55,17 +47,6 @@
         {
             var span = DateTime.Now - CreatedAt;
 
-            // Set Font Weight based on age (< 1 hour = Bold)
-            if (span.TotalHours < 1)
-            {
-                TimeFontWeight = FontWeights.Bold;
-            }
-            else
-            {
-                TimeFontWeight = FontWeights.Normal;
-            }
-
-            // Set Relative Time Text
             if (span.TotalMinutes < 1)
             {
                 RelativeTime = "Just now";

@@ -17,11 +17,16 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <SolidColorBrush x:Key="BrushLightBlueBorder" Color="#D0E3F0"/>
 
+        <!-- 
+           Updated: Now properly inherits from IconButtonStyle.
+           The base style provides layout, we just override Colors and Triggers.
+        -->
         <Style x:Key="DeleteIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource DiffBackgroundRemoved}"/>
+                    <!-- Foreground remains DangerBrush -->
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -135,20 +140,19 @@
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
                                             
                                             <Button Style="{StaticResource BookmarkIconButtonStyle}"
-                                                    Padding="6"
-                                                    Margin="0,0,2,0"
-                                                    Cursor="Hand"
                                                     ToolTip="Bookmark this item"
                                                     Command="{Binding DataContext.ToggleBookmarkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}">
-                                                <!-- FIX: Removed inline Style attribute to avoid duplicate property assignment -->
-                                                <TextBlock FontSize="20">
+                                                <!-- BINDING FOREGROUND: Forces textblock to use Button's color -->
+                                                <TextBlock FontSize="20" 
+                                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
                                                             <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark_border}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsBookmarked}" Value="True">
                                                                     <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark}"/>
+                                                                    <!-- Use accent color if bookmarked -->
                                                                     <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
@@ -158,14 +162,14 @@
                                             </Button>
 
                                             <Button Style="{StaticResource DeleteIconButtonStyle}"
-                                                    Padding="6"
-                                                    Cursor="Hand"
                                                     ToolTip="Delete this item"
                                                     Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}">
+                                                <!-- BINDING FOREGROUND -->
                                                 <TextBlock Text="{x:Static fonts:MaterialIcons.delete}"
                                                            Style="{StaticResource IconStyle}"
-                                                           FontSize="20"/>
+                                                           FontSize="20"
+                                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -201,11 +205,12 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
+                        <!-- UPDATED: FontWeight is now always Bold -->
                         <TextBlock Grid.Row="0"
                                    Text="{Binding RelativeTime}"
                                    FontSize="11"
                                    Foreground="{StaticResource BrushAccent}"
-                                   FontWeight="{Binding TimeFontWeight}"
+                                   FontWeight="Bold" 
                                    Margin="0,0,0,8"/>
 
                         <Grid Grid.Row="1">
@@ -213,7 +218,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="60"/> 
+                                <ColumnDefinition Width="70"/> 
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0"
