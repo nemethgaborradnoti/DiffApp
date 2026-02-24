@@ -26,6 +26,13 @@ namespace DiffApp.Helpers
                typeof(TextBlockFormatter),
                new PropertyMetadata(true, OnPropertyChanged));
 
+        public static readonly DependencyProperty IgnoreWhitespaceProperty =
+           DependencyProperty.RegisterAttached(
+               "IgnoreWhitespace",
+               typeof(bool),
+               typeof(TextBlockFormatter),
+               new PropertyMetadata(false, OnPropertyChanged));
+
         public static IEnumerable<TextFragment> GetFragments(DependencyObject obj)
         {
             return (IEnumerable<TextFragment>)obj.GetValue(FragmentsProperty);
@@ -56,6 +63,16 @@ namespace DiffApp.Helpers
             obj.SetValue(AreHighlightsEnabledProperty, value);
         }
 
+        public static bool GetIgnoreWhitespace(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(IgnoreWhitespaceProperty);
+        }
+
+        public static void SetIgnoreWhitespace(DependencyObject obj, bool value)
+        {
+            obj.SetValue(IgnoreWhitespaceProperty, value);
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TextBlock textBlock)
@@ -63,12 +80,13 @@ namespace DiffApp.Helpers
                 var fragments = GetFragments(textBlock);
                 var precision = GetPrecision(textBlock);
                 var enabled = GetAreHighlightsEnabled(textBlock);
+                var ignoreWhitespace = GetIgnoreWhitespace(textBlock);
 
-                Render(textBlock, fragments, precision, enabled);
+                Render(textBlock, fragments, precision, enabled, ignoreWhitespace);
             }
         }
 
-        private static void Render(TextBlock textBlock, IEnumerable<TextFragment> fragments, PrecisionLevel precision, bool enabled)
+        private static void Render(TextBlock textBlock, IEnumerable<TextFragment> fragments, PrecisionLevel precision, bool enabled, bool ignoreWhitespace)
         {
             if (fragments == null)
             {
@@ -76,11 +94,9 @@ namespace DiffApp.Helpers
                 return;
             }
 
-            // OPTIMIZATION: If highlights are disabled (e.g. Unchanged/Added/Removed blocks where whole line is colored),
-            // or if the line has no fragments, use simple Text property to avoid creating heavy Run objects.
+            // OPTIMIZATION: If highlights are disabled or no fragments, use simple Text property.
             if (!enabled || !fragments.Any())
             {
-                // Join text and set directly. This is O(1) for the layout engine compared to O(N) Runs.
                 var sb = new StringBuilder();
                 foreach (var f in fragments)
                 {
@@ -96,34 +112,38 @@ namespace DiffApp.Helpers
 
             if (precision == PrecisionLevel.Character)
             {
-                RenderCharacterPrecision(textBlock, fragments, enabled);
+                RenderCharacterPrecision(textBlock, fragments, enabled, ignoreWhitespace);
             }
             else
             {
-                RenderWordPrecision(textBlock, fragments, enabled);
+                RenderWordPrecision(textBlock, fragments, enabled, ignoreWhitespace);
             }
         }
 
-        private static void RenderCharacterPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled)
+        private static void RenderCharacterPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled, bool ignoreWhitespace)
         {
             foreach (var fragment in fragments)
             {
                 var run = new Run(fragment.Text);
                 if (enabled)
                 {
-                    var brush = GetBrushForChangeType(fragment.Kind);
-                    if (brush != null)
+                    // Apply color only if we are NOT ignoring whitespace, OR if it's NOT a whitespace change
+                    if (!ignoreWhitespace || !fragment.IsWhitespaceChange)
                     {
-                        run.Background = brush;
+                        var brush = GetBrushForChangeType(fragment.Kind);
+                        if (brush != null)
+                        {
+                            run.Background = brush;
+                        }
                     }
                 }
                 textBlock.Inlines.Add(run);
             }
         }
 
-        private static void RenderWordPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled)
+        private static void RenderWordPrecision(TextBlock textBlock, IEnumerable<TextFragment> fragments, bool enabled, bool ignoreWhitespace)
         {
-            var wordBuffer = new List<(char Char, DiffChangeType Kind)>();
+            var wordBuffer = new List<(char Char, DiffChangeType Kind, bool IsWhitespaceChange)>();
 
             foreach (var fragment in fragments)
             {
@@ -131,29 +151,32 @@ namespace DiffApp.Helpers
                 {
                     if (char.IsWhiteSpace(c))
                     {
-                        FlushWordBuffer(textBlock, wordBuffer, enabled);
+                        FlushWordBuffer(textBlock, wordBuffer, enabled, ignoreWhitespace);
                         textBlock.Inlines.Add(new Run(c.ToString()));
                     }
                     else
                     {
-                        wordBuffer.Add((c, fragment.Kind));
+                        wordBuffer.Add((c, fragment.Kind, fragment.IsWhitespaceChange));
                     }
                 }
             }
-            FlushWordBuffer(textBlock, wordBuffer, enabled);
+            FlushWordBuffer(textBlock, wordBuffer, enabled, ignoreWhitespace);
         }
 
-        private static void FlushWordBuffer(TextBlock textBlock, List<(char Char, DiffChangeType Kind)> buffer, bool enabled)
+        private static void FlushWordBuffer(TextBlock textBlock, List<(char Char, DiffChangeType Kind, bool IsWhitespaceChange)> buffer, bool enabled, bool ignoreWhitespace)
         {
             if (buffer.Count == 0) return;
 
             bool isModified = buffer.Any(x => x.Kind != DiffChangeType.Unchanged);
 
             DiffChangeType dominantKind = DiffChangeType.Unchanged;
+            bool isEffectiveWhitespaceChange = false;
+
             if (isModified)
             {
                 var changedItem = buffer.FirstOrDefault(x => x.Kind != DiffChangeType.Unchanged);
                 dominantKind = changedItem.Kind;
+                isEffectiveWhitespaceChange = changedItem.IsWhitespaceChange;
             }
 
             var text = new string(buffer.Select(x => x.Char).ToArray());
@@ -161,7 +184,10 @@ namespace DiffApp.Helpers
 
             if (enabled && dominantKind != DiffChangeType.Unchanged)
             {
-                run.Background = GetBrushForChangeType(dominantKind);
+                if (!ignoreWhitespace || !isEffectiveWhitespaceChange)
+                {
+                    run.Background = GetBrushForChangeType(dominantKind);
+                }
             }
 
             textBlock.Inlines.Add(run);

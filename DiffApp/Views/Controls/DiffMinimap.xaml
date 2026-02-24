@@ -1,10 +1,10 @@
 <UserControl x:Class="DiffApp.Views.Controls.DiffMinimap"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:DiffApp.Converters"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="16"
              Background="Transparent">
 
@@ -43,7 +43,15 @@
                                Cursor="Hand">
                         <Rectangle.Style>
                             <Style TargetType="Rectangle">
-                                <Setter Property="Fill" Value="{Binding Type, Converter={StaticResource MinimapBrushConverter}}"/>
+                                <Setter Property="Fill">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource MinimapBrushConverter}">
+                                            <Binding Path="Type" />
+                                            <Binding Path="IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                            <Binding Path="Block" />
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Opacity" Value="1.0"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">

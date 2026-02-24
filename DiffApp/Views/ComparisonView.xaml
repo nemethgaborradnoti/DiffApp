@@ -15,20 +15,24 @@
              Background="{StaticResource BrushBackground}">
     <UserControl.Resources>
         <converters:ChangeTypeToBrushConverter x:Key="ChangeTypeToBrushConverter" />
+        <converters:SmartBlockBrushConverter x:Key="SmartBlockBrushConverter" />
         <converters:MergeParamsConverter x:Key="MergeParamsConverter" />
         <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
+        <!-- 1. Line Content Template (Shared) -->
         <DataTemplate x:Key="LineContentTemplate">
             <TextBlock helpers:TextBlockFormatter.Fragments="{Binding Fragments}"
                        helpers:TextBlockFormatter.Precision="{Binding DataContext.SettingsViewModel.Precision, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        helpers:TextBlockFormatter.AreHighlightsEnabled="{Binding IsInModifiedBlock}"
+                       helpers:TextBlockFormatter.IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        TextWrapping="{Binding DataContext.SettingsViewModel.IsWordWrapEnabled, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}, Converter={StaticResource BoolToTextWrappingConverter}, FallbackValue=NoWrap}"
                        FontSize="{Binding DataContext.SettingsViewModel.FontSize, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                        FontFamily="{StaticResource CodeFont}" />
         </DataTemplate>
 
+        <!-- 2. Side-by-Side Row Template -->
         <DataTemplate x:Key="SideBySideRowTemplate" DataType="{x:Type viewModels:DiffLineViewModel}">
             <Grid>
                 <Border x:Name="RowBorder" Padding="0"
@@ -68,6 +72,16 @@
                                 <DataTrigger Binding="{Binding IsMergeable}" Value="True">
                                     <Setter Property="Cursor" Value="Hand"/>
                                 </DataTrigger>
+                                <!-- Disable Interaction for Whitespace-only blocks when ignored -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True"/>
+                                        <Condition Binding="{Binding ParentBlock.IsWhitespaceChange}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
@@ -91,12 +105,20 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
+                            <!-- Left Side -->
                             <Grid Grid.Column="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.ColumnSpan="2" Background="{Binding LeftLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
+                                <Border Grid.ColumnSpan="2">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource SmartBlockBrushConverter}" ConverterParameter="Old">
+                                            <Binding Path="ParentBlock" />
+                                            <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                        </MultiBinding>
+                                    </Border.Background>
+                                </Border>
                                 <TextBlock Text="{Binding LeftLine.LineNumber}"
                                            Foreground="{StaticResource BrushLineNumber}"
                                            Background="#F6F8FA"
@@ -107,12 +129,20 @@
                                 <ContentPresenter Grid.Column="1" Content="{Binding LeftLine}" ContentTemplate="{StaticResource LineContentTemplate}" Margin="5,0,0,0" VerticalAlignment="Top"/>
                             </Grid>
 
+                            <!-- Right Side -->
                             <Grid Grid.Column="2" Margin="2,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.ColumnSpan="2" Background="{Binding RightLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}, FallbackValue=Transparent}"/>
+                                <Border Grid.ColumnSpan="2">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource SmartBlockBrushConverter}" ConverterParameter="New">
+                                            <Binding Path="ParentBlock" />
+                                            <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                        </MultiBinding>
+                                    </Border.Background>
+                                </Border>
                                 <TextBlock Text="{Binding RightLine.LineNumber}"
                                            Foreground="{StaticResource BrushLineNumber}"
                                            Background="#F6F8FA"
@@ -124,6 +154,7 @@
                             </Grid>
                         </Grid>
 
+                        <!-- Merge Controls -->
                         <Border Grid.Row="1"
                                 Background="White"
                                 BorderBrush="{StaticResource BrushSelectionBorder}"
@@ -183,6 +214,7 @@
             </Grid>
         </DataTemplate>
 
+        <!-- 3. Unified Row Template -->
         <DataTemplate x:Key="UnifiedRowTemplate" DataType="{x:Type viewModels:DiffLineViewModel}">
             <Grid>
                 <Border x:Name="RowBorder" Padding="0"
@@ -219,6 +251,16 @@
                                     <Setter Property="Background" Value="#F0F8FF"/>
                                     <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}"/>
                                 </DataTrigger>
+                                <!-- Disable Interaction for Whitespace-only blocks when ignored -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True"/>
+                                        <Condition Binding="{Binding ParentBlock.IsWhitespaceChange}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
@@ -236,8 +278,36 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Border Grid.ColumnSpan="4"
-                                Background="{Binding UnifiedLine.Kind, Converter={StaticResource ChangeTypeToBrushConverter}}"/>
+                        <Border Grid.ColumnSpan="4">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UnifiedLine.Kind}" Value="Inserted">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource SmartBlockBrushConverter}" ConverterParameter="New">
+                                                        <Binding Path="ParentBlock" />
+                                                        <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding UnifiedLine.Kind}" Value="Deleted">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource SmartBlockBrushConverter}" ConverterParameter="Old">
+                                                        <Binding Path="ParentBlock" />
+                                                        <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+
                         <TextBlock Text="{Binding LeftLine.LineNumber}"
                                    Foreground="{StaticResource BrushLineNumber}"
                                    Background="#F6F8FA"
@@ -284,6 +354,103 @@
             </Grid>
         </DataTemplate>
 
+        <!-- 4. Unified Template (Structure) -->
+        <DataTemplate x:Key="UnifiedTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{StaticResource BrushSurface}"
+                        BorderBrush="{StaticResource BrushBorder}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Text="Unified View" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="•" Foreground="{StaticResource GrayTextBrush}" Margin="8,0"/>
+                            <TextBlock Text="Original" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LeftLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="/" Foreground="{StaticResource GrayTextBrush}" Margin="4,0"/>
+                            <TextBlock Text="Modified" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding RightLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource DangerButton}"
+                                    Padding="12,6"
+                                    ToolTip="Clear Content"
+                                    Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ListView Grid.Column="0"
+                              x:Name="DiffListViewUnified"
+                              ItemsSource="{Binding DiffLines}"
+                              ItemTemplate="{StaticResource UnifiedRowTemplate}"
+                              HorizontalContentAlignment="Stretch"
+                              ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling"
+                              BorderThickness="0">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{StaticResource BrushSurface}">
+                        <controls:DiffMinimap ItemsSource="{Binding LeftMinimapSegments}"
+                                              TrackColor="#F6F8FA"
+                                              ScrollCommand="{Binding ScrollMinimapCommand}"
+                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
+                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                              Margin="4,0,2,0"/>
+                        <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
+                                              TrackColor="#F6F8FA"
+                                              ScrollCommand="{Binding ScrollMinimapCommand}"
+                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
+                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                              Margin="2,0,4,0"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <!-- 5. Side-by-Side Template (Structure) -->
         <DataTemplate x:Key="SideBySideTemplate">
             <Grid>
                 <Grid.RowDefinitions>
@@ -316,7 +483,6 @@
                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                     CommandParameter="{x:Static models:Side.Old}">
                                 <Grid>
-                                    <!-- UPDATED: Added Foreground property to force Accent color -->
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -354,7 +520,6 @@
                                 Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                 ToolTip="Swap Sides"
                                 Margin="15,0">
-                            <!-- UPDATED: Added Foreground property to force Accent color -->
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="22" Foreground="{StaticResource BrushAccent}"/>
                         </Button>
 
@@ -371,7 +536,6 @@
                                         Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                         CommandParameter="{x:Static models:Side.New}">
                                     <Grid>
-                                        <!-- UPDATED: Added Foreground property to force Accent color -->
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
@@ -459,104 +623,13 @@
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
+                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                               Margin="4,0,2,0"/>
                         <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
-                                              Margin="2,0,4,0"/>
-                    </StackPanel>
-                </Grid>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="UnifiedTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0"
-                        Background="{StaticResource BrushSurface}"
-                        BorderBrush="{StaticResource BrushBorder}"
-                        BorderThickness="0,0,0,1"
-                        Padding="16,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                            <TextBlock Text="Unified View" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="•" Foreground="{StaticResource GrayTextBrush}" Margin="8,0"/>
-                            <TextBlock Text="Original" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding LeftLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="/" Foreground="{StaticResource GrayTextBrush}" Margin="4,0"/>
-                            <TextBlock Text="Modified" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding RightLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource DangerButton}"
-                                    Padding="12,6"
-                                    ToolTip="Clear Content"
-                                    Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <ListView Grid.Column="0"
-                              x:Name="DiffListViewUnified"
-                              ItemsSource="{Binding DiffLines}"
-                              ItemTemplate="{StaticResource UnifiedRowTemplate}"
-                              HorizontalContentAlignment="Stretch"
-                              ScrollViewer.CanContentScroll="True"
-                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                              VirtualizingStackPanel.IsVirtualizing="True"
-                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                              BorderThickness="0">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Focusable" Value="False"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="0"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListViewItem">
-                                            <ContentPresenter />
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{StaticResource BrushSurface}">
-                        <controls:DiffMinimap ItemsSource="{Binding LeftMinimapSegments}"
-                                              TrackColor="#F6F8FA"
-                                              ScrollCommand="{Binding ScrollMinimapCommand}"
-                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
-                                              Margin="4,0,2,0"/>
-                        <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
-                                              TrackColor="#F6F8FA"
-                                              ScrollCommand="{Binding ScrollMinimapCommand}"
-                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
+                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                               Margin="2,0,4,0"/>
                     </StackPanel>
                 </Grid>

@@ -1,4 +1,8 @@
-﻿namespace DiffApp.ViewModels
+﻿using DiffApp.Models;
+using DiffApp.Services.Interfaces;
+using System.Windows;
+
+namespace DiffApp.ViewModels
 {
     public class SettingsViewModel : ViewModelBase
     {
@@ -9,7 +13,7 @@
         private ViewMode _viewMode;
         private double _fontSize;
 
-        public event EventHandler? SettingsChanged;
+        public event EventHandler<string>? SettingsChanged;
 
         public bool IsWordWrapEnabled
         {
@@ -19,7 +23,7 @@
                 if (SetProperty(ref _isWordWrapEnabled, value))
                 {
                     SaveSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseSettingsChanged(nameof(IsWordWrapEnabled));
                 }
             }
         }
@@ -32,7 +36,7 @@
                 if (SetProperty(ref _ignoreWhitespace, value))
                 {
                     SaveSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseSettingsChanged(nameof(IgnoreWhitespace));
                 }
             }
         }
@@ -45,7 +49,7 @@
                 if (SetProperty(ref _precision, value))
                 {
                     SaveSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseSettingsChanged(nameof(Precision));
                 }
             }
         }
@@ -58,7 +62,7 @@
                 if (SetProperty(ref _viewMode, value))
                 {
                     SaveSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseSettingsChanged(nameof(ViewMode));
                 }
             }
         }
@@ -71,7 +75,7 @@
                 if (SetProperty(ref _fontSize, value))
                 {
                     SaveSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseSettingsChanged(nameof(FontSize));
                 }
             }
         }
@@ -87,6 +91,11 @@
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
 
             LoadSettings();
+        }
+
+        private void RaiseSettingsChanged(string propertyName)
+        {
+            SettingsChanged?.Invoke(this, propertyName);
         }
 
         private void LoadSettings()
@@ -120,7 +129,8 @@
         {
             _settingsService.ResetToDefaults();
             LoadSettings();
-            SettingsChanged?.Invoke(this, EventArgs.Empty);
+            // Pass string.Empty or specific logic to indicate full reset
+            RaiseSettingsChanged(string.Empty);
         }
 
         private void ResetWindow(object? parameter)

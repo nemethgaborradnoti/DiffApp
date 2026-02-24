@@ -15,6 +15,8 @@ namespace DiffApp.Models
         public int StartIndexOld { get; set; }
         public int StartIndexNew { get; set; }
 
+        public bool IsWhitespaceChange { get; set; }
+
         private bool _isSelected;
         public bool IsSelected
         {

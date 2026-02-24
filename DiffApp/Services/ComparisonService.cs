@@ -16,8 +16,10 @@ namespace DiffApp.Services
 
             IChunker chunker = new CharacterChunker();
 
+            // Always run diff with ignoreWhitespace: false to capture all differences.
+            // The filtering will happen visually based on the calculated flags.
             var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
-            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed);
+            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed, ignoreWhitespace: false);
 
             var blocks = BuildBlocks(diffModel, settings);
 
@@ -35,14 +37,17 @@ namespace DiffApp.Services
             int currentOldIndex = 0;
             int currentNewIndex = 0;
 
-            GetEffectiveTypes(model.OldText.Lines[0], model.NewText.Lines[0], settings, out var startOldType, out var startNewType);
-            var startKind = MapKind(startOldType == DiffPlexChangeType.Imaginary ? startNewType : startOldType);
+            var startOldLine = model.OldText.Lines[0];
+            var startNewLine = model.NewText.Lines[0];
+
+            var startKind = MapKind(startOldLine.Type == DiffPlexChangeType.Imaginary ? startNewLine.Type : startOldLine.Type);
 
             var currentBlock = new ChangeBlock
             {
                 Kind = startKind,
                 StartIndexOld = currentOldIndex,
-                StartIndexNew = currentNewIndex
+                StartIndexNew = currentNewIndex,
+                IsWhitespaceChange = true // Assume true initially, set to false if significant change found
             };
 
             var inlineDiffer = new InlineDiffBuilder(new Differ());
@@ -52,9 +57,8 @@ namespace DiffApp.Services
                 var oldLine = model.OldText.Lines[i];
                 var newLine = model.NewText.Lines[i];
 
-                GetEffectiveTypes(oldLine, newLine, settings, out var effectiveOldType, out var effectiveNewType);
-
-                var kind = MapKind(effectiveOldType == DiffPlexChangeType.Imaginary ? effectiveNewType : effectiveOldType);
+                var kind = MapKind(oldLine.Type == DiffPlexChangeType.Imaginary ? newLine.Type : oldLine.Type);
+                bool isLineWhitespaceOnly = IsWhitespaceOnlyChange(oldLine, newLine);
 
                 if (kind != currentBlock.Kind)
                 {
@@ -66,18 +70,24 @@ namespace DiffApp.Services
                     {
                         Kind = kind,
                         StartIndexOld = currentOldIndex,
-                        StartIndexNew = currentNewIndex
+                        StartIndexNew = currentNewIndex,
+                        IsWhitespaceChange = true
                     };
                 }
 
-                if (effectiveOldType == DiffPlexChangeType.Modified && effectiveNewType == DiffPlexChangeType.Modified)
+                // If the current line represents a significant change, mark the block as significant
+                if (!isLineWhitespaceOnly && kind != BlockType.Unchanged)
+                {
+                    currentBlock.IsWhitespaceChange = false;
+                }
+
+                if (oldLine.Type == DiffPlexChangeType.Modified && newLine.Type == DiffPlexChangeType.Modified)
                 {
                     var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty, ignoreWhitespace: false, ignoreCase: false, new CharacterChunker());
 
                     List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
                     List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
 
-                    // Passed true for IsInModifiedBlock
                     currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, DiffPlexChangeType.Deleted, oldPieces, true));
                     currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, DiffPlexChangeType.Inserted, newPieces, true));
 
@@ -86,9 +96,8 @@ namespace DiffApp.Services
                 }
                 else
                 {
-                    // Passed false for IsInModifiedBlock (Pure Add/Remove/Unchanged)
-                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, effectiveOldType, oldLine.Text, false));
-                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, effectiveNewType, newLine.Text, false));
+                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, oldLine.Type, oldLine.Text, false));
+                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, newLine.Type, newLine.Text, false));
 
                     if (oldLine.Type != DiffPlexChangeType.Imaginary) currentOldIndex++;
                     if (newLine.Type != DiffPlexChangeType.Imaginary) currentNewIndex++;
@@ -101,22 +110,6 @@ namespace DiffApp.Services
             }
 
             return blocks;
-        }
-
-        private void GetEffectiveTypes(DiffPlexPiece oldLine, DiffPlexPiece newLine, CompareSettings settings, out DiffPlexChangeType oldType, out DiffPlexChangeType newType)
-        {
-            oldType = oldLine.Type;
-            newType = newLine.Type;
-
-            if (settings.IgnoreWhitespace)
-            {
-                bool isWhitespaceDifference = IsWhitespaceOnlyChange(oldLine, newLine);
-                if (isWhitespaceDifference)
-                {
-                    oldType = DiffPlexChangeType.Unchanged;
-                    newType = DiffPlexChangeType.Unchanged;
-                }
-            }
         }
 
         private bool IsWhitespaceOnlyChange(DiffPlexPiece oldLine, DiffPlexPiece newLine)
@@ -139,9 +132,19 @@ namespace DiffApp.Services
         private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, string text, bool isInModifiedBlock)
         {
             var internalKind = MapChangeType(kind);
+            bool isWhitespace = string.IsNullOrWhiteSpace(text);
+
             var fragments = text is null
                 ? new List<TextFragment>()
-                : new List<TextFragment> { new TextFragment { Text = text, Kind = internalKind } };
+                : new List<TextFragment>
+                {
+                    new TextFragment
+                    {
+                        Text = text,
+                        Kind = internalKind,
+                        IsWhitespaceChange = isWhitespace
+                    }
+                };
 
             return new ChangeLine
             {
@@ -161,7 +164,9 @@ namespace DiffApp.Services
                 Fragments = pieces.Select(p => new TextFragment
                 {
                     Text = p.Text,
-                    Kind = MapChangeType(p.Type)
+                    Kind = MapChangeType(p.Type),
+                    // For inline pieces, if the text is just whitespace, it's a whitespace change fragment
+                    IsWhitespaceChange = string.IsNullOrWhiteSpace(p.Text)
                 }).ToList(),
                 IsInModifiedBlock = isInModifiedBlock
             };

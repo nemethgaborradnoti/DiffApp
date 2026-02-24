@@ -1,4 +1,9 @@
-﻿namespace DiffApp.Views.Controls
+﻿using DiffApp.Models;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+
+namespace DiffApp.Views.Controls
 {
     public partial class DiffMinimap : UserControl
     {
@@ -41,6 +46,15 @@
         {
             get { return (ICommand)GetValue(ItemClickCommandProperty); }
             set { SetValue(ItemClickCommandProperty, value); }
+        }
+
+        public static readonly DependencyProperty IgnoreWhitespaceProperty =
+            DependencyProperty.Register("IgnoreWhitespace", typeof(bool), typeof(DiffMinimap), new PropertyMetadata(false));
+
+        public bool IgnoreWhitespace
+        {
+            get { return (bool)GetValue(IgnoreWhitespaceProperty); }
+            set { SetValue(IgnoreWhitespaceProperty, value); }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

@@ -14,6 +14,7 @@ namespace DiffApp.ViewModels
         private IEnumerable<MinimapSegment> _leftMinimapSegments;
         private IEnumerable<MinimapSegment> _rightMinimapSegments;
         private bool _isUnifiedMode;
+        private bool _ignoreWhitespace; // New property to track live state
         private string _leftResultText;
         private string _rightResultText;
         private bool _isBusy;
@@ -58,6 +59,12 @@ namespace DiffApp.ViewModels
                     }
                 }
             }
+        }
+
+        public bool IgnoreWhitespace
+        {
+            get => _ignoreWhitespace;
+            set => SetProperty(ref _ignoreWhitespace, value);
         }
 
         public bool IsBusy
@@ -112,6 +119,7 @@ namespace DiffApp.ViewModels
             _leftResultText = leftText;
             _rightResultText = rightText;
             _settings = settings;
+            _ignoreWhitespace = settings.IgnoreWhitespace; // Initialize from settings
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _onSourceUpdated = onSourceUpdated;
@@ -148,13 +156,17 @@ namespace DiffApp.ViewModels
         {
             if (parameter is MinimapSegment segment)
             {
-                // 1. Select the block (visual highlighting + merge controls)
+                // Prevent navigation/selection if filtering is ON and segment is whitespace-only
+                if (IgnoreWhitespace && segment.Block != null && segment.Block.IsWhitespaceChange)
+                {
+                    return;
+                }
+
                 if (segment.Block != null)
                 {
                     SelectBlock(segment.Block);
                 }
 
-                // 2. Scroll to the specific line
                 ScrollRequested?.Invoke(this, segment.TargetLineIndex);
             }
         }
@@ -182,8 +194,6 @@ namespace DiffApp.ViewModels
             var leftSegments = new List<MinimapSegment>();
             var rightSegments = new List<MinimapSegment>();
 
-            // REMOVED: Merging logic (threshold). We want strict 1:1 mapping for clickability.
-
             foreach (var block in _comparisonResult.Blocks)
             {
                 int height = GetBlockHeight(block);
@@ -193,11 +203,8 @@ namespace DiffApp.ViewModels
                     double offsetPct = currentVisualIndex / totalVisualHeight;
                     double heightPct = height / totalVisualHeight;
 
-                    // Ensure visible minimum height for very small blocks is still useful,
-                    // but allow them to stack/overlap if necessary instead of merging.
                     if (heightPct < 0.002) heightPct = 0.002;
 
-                    // Left Side Logic (Red)
                     if (block.Kind == BlockType.Removed || block.Kind == BlockType.Modified)
                     {
                         leftSegments.Add(new MinimapSegment
@@ -211,7 +218,6 @@ namespace DiffApp.ViewModels
                         });
                     }
 
-                    // Right Side Logic (Green)
                     if (block.Kind == BlockType.Added || block.Kind == BlockType.Modified)
                     {
                         rightSegments.Add(new MinimapSegment
@@ -247,8 +253,6 @@ namespace DiffApp.ViewModels
                 return Math.Max(block.OldLines.Count, block.NewLines.Count);
             }
         }
-
-        // REMOVED: AddOrMergeSegment method to prevent combining distinct blocks.
 
         private void ExecuteMerge(object? parameter)
         {
@@ -291,6 +295,12 @@ namespace DiffApp.ViewModels
                 targetBlock = block;
             }
 
+            // CRITICAL: Prevent selection if ignoring whitespace and the block is whitespace-only
+            if (targetBlock != null && IgnoreWhitespace && targetBlock.IsWhitespaceChange)
+            {
+                return;
+            }
+
             if (targetBlock != null && targetBlock.IsMergeable && ComparisonResult?.Blocks != null)
             {
                 foreach (var block in ComparisonResult.Blocks)
@@ -315,6 +325,9 @@ namespace DiffApp.ViewModels
             IsBusy = true;
             try
             {
+                // Update settings before refreshing
+                _settings.IgnoreWhitespace = IgnoreWhitespace;
+
                 var result = await Task.Run(() => _comparisonService.Compare(LeftResultText, RightResultText, _settings));
                 ComparisonResult = result;
                 DiffLines = new VirtualDiffLineList(result, IsUnifiedMode);

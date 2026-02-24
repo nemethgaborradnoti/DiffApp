@@ -1,4 +1,7 @@
-﻿namespace DiffApp.ViewModels
+﻿using DiffApp.Models;
+using DiffApp.Services.Interfaces;
+
+namespace DiffApp.ViewModels
 {
     public class InputViewModel : ViewModelBase
     {
@@ -12,7 +15,7 @@
         private double _fontSize = 14.0;
 
         public event EventHandler? CompareRequested;
-        public event EventHandler? SettingsChanged;
+        public event EventHandler<string>? SettingsChanged;
 
         public string LeftText
         {
@@ -33,7 +36,7 @@
             {
                 if (SetProperty(ref _ignoreWhitespace, value))
                 {
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    SettingsChanged?.Invoke(this, nameof(IgnoreWhitespace));
                 }
             }
         }
@@ -51,7 +54,7 @@
             {
                 if (SetProperty(ref _precision, value))
                 {
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    SettingsChanged?.Invoke(this, nameof(Precision));
                 }
             }
         }

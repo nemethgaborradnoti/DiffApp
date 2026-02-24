@@ -95,15 +95,34 @@ namespace DiffApp.ViewModels
             PerformComparison(saveToHistory: false);
         }
 
-        private void OnSettingsChanged(object? sender, EventArgs e)
+        private void OnSettingsChanged(object? sender, string propertyName)
         {
             InputViewModel.ReloadSettings();
 
             if (ComparisonViewModel != null)
             {
-                ComparisonViewModel.IsUnifiedMode = SettingsViewModel.ViewMode == ViewMode.Unified;
+                if (propertyName == nameof(SettingsViewModel.IgnoreWhitespace))
+                {
+                    // Sync the setting to ComparisonViewModel directly
+                    ComparisonViewModel.IgnoreWhitespace = SettingsViewModel.IgnoreWhitespace;
+                    return;
+                }
 
-                PerformComparison();
+                if (propertyName == nameof(SettingsViewModel.Precision))
+                {
+                    return;
+                }
+
+                if (propertyName == nameof(SettingsViewModel.ViewMode))
+                {
+                    ComparisonViewModel.IsUnifiedMode = SettingsViewModel.ViewMode == ViewMode.Unified;
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(propertyName))
+                {
+                    PerformComparison();
+                }
             }
         }
 
@@ -215,7 +234,7 @@ namespace DiffApp.ViewModels
                         {
                             IsLeftCopied = true;
                             ((RelayCommand)CopyTextCommand).RaiseCanExecuteChanged();
-                            await Task.Delay(3000);
+                            await Task.Delay(2000);
                             IsLeftCopied = false;
                             ((RelayCommand)CopyTextCommand).RaiseCanExecuteChanged();
                         }
@@ -223,7 +242,7 @@ namespace DiffApp.ViewModels
                         {
                             IsRightCopied = true;
                             ((RelayCommand)CopyTextCommand).RaiseCanExecuteChanged();
-                            await Task.Delay(3000);
+                            await Task.Delay(2000);
                             IsRightCopied = false;
                             ((RelayCommand)CopyTextCommand).RaiseCanExecuteChanged();
                         }
