@@ -17,21 +17,21 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <SolidColorBrush x:Key="BrushLightBlueBorder" Color="#D0E3F0"/>
 
+        <!-- Updated to use Shared Resource for Hover Color -->
         <Style x:Key="DeleteIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource DiffBackgroundRemoved}"/>
+                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="BookmarkIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-            <!-- UPDATED: Default color is now Accent (Blue) -->
             <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource DiffBackgroundAdded}"/>
+                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -146,7 +146,6 @@
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsBookmarked}" Value="True">
                                                                     <Setter Property="Text" Value="{x:Static fonts:MaterialIcons.bookmark}"/>
-                                                                    <!-- Foreground already inherited from Button (Accent) -->
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>

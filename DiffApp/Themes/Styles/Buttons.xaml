@@ -108,9 +108,8 @@
     <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"/>
 
     <!-- 
-         REFACTORED: BorderlessIconButton
-         Changed from aggressive Storyboard animations to passive Style Triggers.
-         Now allows overriding Background/Foreground via Derived Styles or Local Properties.
+         BorderlessIconButton
+         Updated to use Shared Resource for Hover Color
     -->
     <Style x:Key="BorderlessIconButton" TargetType="Button">
         <Setter Property="Width" Value="28"/>
@@ -130,7 +129,6 @@
                             CornerRadius="3" 
                             BorderThickness="{TemplateBinding BorderThickness}" 
                             BorderBrush="{TemplateBinding BorderBrush}">
-                        <!-- ContentPresenter uses TemplateBinding to respect parent Foreground -->
                         <ContentPresenter HorizontalAlignment="Center" 
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{TemplateBinding Foreground}"/>
@@ -144,10 +142,10 @@
             </Setter.Value>
         </Setter>
 
-        <!-- Default Hover Behavior defined in Style (Overridable) -->
+        <!-- Default Hover Behavior using Shared Resource -->
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#E0E0E0"/>
+                <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -193,7 +191,6 @@
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <!-- Checked State overrides -->
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="border" Property="Background" Value="{StaticResource BrushAccent}"/>
                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
@@ -201,7 +198,6 @@
                             <Setter Property="Panel.ZIndex" Value="1"/>
                         </Trigger>
 
-                        <!-- Hover State (only when not checked) -->
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsChecked" Value="False"/>
@@ -210,7 +206,6 @@
                             <Setter TargetName="border" Property="Background" Value="#eef2f5"/>
                         </MultiTrigger>
 
-                        <!-- Hover + Checked State -->
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsChecked" Value="True"/>
