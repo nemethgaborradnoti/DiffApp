@@ -9,6 +9,7 @@ namespace DiffApp.ViewModels
         private readonly IMergeService _mergeService;
         private readonly IScrollService _scrollService;
         private readonly IHistoryService _historyService;
+        private readonly ISettingsService _settingsService;
 
         private ComparisonViewModel? _comparisonViewModel;
         private bool _isInputPanelExpanded = true;
@@ -35,7 +36,13 @@ namespace DiffApp.ViewModels
         public bool IsSettingsPanelOpen
         {
             get => _isSettingsPanelOpen;
-            set => SetProperty(ref _isSettingsPanelOpen, value);
+            set
+            {
+                if (SetProperty(ref _isSettingsPanelOpen, value))
+                {
+                    SaveSettingsPanelState();
+                }
+            }
         }
 
         public bool IsLeftCopied
@@ -63,6 +70,7 @@ namespace DiffApp.ViewModels
             IMergeService mergeService,
             IScrollService scrollService,
             IHistoryService historyService,
+            ISettingsService settingsService,
             InputViewModel inputViewModel,
             SettingsViewModel settingsViewModel)
         {
@@ -70,8 +78,11 @@ namespace DiffApp.ViewModels
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _scrollService = scrollService ?? throw new ArgumentNullException(nameof(scrollService));
             _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
             SettingsViewModel = settingsViewModel ?? throw new ArgumentNullException(nameof(settingsViewModel));
+
+            InitializeSettings();
 
             InputViewModel.CompareRequested += OnCompareRequested;
             InputViewModel.SettingsChanged += OnSettingsChanged;
@@ -86,6 +97,20 @@ namespace DiffApp.ViewModels
             JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
             JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
             ToggleSettingsPanelCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
+        }
+
+        private void InitializeSettings()
+        {
+            var settings = _settingsService.LoadSettings();
+            _isSettingsPanelOpen = settings.IsSettingsPanelOpen;
+            OnPropertyChanged(nameof(IsSettingsPanelOpen));
+        }
+
+        private void SaveSettingsPanelState()
+        {
+            var settings = _settingsService.LoadSettings();
+            settings.IsSettingsPanelOpen = IsSettingsPanelOpen;
+            _settingsService.SaveSettings(settings);
         }
 
         public void LoadFromHistory(DiffHistoryItem item)
@@ -103,7 +128,6 @@ namespace DiffApp.ViewModels
             {
                 if (propertyName == nameof(SettingsViewModel.IgnoreWhitespace))
                 {
-                    // Sync the setting to ComparisonViewModel directly
                     ComparisonViewModel.IgnoreWhitespace = SettingsViewModel.IgnoreWhitespace;
                     return;
                 }

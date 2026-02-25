@@ -7,6 +7,7 @@
         public PrecisionLevel Precision { get; set; } = PrecisionLevel.Word;
         public ViewMode ViewMode { get; set; } = ViewMode.Split;
         public double FontSize { get; set; } = 13.0;
+        public bool IsSettingsPanelOpen { get; set; } = true;
 
         public double WindowTop { get; set; } = double.NaN;
         public double WindowLeft { get; set; } = double.NaN;

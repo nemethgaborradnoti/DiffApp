@@ -35,7 +35,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{x:Static fonts:MaterialIcons.edit_note}"
+                <TextBlock Text="{x:Static fonts:MaterialIcons.description}"
                            Style="{StaticResource IconStyle}"
                            Foreground="{StaticResource GrayTextBrush}"
                            FontSize="16"

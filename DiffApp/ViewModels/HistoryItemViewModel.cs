@@ -82,19 +82,23 @@ namespace DiffApp.ViewModels
                 return string.Empty;
 
             var lines = text.Replace("\r\n", "\n").Split('\n');
-            var sb = new StringBuilder();
-            int lineCount = 0;
+            var previewLines = new List<string>();
+            int maxLines = 3;
 
-            foreach (var line in lines)
+            for (int i = 0; i < lines.Length && i < maxLines; i++)
             {
-                if (lineCount >= 3)
-                    break;
-
-                sb.AppendLine(line);
-                lineCount++;
+                var line = lines[i];
+                if (string.IsNullOrEmpty(line))
+                {
+                    previewLines.Add(" ");
+                }
+                else
+                {
+                    previewLines.Add(line);
+                }
             }
 
-            return sb.ToString().TrimEnd();
+            return string.Join(Environment.NewLine, previewLines);
         }
     }
 }
