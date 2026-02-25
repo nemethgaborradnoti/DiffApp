@@ -18,20 +18,25 @@
 
 		<Grid Grid.Column="0" Background="{StaticResource BrushSurface}">
 
-			<Button Width="40"
+			<Button Width="32"
                     Command="{Binding ToggleSettingsPanelCommand}"
                     Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}, ConverterParameter=Invert}"
                     Background="{StaticResource BrushSurface}"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,0,1,0"
                     Cursor="Hand"
+                    VerticalAlignment="Stretch"
                     ToolTip="Open Settings">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
 						<Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
-							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}"
+                                       Style="{StaticResource IconStyle}"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="24"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsMouseOver" Value="True">
@@ -40,38 +45,54 @@
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
 				</Button.Template>
-				<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_right}" Style="{StaticResource IconStyle}"/>
 			</Button>
 
-			<Border Width="240"
+			<Border Width="280"
                     BorderBrush="{StaticResource BrushBorder}"
                     BorderThickness="0,0,1,0"
                     Visibility="{Binding IsSettingsPanelOpen, Converter={StaticResource VisibilityConverter}}">
 				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="*"/>
-					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="32"/>
+					</Grid.ColumnDefinitions>
 
-					<Button Grid.Row="0"
+					<Grid Grid.Column="0">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+
+						<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="15,15,15,10">
+							<TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
+							<TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" VerticalAlignment="Center"/>
+						</StackPanel>
+
+						<Separator Grid.Row="0" VerticalAlignment="Bottom" Background="{StaticResource BrushBorder}"/>
+
+						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="15">
+							<views:SettingsView DataContext="{Binding SettingsViewModel}" />
+						</ScrollViewer>
+					</Grid>
+
+					<Button Grid.Column="1"
                             Command="{Binding ToggleSettingsPanelCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
+                            Background="{StaticResource BrushSurface}"
+                            BorderBrush="{StaticResource BrushBorder}"
+                            BorderThickness="1,0,0,0"
                             Cursor="Hand"
+                            VerticalAlignment="Stretch"
                             ToolTip="Close Settings">
 						<Button.Template>
 							<ControlTemplate TargetType="Button">
-								<Border Background="{TemplateBinding Background}" Padding="15">
-									<Grid>
-										<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-											<TextBlock Text="{x:Static fonts:MaterialIcons.tune}" Style="{StaticResource IconStyle}" Margin="0,0,10,0"/>
-											<TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" VerticalAlignment="Center"/>
-										</StackPanel>
-										<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}"
-                                                   Style="{StaticResource IconStyle}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"/>
-									</Grid>
+								<Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+									<TextBlock Text="{x:Static fonts:MaterialIcons.keyboard_arrow_left}"
+                                               Style="{StaticResource IconStyle}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               FontSize="24"/>
 								</Border>
 								<ControlTemplate.Triggers>
 									<Trigger Property="IsMouseOver" Value="True">
@@ -82,11 +103,6 @@
 						</Button.Template>
 					</Button>
 
-					<Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="0,0,0,0" Background="{StaticResource BrushBorder}"/>
-
-					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="15">
-						<views:SettingsView DataContext="{Binding SettingsViewModel}" />
-					</ScrollViewer>
 				</Grid>
 			</Border>
 		</Grid>
@@ -137,7 +153,18 @@
                                 Padding="10,5">
 							<Grid>
 								<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-									<TextBlock Text="Input / Editor" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0"/>
+									<TextBlock Text="{x:Static fonts:MaterialIcons.border_color}"
+                                               Style="{StaticResource IconStyle}"
+                                               FontSize="18"
+                                               Foreground="White"
+                                               Margin="0,0,8,0"/>
+
+									<TextBlock Text="Input / Editor"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"
+                                               FontSize="15"
+                                               Margin="0,0,10,0"/>
 
 									<TextBlock Foreground="White" FontSize="24">
 										<TextBlock.Style>
