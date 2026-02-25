@@ -419,18 +419,12 @@
                     </ListView>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{StaticResource BrushSurface}">
-                        <controls:DiffMinimap ItemsSource="{Binding LeftMinimapSegments}"
+                        <controls:DiffMinimap ItemsSource="{Binding UnifiedMinimapSegments}"
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="0,0,1,0"/>
-                        <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
-                                              TrackColor="#F6F8FA"
-                                              ScrollCommand="{Binding ScrollMinimapCommand}"
-                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
-                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="1,0,4,0"/>
+                                              Margin="0,0,4,0"/>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -455,49 +449,52 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
+                        <!-- LEFT HEADER -->
                         <Grid Grid.Column="0">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock Text="Original" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding LeftLineCount, StringFormat='({0} lines)'}" Foreground="{StaticResource GrayTextBrush}" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding RemovalsCount, StringFormat='{}{0} removals'}" FontWeight="Bold" Foreground="{StaticResource DangerBrush}" FontSize="14" VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <Button Style="{StaticResource IconButtonStyle}"
-                                    HorizontalAlignment="Right"
-                                    ToolTip="Copy Original Text"
-                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                    CommandParameter="{x:Static models:Side.Old}">
-                                <Grid>
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
-                                                <Setter Property="FontSize" Value="18"/>
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
-                                                <Setter Property="FontSize" Value="18"/>
-                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
-                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding LeftLineCount, StringFormat='{}{0} lines'}" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"/>
+
+                                <Button Style="{StaticResource IconButtonStyle}"
+                                        ToolTip="Copy Original Text"
+                                        Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
+                                        CommandParameter="{x:Static models:Side.Old}">
+                                    <Grid>
+                                        <TextBlock Text="{x:Static fonts:MaterialIcons.content_copy}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="FontSize" Value="18"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource BrushAccent}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Static fonts:MaterialIcons.check}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="FontSize" Value="18"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.IsLeftCopied, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Button>
+                            </StackPanel>
                         </Grid>
 
                         <Button Grid.Column="1"
@@ -508,14 +505,16 @@
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="22" Foreground="{StaticResource BrushAccent}"/>
                         </Button>
 
+                        <!-- RIGHT HEADER -->
                         <Grid Grid.Column="2">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="{x:Static fonts:MaterialIcons.edit_note}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock Text="Modified" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding RightLineCount, StringFormat='({0} lines)'}" Foreground="{StaticResource GrayTextBrush}" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding AdditionsCount, StringFormat='{}{0} additions'}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" FontSize="14" VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RightLineCount, StringFormat='{}{0} lines'}" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"/>
+
                                 <Button Style="{StaticResource IconButtonStyle}"
                                         ToolTip="Copy Modified Text"
                                         Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
@@ -604,18 +603,12 @@
                     </ListView>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Background="{StaticResource BrushSurface}">
-                        <controls:DiffMinimap ItemsSource="{Binding LeftMinimapSegments}"
+                        <controls:DiffMinimap ItemsSource="{Binding UnifiedMinimapSegments}"
                                               TrackColor="#F6F8FA"
                                               ScrollCommand="{Binding ScrollMinimapCommand}"
                                               ItemClickCommand="{Binding NavigateToSegmentCommand}"
                                               IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="0,0,1,0"/>
-                        <controls:DiffMinimap ItemsSource="{Binding RightMinimapSegments}"
-                                              TrackColor="#F6F8FA"
-                                              ScrollCommand="{Binding ScrollMinimapCommand}"
-                                              ItemClickCommand="{Binding NavigateToSegmentCommand}"
-                                              IgnoreWhitespace="{Binding DataContext.SettingsViewModel.IgnoreWhitespace, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                              Margin="1,0,4,0"/>
+                                              Margin="0,0,4,0"/>
                     </StackPanel>
                 </Grid>
             </Grid>

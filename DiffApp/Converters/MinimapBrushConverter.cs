@@ -4,27 +4,52 @@ namespace DiffApp.Converters
 {
     public class MinimapBrushConverter : IMultiValueConverter
     {
+        private static readonly Brush MinimapGreen = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8fe3c7"));
+        private static readonly Brush MinimapRed = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f5a4a4"));
+
+        static MinimapBrushConverter()
+        {
+            if (MinimapGreen.CanFreeze) MinimapGreen.Freeze();
+            if (MinimapRed.CanFreeze) MinimapRed.Freeze();
+        }
+
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Length < 3)
+            if (values.Length < 2)
                 return Brushes.Transparent;
 
-            if (values[0] is not BlockType kind)
+            var segment = values[0] as MinimapSegment;
+            if (segment == null)
                 return Brushes.Transparent;
 
-            bool ignoreWhitespace = values[1] is bool b && b;
-            var block = values[2] as ChangeBlock;
+            bool ignoreWhitespace = false;
+            if (values[1] is bool b)
+            {
+                ignoreWhitespace = b;
+            }
 
-            if (ignoreWhitespace && block != null && block.IsWhitespaceChange)
+            if (ignoreWhitespace && segment.Block != null && segment.Block.IsWhitespaceChange)
             {
                 return Brushes.Transparent;
             }
 
-            return kind switch
+            string side = parameter as string ?? string.Empty;
+            BlockType typeToCheck = BlockType.Unchanged;
+
+            if (string.Equals(side, "Left", StringComparison.OrdinalIgnoreCase))
             {
-                BlockType.Added => (Application.Current.TryFindResource("SuccessBrush") as Brush) ?? Brushes.Green,
-                BlockType.Removed => (Application.Current.TryFindResource("DangerBrush") as Brush) ?? Brushes.Red,
-                BlockType.Modified => Brushes.Orange,
+                typeToCheck = segment.LeftType;
+            }
+            else if (string.Equals(side, "Right", StringComparison.OrdinalIgnoreCase))
+            {
+                typeToCheck = segment.RightType;
+            }
+
+            return typeToCheck switch
+            {
+                BlockType.Added => MinimapGreen,
+                BlockType.Removed => MinimapRed,
+                BlockType.Modified => string.Equals(side, "Left", StringComparison.OrdinalIgnoreCase) ? MinimapRed : MinimapGreen,
                 _ => Brushes.Transparent,
             };
         }

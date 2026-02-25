@@ -11,20 +11,27 @@ namespace DiffApp.ViewModels
 
         private ComparisonResult _comparisonResult;
         private IList<DiffLineViewModel> _diffLines;
-        private IEnumerable<MinimapSegment> _leftMinimapSegments;
-        private IEnumerable<MinimapSegment> _rightMinimapSegments;
+        private IEnumerable<MinimapSegment> _unifiedMinimapSegments;
         private bool _isUnifiedMode;
-        private bool _ignoreWhitespace; // New property to track live state
+        private bool _ignoreWhitespace;
         private string _leftResultText;
         private string _rightResultText;
         private bool _isBusy;
+        private int _removalsCount;
+        private int _additionsCount;
 
         public event EventHandler<int>? ScrollRequested;
 
         public ComparisonResult ComparisonResult
         {
             get => _comparisonResult;
-            private set => SetProperty(ref _comparisonResult, value);
+            private set
+            {
+                if (SetProperty(ref _comparisonResult, value))
+                {
+                    CalculateStats();
+                }
+            }
         }
 
         public IList<DiffLineViewModel> DiffLines
@@ -33,16 +40,10 @@ namespace DiffApp.ViewModels
             private set => SetProperty(ref _diffLines, value);
         }
 
-        public IEnumerable<MinimapSegment> LeftMinimapSegments
+        public IEnumerable<MinimapSegment> UnifiedMinimapSegments
         {
-            get => _leftMinimapSegments;
-            private set => SetProperty(ref _leftMinimapSegments, value);
-        }
-
-        public IEnumerable<MinimapSegment> RightMinimapSegments
-        {
-            get => _rightMinimapSegments;
-            private set => SetProperty(ref _rightMinimapSegments, value);
+            get => _unifiedMinimapSegments;
+            private set => SetProperty(ref _unifiedMinimapSegments, value);
         }
 
         public bool IsUnifiedMode
@@ -100,6 +101,18 @@ namespace DiffApp.ViewModels
         public int LeftLineCount => GetLineCount(_leftResultText);
         public int RightLineCount => GetLineCount(_rightResultText);
 
+        public int RemovalsCount
+        {
+            get => _removalsCount;
+            private set => SetProperty(ref _removalsCount, value);
+        }
+
+        public int AdditionsCount
+        {
+            get => _additionsCount;
+            private set => SetProperty(ref _additionsCount, value);
+        }
+
         public ICommand MergeBlockCommand { get; }
         public ICommand SelectBlockCommand { get; }
         public ICommand DeselectAllCommand { get; }
@@ -119,11 +132,12 @@ namespace DiffApp.ViewModels
             _leftResultText = leftText;
             _rightResultText = rightText;
             _settings = settings;
-            _ignoreWhitespace = settings.IgnoreWhitespace; // Initialize from settings
+            _ignoreWhitespace = settings.IgnoreWhitespace;
             _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _onSourceUpdated = onSourceUpdated;
 
+            CalculateStats();
             DiffLines = new VirtualDiffLineList(_comparisonResult, _isUnifiedMode);
             CalculateMinimap();
 
@@ -138,6 +152,35 @@ namespace DiffApp.ViewModels
         {
             if (string.IsNullOrEmpty(text)) return 0;
             return text.Replace("\r\n", "\n").Split('\n').Length;
+        }
+
+        private void CalculateStats()
+        {
+            if (_comparisonResult?.Blocks == null)
+            {
+                RemovalsCount = 0;
+                AdditionsCount = 0;
+                return;
+            }
+
+            int removals = 0;
+            int additions = 0;
+
+            foreach (var block in _comparisonResult.Blocks)
+            {
+                if (block.Kind == BlockType.Removed || block.Kind == BlockType.Modified)
+                {
+                    removals += block.OldLines.Count;
+                }
+
+                if (block.Kind == BlockType.Added || block.Kind == BlockType.Modified)
+                {
+                    additions += block.NewLines.Count;
+                }
+            }
+
+            RemovalsCount = removals;
+            AdditionsCount = additions;
         }
 
         private void OnScrollMinimap(object? parameter)
@@ -156,7 +199,6 @@ namespace DiffApp.ViewModels
         {
             if (parameter is MinimapSegment segment)
             {
-                // Prevent navigation/selection if filtering is ON and segment is whitespace-only
                 if (IgnoreWhitespace && segment.Block != null && segment.Block.IsWhitespaceChange)
                 {
                     return;
@@ -175,8 +217,7 @@ namespace DiffApp.ViewModels
         {
             if (_comparisonResult == null)
             {
-                LeftMinimapSegments = new List<MinimapSegment>();
-                RightMinimapSegments = new List<MinimapSegment>();
+                UnifiedMinimapSegments = new List<MinimapSegment>();
                 return;
             }
 
@@ -191,8 +232,7 @@ namespace DiffApp.ViewModels
 
             if (totalVisualHeight == 0) totalVisualHeight = 1;
 
-            var leftSegments = new List<MinimapSegment>();
-            var rightSegments = new List<MinimapSegment>();
+            var unifiedSegments = new List<MinimapSegment>();
 
             foreach (var block in _comparisonResult.Blocks)
             {
@@ -205,38 +245,40 @@ namespace DiffApp.ViewModels
 
                     if (heightPct < 0.002) heightPct = 0.002;
 
-                    if (block.Kind == BlockType.Removed || block.Kind == BlockType.Modified)
+                    BlockType leftType = BlockType.Unchanged;
+                    BlockType rightType = BlockType.Unchanged;
+
+                    if (block.Kind == BlockType.Removed)
                     {
-                        leftSegments.Add(new MinimapSegment
-                        {
-                            Side = Side.Old,
-                            Type = BlockType.Removed,
-                            OffsetPercentage = offsetPct,
-                            HeightPercentage = heightPct,
-                            TargetLineIndex = currentVisualIndex,
-                            Block = block
-                        });
+                        leftType = BlockType.Removed;
+                        rightType = BlockType.Unchanged;
+                    }
+                    else if (block.Kind == BlockType.Added)
+                    {
+                        leftType = BlockType.Unchanged;
+                        rightType = BlockType.Added;
+                    }
+                    else if (block.Kind == BlockType.Modified)
+                    {
+                        leftType = BlockType.Modified;
+                        rightType = BlockType.Modified;
                     }
 
-                    if (block.Kind == BlockType.Added || block.Kind == BlockType.Modified)
+                    unifiedSegments.Add(new MinimapSegment
                     {
-                        rightSegments.Add(new MinimapSegment
-                        {
-                            Side = Side.New,
-                            Type = BlockType.Added,
-                            OffsetPercentage = offsetPct,
-                            HeightPercentage = heightPct,
-                            TargetLineIndex = currentVisualIndex,
-                            Block = block
-                        });
-                    }
+                        LeftType = leftType,
+                        RightType = rightType,
+                        OffsetPercentage = offsetPct,
+                        HeightPercentage = heightPct,
+                        TargetLineIndex = currentVisualIndex,
+                        Block = block
+                    });
                 }
 
                 currentVisualIndex += height;
             }
 
-            LeftMinimapSegments = leftSegments;
-            RightMinimapSegments = rightSegments;
+            UnifiedMinimapSegments = unifiedSegments;
         }
 
         private int GetBlockHeight(ChangeBlock block)
@@ -295,7 +337,6 @@ namespace DiffApp.ViewModels
                 targetBlock = block;
             }
 
-            // CRITICAL: Prevent selection if ignoring whitespace and the block is whitespace-only
             if (targetBlock != null && IgnoreWhitespace && targetBlock.IsWhitespaceChange)
             {
                 return;
@@ -325,7 +366,6 @@ namespace DiffApp.ViewModels
             IsBusy = true;
             try
             {
-                // Update settings before refreshing
                 _settings.IgnoreWhitespace = IgnoreWhitespace;
 
                 var result = await Task.Run(() => _comparisonService.Compare(LeftResultText, RightResultText, _settings));
