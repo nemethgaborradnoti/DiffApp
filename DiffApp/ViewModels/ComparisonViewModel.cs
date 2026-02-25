@@ -65,7 +65,13 @@ namespace DiffApp.ViewModels
         public bool IgnoreWhitespace
         {
             get => _ignoreWhitespace;
-            set => SetProperty(ref _ignoreWhitespace, value);
+            set
+            {
+                if (SetProperty(ref _ignoreWhitespace, value))
+                {
+                    CalculateStats();
+                }
+            }
         }
 
         public bool IsBusy
@@ -138,6 +144,7 @@ namespace DiffApp.ViewModels
             _onSourceUpdated = onSourceUpdated;
 
             CalculateStats();
+
             DiffLines = new VirtualDiffLineList(_comparisonResult, _isUnifiedMode);
             CalculateMinimap();
 
@@ -168,6 +175,11 @@ namespace DiffApp.ViewModels
 
             foreach (var block in _comparisonResult.Blocks)
             {
+                if (IgnoreWhitespace && block.IsWhitespaceChange)
+                {
+                    continue;
+                }
+
                 if (block.Kind == BlockType.Removed || block.Kind == BlockType.Modified)
                 {
                     removals += block.OldLines.Count;
