@@ -1,5 +1,6 @@
 ﻿using DiffApp.Models;
 using DiffApp.Services.Interfaces;
+using System.Reflection;
 using System.Windows;
 
 namespace DiffApp.ViewModels
@@ -14,6 +15,8 @@ namespace DiffApp.ViewModels
         private double _fontSize;
 
         public event EventHandler<string>? SettingsChanged;
+
+        public string AppVersion { get; }
 
         public bool IsWordWrapEnabled
         {
@@ -89,6 +92,9 @@ namespace DiffApp.ViewModels
 
             ResetWindowCommand = new RelayCommand(ResetWindow);
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
+
+            var version = Assembly.GetEntryAssembly()?.GetName().Version;
+            AppVersion = version != null ? version.ToString(3) : "Unknown version";
 
             LoadSettings();
         }

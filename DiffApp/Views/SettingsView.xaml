@@ -10,78 +10,84 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="300">
 
-    <StackPanel>
-        <TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,10"/>
-        <CheckBox Content="Ignore Whitespace"
+	<StackPanel>
+		<TextBlock Text="Comparison" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,10"/>
+		<CheckBox Content="Ignore Whitespace"
                   IsChecked="{Binding IgnoreWhitespace}"
                   Style="{StaticResource ToggleSwitchStyle}"
                   Margin="0,0,0,10"/>
 
-        <Grid Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton Grid.Column="0" Content="Word"
+		<Grid Margin="0,0,0,20">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<RadioButton Grid.Column="0" Content="Word"
                          IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
                          GroupName="PrecisionGroup"
                          Style="{StaticResource SegmentedRadioLeftStyle}"/>
-            <RadioButton Grid.Column="1" Content="Char"
+			<RadioButton Grid.Column="1" Content="Char"
                          IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
                          GroupName="PrecisionGroup"
                          Style="{StaticResource SegmentedRadioRightStyle}"/>
-        </Grid>
+		</Grid>
 
-        <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
+		<TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}"/>
 
-        <CheckBox Content="Word Wrap"
+		<CheckBox Content="Word Wrap"
                   IsChecked="{Binding IsWordWrapEnabled}"
                   Style="{StaticResource ToggleSwitchStyle}"
                   Margin="0,0,0,15"/>
 
-        <TextBlock Text="Font Size" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,0,5"/>
-        <DockPanel Margin="0,0,0,20">
-            <TextBlock Text="{Binding ElementName=FontSlider, Path=Value, StringFormat={}{0:0}}"
+		<TextBlock Text="Font Size" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,0,5"/>
+		<DockPanel Margin="0,0,0,20">
+			<TextBlock Text="{Binding ElementName=FontSlider, Path=Value, StringFormat={}{0:0}}"
                        DockPanel.Dock="Right"
                        VerticalAlignment="Center"
                        Margin="10,0,0,0"
                        Width="20"
                        TextAlignment="Right"
                        Foreground="{StaticResource TextBrush}"/>
-            <Slider x:Name="FontSlider"
+			<Slider x:Name="FontSlider"
                     Minimum="10"
                     Maximum="24"
                     TickFrequency="1"
                     IsSnapToTickEnabled="True"
                     Value="{Binding FontSize}"/>
-        </DockPanel>
+		</DockPanel>
 
-        <TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
-        <Grid Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton Grid.Column="0" Content="Split"
+		<TextBlock Text="Layout" Style="{StaticResource SectionHeaderStyle}"/>
+		<Grid Margin="0,0,0,20">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<RadioButton Grid.Column="0" Content="Split"
                          IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
                          GroupName="ViewModeGroup"
                          Style="{StaticResource SegmentedRadioLeftStyle}"/>
-            <RadioButton Grid.Column="1" Content="Unified"
+			<RadioButton Grid.Column="1" Content="Unified"
                          IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Unified}}"
                          GroupName="ViewModeGroup"
                          Style="{StaticResource SegmentedRadioRightStyle}"/>
-        </Grid>
+		</Grid>
 
-        <TextBlock Text="View" Style="{StaticResource SectionHeaderStyle}"/>
-        <Button Content="Reset window"
+		<TextBlock Text="View" Style="{StaticResource SectionHeaderStyle}"/>
+		<Button Content="Reset window"
                 Command="{Binding ResetWindowCommand}"
                 Style="{StaticResource SecondaryButton}"
                 Margin="0,0,0,20"/>
 
-        <Separator Background="{StaticResource BrushBorder}" Margin="0,20,0,20"/>
+		<Separator Background="{StaticResource BrushBorder}" Margin="0,20,0,10"/>
 
-        <Button Content="Reset to defaults"
+		<TextBlock Text="{Binding AppVersion, StringFormat='Version {0}'}"
+                   HorizontalAlignment="Center"
+                   Foreground="{StaticResource GrayTextBrush}"
+                   FontSize="12"
+                   Margin="0,0,0,10"/>
+
+		<Button Content="Reset to defaults"
                  Command="{Binding ResetDefaultsCommand}"
                  Style="{StaticResource DangerButton}"/>
-    </StackPanel>
+	</StackPanel>
 </UserControl>
