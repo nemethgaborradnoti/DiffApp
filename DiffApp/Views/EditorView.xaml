@@ -111,7 +111,7 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="*"/>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="{Binding IsInputPanelExpanded, Converter={StaticResource BoolToGridRowHeightConverter}}"/>
 			</Grid.RowDefinitions>
 
 			<ContentControl Grid.Row="0"

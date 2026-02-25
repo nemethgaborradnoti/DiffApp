@@ -14,6 +14,8 @@
             <converters:DiffStateToBrushConverter x:Key="DiffStateToBrushConverter"/>
             <converters:MultiValueToArrayConverter x:Key="MultiValueToArrayConverter"/>
             <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter"/>
+            <converters:BoolToGridRowHeightConverter x:Key="BoolToGridRowHeightConverter"/>
+            <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter"/>
 
             <DataTemplate DataType="{x:Type viewModels:InputViewModel}">
                 <views:InputView />

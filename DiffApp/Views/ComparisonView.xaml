@@ -441,7 +441,7 @@
                         Background="{StaticResource BrushSurface}"
                         BorderBrush="{StaticResource BrushBorder}"
                         BorderThickness="0,0,0,1"
-                        Padding="16,12">
+                        Padding="16,5">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

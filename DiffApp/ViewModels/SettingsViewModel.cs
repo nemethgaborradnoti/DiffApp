@@ -129,7 +129,6 @@ namespace DiffApp.ViewModels
         {
             _settingsService.ResetToDefaults();
             LoadSettings();
-            // Pass string.Empty or specific logic to indicate full reset
             RaiseSettingsChanged(string.Empty);
         }
 

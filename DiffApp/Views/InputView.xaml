@@ -65,8 +65,6 @@
                      FontSize="{Binding FontSize}"
                      VerticalContentAlignment="Top"
                      Padding="8"
-                     MinHeight="200"
-                     MaxHeight="400"
                      VerticalAlignment="Stretch"/>
 
             <TextBox Grid.Column="2"
@@ -81,8 +79,6 @@
                      FontSize="{Binding FontSize}"
                      VerticalContentAlignment="Top"
                      Padding="8"
-                     MinHeight="200"
-                     MaxHeight="400"
                      VerticalAlignment="Stretch"/>
         </Grid>
 
