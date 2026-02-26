@@ -7,7 +7,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/SharedResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/SharedResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Locales/Strings.en-US.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <converters:UniversalVisibilityConverter x:Key="VisibilityConverter"/>

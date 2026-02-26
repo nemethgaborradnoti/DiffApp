@@ -9,7 +9,7 @@
         xmlns:fonts="clr-namespace:Fonts"
         xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
         mc:Ignorable="d"
-        Title="DiffApp" Height="800" Width="1200"
+        Title="{DynamicResource MainWindow_Title}" Height="800" Width="1200"
         MinHeight="500" MinWidth="700"
         WindowStartupLocation="Manual"
         SourceInitialized="Window_SourceInitialized"
@@ -64,17 +64,17 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,30,0">
                     <TextBlock Text="{x:Static fonts:MaterialIcons.difference}" Style="{StaticResource IconStyle}" FontSize="24" Foreground="{StaticResource BrushAccent}" Margin="0,0,10,0"/>
-                    <TextBlock Text="DiffApp" FontSize="18" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource MainWindow_Title}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <RadioButton Content="Editor"
+                    <RadioButton Content="{DynamicResource MainWindow_NavEditor}"
                                  GroupName="Nav"
                                  Command="{Binding NavigateToEditorCommand}"
                                  Style="{StaticResource NavButtonStyle}"
                                  IsChecked="{Binding CurrentViewModel, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Type viewModels:EditorViewModel}, Mode=OneWay}"/>
 
-                    <RadioButton Content="History"
+                    <RadioButton Content="{DynamicResource MainWindow_NavHistory}"
                                  GroupName="Nav"
                                  Command="{Binding NavigateToHistoryCommand}"
                                  Style="{StaticResource NavButtonStyle}"

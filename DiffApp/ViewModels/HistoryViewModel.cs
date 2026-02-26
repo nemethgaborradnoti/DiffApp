@@ -58,7 +58,6 @@ namespace DiffApp.ViewModels
             {
                 var items = await _historyService.GetAllAsync();
 
-                // The service already returns them sorted, but we ensure ViewModel consistency here
                 var viewModels = items.Select(x => new HistoryItemViewModel(x));
 
                 HistoryItems = new ObservableCollection<HistoryItemViewModel>(viewModels);
@@ -73,14 +72,11 @@ namespace DiffApp.ViewModels
         {
             if (parameter is HistoryItemViewModel item)
             {
-                // Toggle state
                 bool newState = !item.IsBookmarked;
                 item.IsBookmarked = newState;
 
-                // Update Database
                 await _historyService.UpdateBookmarkAsync(item.Id, newState);
 
-                // Re-sort list to reflect changes immediately (Bookmarks top, then Date)
                 SortHistoryItems();
             }
         }
@@ -92,16 +88,14 @@ namespace DiffApp.ViewModels
                 .ThenByDescending(x => x.CreatedAt)
                 .ToList();
 
-            // We update the existing collection to avoid breaking bindings if possible, 
-            // but replacing the collection is cleaner for bulk sort operations in MVVM without advanced CollectionViews.
             HistoryItems = new ObservableCollection<HistoryItemViewModel>(sorted);
         }
 
         private async Task DeleteItemAsync(object? parameter)
         {
             var result = _dialogService.ShowDialog(
-                "Delete this item?",
-                "Delete Item",
+                (string)Application.Current.Resources["Dialog_DeleteItemMessage"],
+                (string)Application.Current.Resources["Dialog_DeleteItemTitle"],
                 DialogButtons.YesNo,
                 DialogImage.Question);
 
@@ -130,8 +124,8 @@ namespace DiffApp.ViewModels
             if (HistoryItems.Count == 0) return;
 
             var result = _dialogService.ShowDialog(
-                "You are about to delete the whole history database",
-                "Delete All History",
+                (string)Application.Current.Resources["Dialog_DeleteAllMessage"],
+                (string)Application.Current.Resources["Dialog_DeleteAllTitle"],
                 DialogButtons.ConfirmCancel,
                 DialogImage.Warning);
 
@@ -150,7 +144,7 @@ namespace DiffApp.ViewModels
                 RestoreRequested?.Invoke(this, new DiffHistoryItem
                 {
                     Id = item.Id,
-                    OriginalText = item.DisplayOriginal, // Use full text accessed via properties
+                    OriginalText = item.DisplayOriginal,
                     ModifiedText = item.DisplayModified,
                     CreatedAt = item.CreatedAt,
                     IsBookmarked = item.IsBookmarked

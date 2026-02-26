@@ -168,7 +168,7 @@
                                         </MultiBinding>
                                     </Button.CommandParameter>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="White"/>
+                                        <TextBlock Text="{DynamicResource Common_MergeButton}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="White"/>
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.east}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="White"/>
                                     </StackPanel>
                                 </Button>
@@ -176,7 +176,7 @@
                                 <Button Grid.Column="1"
                                         Style="{StaticResource IconButtonStyle}"
                                         Command="{Binding DataContext.DeselectAllCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        ToolTip="Close"
+                                        ToolTip="{DynamicResource Common_CloseButton}"
                                         Margin="10,0">
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.close}" Style="{StaticResource IconStyle}" FontSize="20"/>
                                 </Button>
@@ -193,7 +193,7 @@
                                     </Button.CommandParameter>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.west}" Style="{StaticResource IconStyle}" FontSize="18" Margin="0,0,8,0" Foreground="White"/>
-                                        <TextBlock Text="Merge" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
+                                        <TextBlock Text="{DynamicResource Common_MergeButton}" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="White"/>
                                     </StackPanel>
                                 </Button>
                             </Grid>
@@ -361,23 +361,23 @@
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                            <TextBlock Text="Unified View" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource ComparisonView_UnifiedView}" FontWeight="Bold" Foreground="{StaticResource TextBrush}" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="•" Foreground="{StaticResource GrayTextBrush}" Margin="8,0"/>
-                            <TextBlock Text="Original" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource ComparisonView_Original}" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding LeftLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="/" Foreground="{StaticResource GrayTextBrush}" Margin="4,0"/>
-                            <TextBlock Text="Modified" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource ComparisonView_Modified}" Foreground="{StaticResource GrayTextBrush}" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding RightLineCount, StringFormat='({0})'}" Foreground="{StaticResource GrayTextBrush}" Margin="4,0,0,0" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Style="{StaticResource DangerButton}"
                                     Padding="12,6"
-                                    ToolTip="Clear Content"
+                                    ToolTip="{DynamicResource ComparisonView_ClearContentToolTip}"
                                     Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
+                                    <TextBlock Text="{DynamicResource Common_ClearButton}" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -453,14 +453,22 @@
                         <Grid Grid.Column="0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding RemovalsCount, StringFormat='{}{0} removals'}" FontWeight="Bold" Foreground="{StaticResource DangerBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock FontWeight="Bold" Foreground="{StaticResource DangerBrush}" FontSize="14" VerticalAlignment="Center">
+                                    <Run Text="{Binding RemovalsCount, Mode=OneWay}" />
+                                    <Run Text=" " />
+                                    <Run Text="{DynamicResource ComparisonView_Removals}" />
+                                </TextBlock>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding LeftLineCount, StringFormat='{}{0} lines'}" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center">
+                                    <Run Text="{Binding LeftLineCount, Mode=OneWay}" />
+                                    <Run Text=" " />
+                                    <Run Text="{DynamicResource ComparisonView_Lines}" />
+                                </TextBlock>
 
                                 <Button Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Copy Original Text"
+                                        ToolTip="{DynamicResource ComparisonView_CopyOriginalToolTip}"
                                         Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                         CommandParameter="{x:Static models:Side.Old}">
                                     <Grid>
@@ -500,7 +508,7 @@
                         <Button Grid.Column="1"
                                 Style="{StaticResource IconButtonStyle}"
                                 Command="{Binding DataContext.SwapAllCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
-                                ToolTip="Swap Sides"
+                                ToolTip="{DynamicResource ComparisonView_SwapSidesToolTip}"
                                 Margin="15,0">
                             <TextBlock Text="{x:Static fonts:MaterialIcons.swap_horiz}" Style="{StaticResource IconStyle}" FontSize="22" Foreground="{StaticResource BrushAccent}"/>
                         </Button>
@@ -509,14 +517,22 @@
                         <Grid Grid.Column="2">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding AdditionsCount, StringFormat='{}{0} additions'}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" FontSize="14" VerticalAlignment="Center">
+                                    <Run Text="{Binding AdditionsCount, Mode=OneWay}" />
+                                    <Run Text=" " />
+                                    <Run Text="{DynamicResource ComparisonView_Additions}" />
+                                </TextBlock>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding RightLineCount, StringFormat='{}{0} lines'}" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center">
+                                    <Run Text="{Binding RightLineCount, Mode=OneWay}" />
+                                    <Run Text=" " />
+                                    <Run Text="{DynamicResource ComparisonView_Lines}" />
+                                </TextBlock>
 
                                 <Button Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Copy Modified Text"
+                                        ToolTip="{DynamicResource ComparisonView_CopyModifiedToolTip}"
                                         Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}"
                                         CommandParameter="{x:Static models:Side.New}">
                                     <Grid>
@@ -556,11 +572,11 @@
                                 <Button Style="{StaticResource DangerButton}"
                                         Margin="8,0,0,0"
                                         Padding="12,6"
-                                        ToolTip="Clear Content"
+                                        ToolTip="{DynamicResource ComparisonView_ClearContentToolTip}"
                                         Command="{Binding DataContext.ClearContentCommand, RelativeSource={RelativeSource AncestorType={x:Type views:EditorView}}}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="16" Foreground="White" Margin="0,0,6,0"/>
-                                        <TextBlock Text="Clear" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
+                                        <TextBlock Text="{DynamicResource Common_ClearButton}" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>

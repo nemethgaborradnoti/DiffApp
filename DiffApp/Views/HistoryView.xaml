@@ -49,17 +49,17 @@
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{x:Static fonts:MaterialIcons.history}" Style="{StaticResource IconStyle}" FontSize="24" Margin="0,0,10,0" Foreground="{StaticResource GrayTextBrush}"/>
-                    <TextBlock Text="History" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}"/>
+                    <TextBlock Text="{DynamicResource HistoryView_Title}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}"/>
                 </StackPanel>
 
                 <Button HorizontalAlignment="Right"
                         Style="{StaticResource DangerButton}"
                         Command="{Binding DeleteAllCommand}"
                         Visibility="{Binding HasItems, Converter={StaticResource VisibilityConverter}}"
-                        ToolTip="Clear all history">
+                        ToolTip="{DynamicResource HistoryView_ClearAllHistoryToolTip}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{x:Static fonts:MaterialIcons.delete}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="White" Margin="0,0,5,0"/>
-                        <TextBlock Text="Delete All" Foreground="White" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource HistoryView_DeleteAll}" Foreground="White" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -83,12 +83,12 @@
                            FontSize="64"
                            Foreground="{StaticResource BrushBorder}"
                            Margin="0,0,0,20"/>
-                <TextBlock Text="No history yet"
+                <TextBlock Text="{DynamicResource HistoryView_NoHistoryYet}"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource GrayTextBrush}"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Comparisons will appear here automatically."
+                <TextBlock Text="{DynamicResource HistoryView_ComparisonsWillAppear}"
                            FontSize="14"
                            Foreground="{StaticResource GrayTextBrush}"
                            HorizontalAlignment="Center"
@@ -128,8 +128,8 @@
                                     </Border.InputBindings>
 
                                     <Grid>
-                                        <Border VerticalAlignment="Stretch" 
-                                                HorizontalAlignment="Stretch" 
+                                        <Border VerticalAlignment="Stretch"
+                                                HorizontalAlignment="Stretch"
                                                 IsHitTestVisible="False"
                                                 Opacity="0.25">
                                             <Border.Background>
@@ -208,12 +208,12 @@
                                                 </Border>
                                             </Grid>
 
-                                            <StackPanel Grid.Column="2" 
-                                                        Orientation="Horizontal" 
+                                            <StackPanel Grid.Column="2"
+                                                        Orientation="Horizontal"
                                                         VerticalAlignment="Center">
 
                                                 <Button Style="{StaticResource BookmarkIconButtonStyle}"
-                                                        ToolTip="Bookmark this item"
+                                                        ToolTip="{DynamicResource HistoryView_BookmarkToolTip}"
                                                         Command="{Binding DataContext.ToggleBookmarkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Margin="0,0,5,0">
@@ -233,7 +233,7 @@
                                                 </Button>
 
                                                 <Button Style="{StaticResource DeleteIconButtonStyle}"
-                                                        ToolTip="Delete this item"
+                                                        ToolTip="{DynamicResource HistoryView_DeleteToolTip}"
                                                         Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}">
                                                     <TextBlock Text="{x:Static fonts:MaterialIcons.delete}"
