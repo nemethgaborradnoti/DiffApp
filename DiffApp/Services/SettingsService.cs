@@ -53,7 +53,16 @@ namespace DiffApp.Services
 
         public void ResetToDefaults()
         {
+            var currentSettings = LoadSettings();
             var defaults = new AppSettings();
+
+            defaults.WindowTop = currentSettings.WindowTop;
+            defaults.WindowLeft = currentSettings.WindowLeft;
+            defaults.WindowWidth = currentSettings.WindowWidth;
+            defaults.WindowHeight = currentSettings.WindowHeight;
+            defaults.WindowState = currentSettings.WindowState;
+            defaults.IsSettingsPanelOpen = currentSettings.IsSettingsPanelOpen;
+
             SaveSettings(defaults);
         }
     }

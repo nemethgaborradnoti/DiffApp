@@ -2,11 +2,15 @@
 
 namespace DiffApp.Converters
 {
-    public class NullToVisibilityConverter : IValueConverter
+    public class BoolToGridRowHeightConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value != null ? Visibility.Visible : Visibility.Collapsed;
+            if (value is bool isExpanded && isExpanded)
+            {
+                return new GridLength(1, GridUnitType.Star);
+            }
+            return GridLength.Auto;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

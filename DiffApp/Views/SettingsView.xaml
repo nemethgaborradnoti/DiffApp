@@ -1,0 +1,93 @@
+<UserControl x:Class="DiffApp.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:DiffApp.ViewModels"
+             xmlns:models="clr-namespace:DiffApp.Models"
+             xmlns:fonts="clr-namespace:Fonts"
+             xmlns:converters="clr-namespace:DiffApp.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="300">
+
+	<StackPanel>
+		<TextBlock Text="{DynamicResource SettingsView_Comparison}" Style="{StaticResource SectionHeaderStyle}" Margin="0,10,0,10"/>
+		<CheckBox Content="{DynamicResource SettingsView_IgnoreWhitespace}"
+                  IsChecked="{Binding IgnoreWhitespace}"
+                  Style="{StaticResource ToggleSwitchStyle}"
+                  Margin="0,0,0,10"/>
+
+		<Grid Margin="0,0,0,20">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<RadioButton Grid.Column="0" Content="{DynamicResource SettingsView_PrecisionWord}"
+                         IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Word}}"
+                         GroupName="PrecisionGroup"
+                         Style="{StaticResource SegmentedRadioLeftStyle}"/>
+			<RadioButton Grid.Column="1" Content="{DynamicResource SettingsView_PrecisionChar}"
+                         IsChecked="{Binding Precision, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:PrecisionLevel.Character}}"
+                         GroupName="PrecisionGroup"
+                         Style="{StaticResource SegmentedRadioRightStyle}"/>
+		</Grid>
+
+		<TextBlock Text="{DynamicResource SettingsView_Appearance}" Style="{StaticResource SectionHeaderStyle}"/>
+
+		<CheckBox Content="{DynamicResource SettingsView_WordWrap}"
+                  IsChecked="{Binding IsWordWrapEnabled}"
+                  Style="{StaticResource ToggleSwitchStyle}"
+                  Margin="0,0,0,15"/>
+
+		<TextBlock Text="{DynamicResource SettingsView_FontSize}" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,0,5"/>
+		<DockPanel Margin="0,0,0,20">
+			<TextBlock Text="{Binding ElementName=FontSlider, Path=Value, StringFormat={}{0:0}}"
+                       DockPanel.Dock="Right"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"
+                       Width="20"
+                       TextAlignment="Right"
+                       Foreground="{StaticResource TextBrush}"/>
+			<Slider x:Name="FontSlider"
+                    Minimum="10"
+                    Maximum="24"
+                    TickFrequency="1"
+                    IsSnapToTickEnabled="True"
+                    Value="{Binding FontSize}"/>
+		</DockPanel>
+
+		<TextBlock Text="{DynamicResource SettingsView_Layout}" Style="{StaticResource SectionHeaderStyle}"/>
+		<Grid Margin="0,0,0,20">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<RadioButton Grid.Column="0" Content="{DynamicResource SettingsView_ViewModeSplit}"
+                         IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Split}}"
+                         GroupName="ViewModeGroup"
+                         Style="{StaticResource SegmentedRadioLeftStyle}"/>
+			<RadioButton Grid.Column="1" Content="{DynamicResource SettingsView_ViewModeUnified}"
+                         IsChecked="{Binding ViewMode, Converter={StaticResource EnumMatchToBooleanConverter}, ConverterParameter={x:Static models:ViewMode.Unified}}"
+                         GroupName="ViewModeGroup"
+                         Style="{StaticResource SegmentedRadioRightStyle}"/>
+		</Grid>
+
+		<TextBlock Text="{DynamicResource SettingsView_View}" Style="{StaticResource SectionHeaderStyle}"/>
+		<Button Content="{DynamicResource SettingsView_ResetWindow}"
+                Command="{Binding ResetWindowCommand}"
+                Style="{StaticResource SecondaryButton}"
+                Margin="0,0,0,20"/>
+
+		<Separator Background="{StaticResource BrushBorder}" Margin="0,20,0,10"/>
+
+		<TextBlock HorizontalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontSize="12" Margin="0,0,0,10">
+			<Run Text="{DynamicResource SettingsView_Version}" />
+			<Run Text=" " />
+			<Run Text="{Binding AppVersion, Mode=OneWay}" />
+		</TextBlock>
+
+		<Button Content="{DynamicResource SettingsView_ResetDefaults}"
+                 Command="{Binding ResetDefaultsCommand}"
+                 Style="{StaticResource DangerButton}"/>
+	</StackPanel>
+</UserControl>

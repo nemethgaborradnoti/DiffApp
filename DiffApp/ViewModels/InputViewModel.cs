@@ -1,4 +1,7 @@
-﻿namespace DiffApp.ViewModels
+﻿using DiffApp.Models;
+using DiffApp.Services.Interfaces;
+
+namespace DiffApp.ViewModels
 {
     public class InputViewModel : ViewModelBase
     {
@@ -9,9 +12,10 @@
         private bool _isWordWrapEnabled = true;
         private PrecisionLevel _precision = PrecisionLevel.Word;
         private ViewMode _viewMode = ViewMode.Split;
+        private double _fontSize = 14.0;
 
         public event EventHandler? CompareRequested;
-        public event EventHandler? SettingsChanged;
+        public event EventHandler<string>? SettingsChanged;
 
         public string LeftText
         {
@@ -32,8 +36,7 @@
             {
                 if (SetProperty(ref _ignoreWhitespace, value))
                 {
-                    SaveCurrentSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    SettingsChanged?.Invoke(this, nameof(IgnoreWhitespace));
                 }
             }
         }
@@ -41,13 +44,7 @@
         public bool IsWordWrapEnabled
         {
             get => _isWordWrapEnabled;
-            set
-            {
-                if (SetProperty(ref _isWordWrapEnabled, value))
-                {
-                    SaveCurrentSettings();
-                }
-            }
+            set => SetProperty(ref _isWordWrapEnabled, value);
         }
 
         public PrecisionLevel Precision
@@ -57,8 +54,7 @@
             {
                 if (SetProperty(ref _precision, value))
                 {
-                    SaveCurrentSettings();
-                    SettingsChanged?.Invoke(this, EventArgs.Empty);
+                    SettingsChanged?.Invoke(this, nameof(Precision));
                 }
             }
         }
@@ -66,13 +62,13 @@
         public ViewMode ViewMode
         {
             get => _viewMode;
-            set
-            {
-                if (SetProperty(ref _viewMode, value))
-                {
-                    SaveCurrentSettings();
-                }
-            }
+            set => SetProperty(ref _viewMode, value);
+        }
+
+        public double FontSize
+        {
+            get => _fontSize;
+            set => SetProperty(ref _fontSize, value);
         }
 
         public ICommand SwapTextsCommand { get; }
@@ -85,27 +81,18 @@
             SwapTextsCommand = new RelayCommand(SwapTexts);
             FindDifferenceCommand = new RelayCommand(OnFindDifference, CanFindDifference);
 
-            LoadSettings();
+            ReloadSettings();
             LoadSampleText();
         }
 
-        private void LoadSettings()
+        public void ReloadSettings()
         {
             var settings = _settingsService.LoadSettings();
-            _ignoreWhitespace = settings.IgnoreWhitespace;
-            _isWordWrapEnabled = settings.IsWordWrapEnabled;
-            _precision = settings.Precision;
-            _viewMode = settings.ViewMode;
-        }
-
-        private void SaveCurrentSettings()
-        {
-            var current = _settingsService.LoadSettings();
-            current.IgnoreWhitespace = IgnoreWhitespace;
-            current.IsWordWrapEnabled = IsWordWrapEnabled;
-            current.Precision = Precision;
-            current.ViewMode = ViewMode;
-            _settingsService.SaveSettings(current);
+            IgnoreWhitespace = settings.IgnoreWhitespace;
+            IsWordWrapEnabled = settings.IsWordWrapEnabled;
+            Precision = settings.Precision;
+            ViewMode = settings.ViewMode;
+            FontSize = settings.FontSize;
         }
 
         private void OnFindDifference(object? parameter)
@@ -129,8 +116,8 @@
 
         private void LoadSampleText()
         {
-            LeftText = "// Comment\nProgram code\nThis is the original text.\nIt has several lines.\n// Comment here\n// More comment\n// So much comment\nBanana\nBean\nSome lines are unique to this side.\n\n\n.\n \nwill remove this\nwill remove this";
-            RightText = "Program code\nThis is the modified text.\nIt has several lines.\nBanana\nBean\nSome lines are unique to the other side.\nAnd an extra line here.\n\nThere\nWill\nBe\nSo\nMuch\nMore\nThan\nThis";
+            LeftText = Application.Current?.Resources["InputView_SampleLeft"] as string ?? string.Empty;
+            RightText = Application.Current?.Resources["InputView_SampleRight"] as string ?? string.Empty;
         }
     }
 }

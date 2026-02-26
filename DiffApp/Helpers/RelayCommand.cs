@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Input;
-
-namespace DiffApp.Helpers
+﻿namespace DiffApp.Helpers
 {
     public class RelayCommand : ICommand
     {
@@ -36,4 +33,3 @@ namespace DiffApp.Helpers
         }
     }
 }
-

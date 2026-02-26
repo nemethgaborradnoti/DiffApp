@@ -6,9 +6,11 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<Version>1.0.0</Version>
+		<ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Resources\app_icon.ico" />
 		<None Remove="Resources\Fonts\Inter_24pt-Regular.ttf" />
 		<None Remove="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
 		<None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
@@ -18,15 +20,18 @@
 		<PackageReference Include="DiffPlex" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="LiteDB" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Resource Include="Resources\app_icon.ico" />
 		<Resource Include="Resources\Fonts\Inter_24pt-Regular.ttf" />
 		<Resource Include="Resources\Fonts\Inter_24pt-SemiBold.ttf" />
 		<Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Resources\Locales\" />
 	  <Folder Include="Themes\Styles\" />
 	</ItemGroup>
 

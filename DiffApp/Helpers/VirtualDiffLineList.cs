@@ -51,7 +51,6 @@
                 }
                 else
                 {
-                    // Split Mode
                     height = Math.Max(block.OldLines.Count, block.NewLines.Count);
                 }
 
@@ -94,7 +93,6 @@
 
         private DiffLineViewModel CreateViewModel(int globalIndex)
         {
-            // Binary search to find the block
             int mapIndex = BinarySearchBlock(globalIndex);
             var mapping = _mappings[mapIndex];
             int localIndex = globalIndex - mapping.StartIndex;
@@ -137,7 +135,7 @@
                 }
             }
 
-            return Math.Min(left, _mappings.Count - 1); // Fallback
+            return Math.Min(left, _mappings.Count - 1);
         }
 
         private DiffLineViewModel CreateSplitViewModel(ChangeBlock block, int localIndex, bool isFirst, bool isLast)
@@ -152,7 +150,6 @@
         {
             if (block.Kind == BlockType.Modified)
             {
-                // Old lines first, then New lines
                 if (localIndex < block.OldLines.Count)
                 {
                     return new DiffLineViewModel(block, block.OldLines[localIndex], null, isFirst, isLast);
@@ -170,7 +167,7 @@
             {
                 return new DiffLineViewModel(block, block.OldLines[localIndex], null, isFirst, isLast);
             }
-            else // Unchanged
+            else
             {
                 return new DiffLineViewModel(block, block.OldLines[localIndex], block.NewLines[localIndex], isFirst, isLast);
             }
@@ -189,10 +186,9 @@
             return GetEnumerator();
         }
 
-        // Not supported mutations
         public void Add(DiffLineViewModel item) => throw new NotSupportedException();
         public void Clear() => throw new NotSupportedException();
-        public bool Contains(DiffLineViewModel item) => false; // Reference equality won't work on transient items
+        public bool Contains(DiffLineViewModel item) => false;
         public void CopyTo(DiffLineViewModel[] array, int arrayIndex) => throw new NotSupportedException();
         public bool Remove(DiffLineViewModel item) => throw new NotSupportedException();
         public int IndexOf(DiffLineViewModel item) => -1;

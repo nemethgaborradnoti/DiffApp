@@ -1,10 +1,11 @@
 <Project>
-  <PropertyGroup>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageVersion Include="DiffPlex" Version="1.7.2" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageVersion Include="DiffPlex" Version="1.7.2" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+		<PackageVersion Include="LiteDB" Version="5.0.21" />
+	</ItemGroup>
 </Project>

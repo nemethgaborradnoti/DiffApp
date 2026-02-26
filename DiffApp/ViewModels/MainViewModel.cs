@@ -1,195 +1,51 @@
-﻿using System.ComponentModel;
+﻿using DiffApp.Models;
+using DiffApp.Helpers;
 
 namespace DiffApp.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private readonly IComparisonService _comparisonService;
-        private readonly IMergeService _mergeService;
-        private readonly ISettingsService _settingsService;
-        private readonly IScrollService _scrollService;
+        private ViewModelBase _currentViewModel;
 
-        private ComparisonViewModel? _comparisonViewModel;
-        private bool _isSettingsPanelOpen = true;
-        private bool _isInputPanelExpanded = true;
+        public EditorViewModel EditorViewModel { get; }
+        public HistoryViewModel HistoryViewModel { get; }
 
-        public InputViewModel InputViewModel { get; }
-
-        public ComparisonViewModel? ComparisonViewModel
+        public ViewModelBase CurrentViewModel
         {
-            get => _comparisonViewModel;
-            private set => SetProperty(ref _comparisonViewModel, value);
+            get => _currentViewModel;
+            set => SetProperty(ref _currentViewModel, value);
         }
 
-        public bool IsSettingsPanelOpen
-        {
-            get => _isSettingsPanelOpen;
-            set => SetProperty(ref _isSettingsPanelOpen, value);
-        }
-
-        public bool IsInputPanelExpanded
-        {
-            get => _isInputPanelExpanded;
-            set => SetProperty(ref _isInputPanelExpanded, value);
-        }
-
-        public ICommand CopyTextCommand { get; }
-        public ICommand ToggleSettingsCommand { get; }
-        public ICommand ToggleInputPanelCommand { get; }
-        public ICommand SwapAllCommand { get; }
-        public ICommand ResetDefaultsCommand { get; }
-        public ICommand JumpToTopCommand { get; }
-        public ICommand JumpToInputCommand { get; }
-        public ICommand ClearContentCommand { get; }
+        public ICommand NavigateToEditorCommand { get; }
+        public ICommand NavigateToHistoryCommand { get; }
 
         public MainViewModel(
-            IComparisonService comparisonService,
-            IMergeService mergeService,
-            ISettingsService settingsService,
-            IScrollService scrollService,
-            InputViewModel inputViewModel)
+            EditorViewModel editorViewModel,
+            HistoryViewModel historyViewModel)
         {
-            _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
-            _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
-            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
-            _scrollService = scrollService ?? throw new ArgumentNullException(nameof(scrollService));
-            InputViewModel = inputViewModel ?? throw new ArgumentNullException(nameof(inputViewModel));
+            EditorViewModel = editorViewModel ?? throw new ArgumentNullException(nameof(editorViewModel));
+            HistoryViewModel = historyViewModel ?? throw new ArgumentNullException(nameof(historyViewModel));
 
-            InputViewModel.CompareRequested += OnCompareRequested;
-            InputViewModel.SettingsChanged += OnSettingsChanged;
-            InputViewModel.PropertyChanged += InputViewModel_PropertyChanged;
+            _currentViewModel = EditorViewModel;
 
-            CopyTextCommand = new RelayCommand(CopyText);
-            ToggleSettingsCommand = new RelayCommand(_ => IsSettingsPanelOpen = !IsSettingsPanelOpen);
-            ToggleInputPanelCommand = new RelayCommand(_ => IsInputPanelExpanded = !IsInputPanelExpanded);
-            SwapAllCommand = new RelayCommand(SwapAll);
-            ResetDefaultsCommand = new RelayCommand(ResetDefaults);
-            ClearContentCommand = new RelayCommand(ClearContent);
+            HistoryViewModel.RestoreRequested += OnHistoryRestoreRequested;
 
-            JumpToTopCommand = new RelayCommand(_ => _scrollService.ScrollToTop());
-            JumpToInputCommand = new RelayCommand(_ => _scrollService.ScrollToInput());
-        }
+            NavigateToEditorCommand = new RelayCommand(_ => CurrentViewModel = EditorViewModel);
 
-        private void ResetDefaults(object? parameter)
-        {
-            _settingsService.ResetToDefaults();
-            var settings = _settingsService.LoadSettings();
-
-            InputViewModel.IsWordWrapEnabled = settings.IsWordWrapEnabled;
-            InputViewModel.IgnoreWhitespace = settings.IgnoreWhitespace;
-            InputViewModel.Precision = settings.Precision;
-            InputViewModel.ViewMode = settings.ViewMode;
-
-            if (ComparisonViewModel != null)
+            NavigateToHistoryCommand = new RelayCommand(_ =>
             {
-                PerformComparison();
-            }
-        }
-
-        private void ClearContent(object? parameter)
-        {
-            InputViewModel.LeftText = string.Empty;
-            InputViewModel.RightText = string.Empty;
-            ComparisonViewModel = null;
-            IsInputPanelExpanded = true;
-        }
-
-        private void InputViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(InputViewModel.ViewMode) && ComparisonViewModel != null)
-            {
-                ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
-            }
-        }
-
-        private void OnSettingsChanged(object? sender, EventArgs e)
-        {
-            if (ComparisonViewModel != null)
-            {
-                PerformComparison();
-            }
-        }
-
-        private void OnCompareRequested(object? sender, EventArgs e)
-        {
-            PerformComparison();
-            Application.Current.Dispatcher.InvokeAsync(() => _scrollService.ScrollToTop());
-        }
-
-        private void PerformComparison()
-        {
-            var settings = new CompareSettings
-            {
-                IgnoreWhitespace = InputViewModel.IgnoreWhitespace,
-                Precision = InputViewModel.Precision
-            };
-
-            string left = InputViewModel.LeftText;
-            string right = InputViewModel.RightText;
-
-            var result = _comparisonService.Compare(left, right, settings);
-
-            ComparisonViewModel = new ComparisonViewModel(
-                result,
-                left,
-                right,
-                settings,
-                _comparisonService,
-                _mergeService,
-                (side, text) =>
+                CurrentViewModel = HistoryViewModel;
+                if (HistoryViewModel.LoadHistoryCommand.CanExecute(null))
                 {
-                    if (side == Side.Old)
-                    {
-                        InputViewModel.LeftText = text;
-                    }
-                    else
-                    {
-                        InputViewModel.RightText = text;
-                    }
+                    HistoryViewModel.LoadHistoryCommand.Execute(null);
                 }
-            );
-
-            ComparisonViewModel.IsUnifiedMode = InputViewModel.ViewMode == ViewMode.Unified;
-
-            // Auto-collapse input panel after successful comparison
-            IsInputPanelExpanded = false;
+            });
         }
 
-        private void SwapAll(object? parameter)
+        private void OnHistoryRestoreRequested(object? sender, DiffHistoryItem item)
         {
-            string temp = InputViewModel.LeftText;
-            InputViewModel.LeftText = InputViewModel.RightText;
-            InputViewModel.RightText = temp;
-
-            PerformComparison();
-        }
-
-        private void CopyText(object? parameter)
-        {
-            if (parameter is Side side)
-            {
-                string textToCopy = string.Empty;
-
-                if (ComparisonViewModel != null)
-                {
-                    textToCopy = side == Side.Old ? ComparisonViewModel.LeftResultText : ComparisonViewModel.RightResultText;
-                }
-                else
-                {
-                    textToCopy = side == Side.Old ? InputViewModel.LeftText : InputViewModel.RightText;
-                }
-
-                if (!string.IsNullOrEmpty(textToCopy))
-                {
-                    try
-                    {
-                        Clipboard.SetText(textToCopy);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-            }
+            CurrentViewModel = EditorViewModel;
+            EditorViewModel.LoadFromHistory(item);
         }
     }
 }

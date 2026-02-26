@@ -7,11 +7,16 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/SharedResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/SharedResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Locales/Strings.en-US.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:UniversalVisibilityConverter x:Key="VisibilityConverter"/>
+            <converters:DiffStateToBrushConverter x:Key="DiffStateToBrushConverter"/>
+            <converters:MultiValueToArrayConverter x:Key="MultiValueToArrayConverter"/>
+            <converters:EnumMatchToBooleanConverter x:Key="EnumMatchToBooleanConverter"/>
+            <converters:BoolToGridRowHeightConverter x:Key="BoolToGridRowHeightConverter"/>
+            <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter"/>
 
             <DataTemplate DataType="{x:Type viewModels:InputViewModel}">
                 <views:InputView />
@@ -19,6 +24,18 @@
 
             <DataTemplate DataType="{x:Type viewModels:ComparisonViewModel}">
                 <views:ComparisonView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:HistoryViewModel}">
+                <views:HistoryView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:EditorViewModel}">
+                <views:EditorView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
