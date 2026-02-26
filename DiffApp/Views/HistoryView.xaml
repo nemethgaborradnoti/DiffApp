@@ -152,7 +152,7 @@
 
                                         <Grid Margin="10,5">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
@@ -160,6 +160,7 @@
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding RelativeTime}"
                                                        FontSize="12"
+                                                       MinWidth="70"
                                                        Foreground="{StaticResource BrushAccent}"
                                                        FontWeight="Bold"
                                                        VerticalAlignment="Center"
@@ -172,18 +173,32 @@
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <Border Grid.Column="0"
-                                                        Background="{StaticResource BrushSurface}"
-                                                        CornerRadius="4"
-                                                        Padding="8,6"
-                                                        VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding OriginalPreview}"
-                                                               FontFamily="{StaticResource CodeFont}"
-                                                               FontSize="12"
-                                                               Foreground="{StaticResource GrayTextBrush}"
-                                                               TextWrapping="NoWrap"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                </Border>
+                                                <!-- Original Side -->
+                                                <Grid Grid.Column="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource DangerBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                        <Run Text="{Binding OriginalLineCount, Mode=OneWay}" />
+                                                        <Run Text=" " />
+                                                        <Run Text="{DynamicResource ComparisonView_Lines}" />
+                                                    </TextBlock>
+
+                                                    <Border Grid.Column="1"
+                                                            Background="{StaticResource BrushSurface}"
+                                                            CornerRadius="4"
+                                                            Padding="8,6"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding OriginalPreview}"
+                                                                   FontFamily="{StaticResource CodeFont}"
+                                                                   FontSize="12"
+                                                                   Foreground="{StaticResource GrayTextBrush}"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </Border>
+                                                </Grid>
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="{x:Static fonts:MaterialIcons.arrow_forward}"
@@ -193,19 +208,33 @@
                                                            VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"/>
 
-                                                <Border Grid.Column="2"
-                                                        Background="{StaticResource BrushSurface}"
-                                                        CornerRadius="4"
-                                                        Padding="8,6"
-                                                        VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding ModifiedPreview}"
-                                                               FontFamily="{StaticResource CodeFont}"
-                                                               FontSize="12"
-                                                               Foreground="{StaticResource TextBrush}"
-                                                               FontWeight="SemiBold"
-                                                               TextWrapping="NoWrap"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                </Border>
+                                                <!-- Modified Side -->
+                                                <Grid Grid.Column="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                        <Run Text="{Binding ModifiedLineCount, Mode=OneWay}" />
+                                                        <Run Text=" " />
+                                                        <Run Text="{DynamicResource ComparisonView_Lines}" />
+                                                    </TextBlock>
+
+                                                    <Border Grid.Column="1"
+                                                            Background="{StaticResource BrushSurface}"
+                                                            CornerRadius="4"
+                                                            Padding="8,6"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding ModifiedPreview}"
+                                                                   FontFamily="{StaticResource CodeFont}"
+                                                                   FontSize="12"
+                                                                   Foreground="{StaticResource TextBrush}"
+                                                                   FontWeight="SemiBold"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </Border>
+                                                </Grid>
                                             </Grid>
 
                                             <StackPanel Grid.Column="2"

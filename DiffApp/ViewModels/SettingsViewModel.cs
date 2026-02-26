@@ -1,7 +1,4 @@
-﻿using DiffApp.Models;
-using DiffApp.Services.Interfaces;
-using System.Reflection;
-using System.Windows;
+﻿using System.Reflection;
 
 namespace DiffApp.ViewModels
 {
@@ -94,7 +91,8 @@ namespace DiffApp.ViewModels
             ResetDefaultsCommand = new RelayCommand(ResetDefaults);
 
             var version = Assembly.GetEntryAssembly()?.GetName().Version;
-            AppVersion = version != null ? version.ToString(3) : "Unknown version";
+            string fallback = Application.Current?.Resources["SettingsView_UnknownVersion"] as string ?? "Unknown version";
+            AppVersion = version != null ? version.ToString(3) : fallback;
 
             LoadSettings();
         }

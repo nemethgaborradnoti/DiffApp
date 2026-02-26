@@ -25,6 +25,8 @@
     <system:String x:Key="InputView_OriginalText">Original Text</system:String>
     <system:String x:Key="InputView_ChangedText">Changed Text</system:String>
     <system:String x:Key="InputView_FindDifference">Find Difference</system:String>
+    <system:String x:Key="InputView_SampleLeft" xml:space="preserve">// Comment&#x0a;Program code&#x0a;This is the original text.&#x0a;It has several lines.&#x0a;// Comment here&#x0a;// More comment&#x0a;// So much comment&#x0a;Banana&#x0a;Bean&#x0a;Some lines are unique to this side.&#x0a;&#x0a;&#x0a;.&#x0a; &#x0a;will remove this&#x0a;will remove this</system:String>
+    <system:String x:Key="InputView_SampleRight" xml:space="preserve">Program code&#x0a;This is the modified text.&#x0a;It has several lines.&#x0a;Banana&#x0a;Bean&#x0a;Some lines are unique to the other side.&#x0a;And an extra line here.&#x0a;&#x0a;There&#x0a;Will&#x0a;Be&#x0a;So&#x0a;Much&#x0a;More&#x0a;Than&#x0a;This</system:String>
 
     <system:String x:Key="EditorView_OpenSettingsToolTip">Open Settings</system:String>
     <system:String x:Key="EditorView_CloseSettingsToolTip">Close Settings</system:String>
@@ -57,6 +59,7 @@
     <system:String x:Key="SettingsView_ResetWindow">Reset window</system:String>
     <system:String x:Key="SettingsView_ResetDefaults">Reset to defaults</system:String>
     <system:String x:Key="SettingsView_Version">Version</system:String>
+    <system:String x:Key="SettingsView_UnknownVersion">Unknown version</system:String>
 
     <system:String x:Key="HistoryView_Title">History</system:String>
     <system:String x:Key="HistoryView_DeleteAll">Delete All</system:String>
@@ -65,5 +68,14 @@
     <system:String x:Key="HistoryView_ComparisonsWillAppear">Comparisons will appear here automatically.</system:String>
     <system:String x:Key="HistoryView_BookmarkToolTip">Bookmark this item</system:String>
     <system:String x:Key="HistoryView_DeleteToolTip">Delete this item</system:String>
+
+    <system:String x:Key="Minimap_ChangeBlock">Change Block</system:String>
+    <system:String x:Key="Minimap_StartLine">Start Line:</system:String>
+    <system:String x:Key="Minimap_ClickToScroll">Click to scroll</system:String>
+
+    <system:String x:Key="Time_JustNow">Just now</system:String>
+    <system:String x:Key="Time_MinsAgo">{0} mins ago</system:String>
+    <system:String x:Key="Time_HoursAgo">{0} hours ago</system:String>
+    <system:String x:Key="Time_DaysAgo">{0} days ago</system:String>
 
 </ResourceDictionary>

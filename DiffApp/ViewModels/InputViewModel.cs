@@ -116,8 +116,8 @@ namespace DiffApp.ViewModels
 
         private void LoadSampleText()
         {
-            LeftText = "// Comment\nProgram code\nThis is the original text.\nIt has several lines.\n// Comment here\n// More comment\n// So much comment\nBanana\nBean\nSome lines are unique to this side.\n\n\n.\n \nwill remove this\nwill remove this";
-            RightText = "Program code\nThis is the modified text.\nIt has several lines.\nBanana\nBean\nSome lines are unique to the other side.\nAnd an extra line here.\n\nThere\nWill\nBe\nSo\nMuch\nMore\nThan\nThis";
+            LeftText = Application.Current?.Resources["InputView_SampleLeft"] as string ?? string.Empty;
+            RightText = Application.Current?.Resources["InputView_SampleRight"] as string ?? string.Empty;
         }
     }
 }

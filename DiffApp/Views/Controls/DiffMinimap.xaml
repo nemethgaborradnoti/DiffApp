@@ -8,115 +8,112 @@
              d:DesignHeight="450" d:DesignWidth="24"
              Background="Transparent">
 
-    <UserControl.Resources>
-        <converters:RelativeSizeConverter x:Key="RelativeSizeConverter"/>
-        <converters:MinimapBrushConverter x:Key="MinimapBrushConverter"/>
-    </UserControl.Resources>
+	<UserControl.Resources>
+		<converters:RelativeSizeConverter x:Key="RelativeSizeConverter"/>
+		<converters:MinimapBrushConverter x:Key="MinimapBrushConverter"/>
+	</UserControl.Resources>
 
-    <Border Background="{Binding TrackColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
+	<Border Background="{Binding TrackColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
             BorderBrush="{StaticResource BrushBorder}"
             BorderThickness="1,0,1,0"
             Width="24">
-        <ItemsControl ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas IsItemsHost="True" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemContainerStyle>
-                <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Top">
-                        <Setter.Value>
-                            <MultiBinding Converter="{StaticResource RelativeSizeConverter}">
-                                <Binding Path="OffsetPercentage" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl}" Path="ActualHeight" />
-                            </MultiBinding>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Width" Value="22"/>
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <!-- Container Grid for Split View -->
-                    <Grid SnapsToDevicePixels="True"
+		<ItemsControl ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Canvas IsItemsHost="True" />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemContainerStyle>
+				<Style TargetType="ContentPresenter">
+					<Setter Property="Canvas.Top">
+						<Setter.Value>
+							<MultiBinding Converter="{StaticResource RelativeSizeConverter}">
+								<Binding Path="OffsetPercentage" />
+								<Binding RelativeSource="{RelativeSource AncestorType=UserControl}" Path="ActualHeight" />
+							</MultiBinding>
+						</Setter.Value>
+					</Setter>
+					<Setter Property="Width" Value="22"/>
+				</Style>
+			</ItemsControl.ItemContainerStyle>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<Grid SnapsToDevicePixels="True"
                           Cursor="Hand"
                           Background="Transparent">
-                        
-                        <Grid.InputBindings>
-                            <MouseBinding MouseAction="LeftClick"
+
+						<Grid.InputBindings>
+							<MouseBinding MouseAction="LeftClick"
                                           Command="{Binding ItemClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                           CommandParameter="{Binding}"/>
-                        </Grid.InputBindings>
+						</Grid.InputBindings>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
 
-                        <Grid.Height>
-                            <MultiBinding Converter="{StaticResource RelativeSizeConverter}">
-                                <Binding Path="HeightPercentage" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl}" Path="ActualHeight" />
-                            </MultiBinding>
-                        </Grid.Height>
+						<Grid.Height>
+							<MultiBinding Converter="{StaticResource RelativeSizeConverter}">
+								<Binding Path="HeightPercentage" />
+								<Binding RelativeSource="{RelativeSource AncestorType=UserControl}" Path="ActualHeight" />
+							</MultiBinding>
+						</Grid.Height>
 
-                        <Grid.ToolTip>
-                            <ToolTip>
-                                <StackPanel>
-                                    <TextBlock Text="Change Block" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding TargetLineIndex, StringFormat='Start Line: {0}'}"/>
-                                    <TextBlock Text="Click to scroll" FontSize="10" FontStyle="Italic" Foreground="Gray"/>
-                                </StackPanel>
-                            </ToolTip>
-                        </Grid.ToolTip>
+						<Grid.ToolTip>
+							<ToolTip>
+								<StackPanel>
+									<TextBlock Text="{DynamicResource Minimap_ChangeBlock}" FontWeight="Bold"/>
+									<TextBlock>
+										<Run Text="{DynamicResource Minimap_StartLine}" />
+										<Run Text="{Binding TargetLineIndex, Mode=OneWay}" />
+									</TextBlock>
+									<TextBlock Text="{DynamicResource Minimap_ClickToScroll}" FontSize="10" FontStyle="Italic" Foreground="Gray"/>
+								</StackPanel>
+							</ToolTip>
+						</Grid.ToolTip>
 
-                        <!-- Left Side (Original) -->
-                        <Rectangle Grid.Column="0">
-                            <Rectangle.Fill>
-                                <MultiBinding Converter="{StaticResource MinimapBrushConverter}" ConverterParameter="Left">
-                                    <Binding />
-                                    <Binding Path="IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                                </MultiBinding>
-                            </Rectangle.Fill>
-                        </Rectangle>
+						<Rectangle Grid.Column="0">
+							<Rectangle.Fill>
+								<MultiBinding Converter="{StaticResource MinimapBrushConverter}" ConverterParameter="Left">
+									<Binding />
+									<Binding Path="IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+								</MultiBinding>
+							</Rectangle.Fill>
+						</Rectangle>
 
-                        <!-- Right Side (Modified) -->
-                        <Rectangle Grid.Column="1">
-                            <Rectangle.Fill>
-                                <MultiBinding Converter="{StaticResource MinimapBrushConverter}" ConverterParameter="Right">
-                                    <Binding />
-                                    <Binding Path="IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                                </MultiBinding>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        
-                        <!-- Hover Overlay for Darkening -->
-                        <Border x:Name="HoverOverlay" 
-                                Grid.ColumnSpan="2" 
-                                Background="Black" 
-                                Opacity="0" 
+						<Rectangle Grid.Column="1">
+							<Rectangle.Fill>
+								<MultiBinding Converter="{StaticResource MinimapBrushConverter}" ConverterParameter="Right">
+									<Binding />
+									<Binding Path="IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+								</MultiBinding>
+							</Rectangle.Fill>
+						</Rectangle>
+
+						<Border x:Name="HoverOverlay"
+                                Grid.ColumnSpan="2"
+                                Background="Black"
+                                Opacity="0"
                                 IsHitTestVisible="False"/>
 
-                    </Grid>
+					</Grid>
 
-                    <DataTemplate.Triggers>
-                        <!-- Hover Trigger for Darkening -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="HoverOverlay" Property="Opacity" Value="0.2"/>
-                        </Trigger>
-                        
-                        <!-- Whitespace Ignored Trigger -->
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding Path=IgnoreWhitespace, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True" />
-                                <Condition Binding="{Binding Block.IsWhitespaceChange}" Value="True" />
-                            </MultiDataTrigger.Conditions>
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </MultiDataTrigger>
-                    </DataTemplate.Triggers>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </Border>
+					<DataTemplate.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="HoverOverlay" Property="Opacity" Value="0.2"/>
+						</Trigger>
+
+						<MultiDataTrigger>
+							<MultiDataTrigger.Conditions>
+								<Condition Binding="{Binding Path=IgnoreWhitespace, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True" />
+								<Condition Binding="{Binding Block.IsWhitespaceChange}" Value="True" />
+							</MultiDataTrigger.Conditions>
+							<Setter Property="Visibility" Value="Collapsed"/>
+						</MultiDataTrigger>
+					</DataTemplate.Triggers>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</Border>
 </UserControl>

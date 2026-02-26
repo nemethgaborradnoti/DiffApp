@@ -18,6 +18,9 @@ namespace DiffApp.ViewModels
         public string OriginalPreview => GeneratePreview(OriginalFull);
         public string ModifiedPreview => GeneratePreview(ModifiedFull);
 
+        public int OriginalLineCount { get; }
+        public int ModifiedLineCount { get; }
+
         private string _relativeTime;
         public string RelativeTime
         {
@@ -42,6 +45,10 @@ namespace DiffApp.ViewModels
         {
             _model = model;
             _relativeTime = string.Empty;
+
+            OriginalLineCount = GetLineCount(_model.OriginalText);
+            ModifiedLineCount = GetLineCount(_model.ModifiedText);
+
             UpdateTimeDisplay();
         }
 
@@ -50,25 +57,52 @@ namespace DiffApp.ViewModels
             UpdateTimeDisplay();
         }
 
+        private int GetLineCount(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return 0;
+            }
+
+            int count = 1;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == '\n')
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private string GetResourceString(string key, params object[] args)
+        {
+            if (Application.Current?.Resources[key] is string format)
+            {
+                return args.Length > 0 ? string.Format(format, args) : format;
+            }
+            return key;
+        }
+
         private void UpdateTimeDisplay()
         {
             var span = DateTime.Now - CreatedAt;
 
             if (span.TotalMinutes < 1)
             {
-                RelativeTime = "Just now";
+                RelativeTime = GetResourceString("Time_JustNow");
             }
             else if (span.TotalMinutes < 60)
             {
-                RelativeTime = $"{(int)span.TotalMinutes} mins ago";
+                RelativeTime = GetResourceString("Time_MinsAgo", (int)span.TotalMinutes);
             }
             else if (span.TotalHours < 24)
             {
-                RelativeTime = $"{(int)span.TotalHours} hours ago";
+                RelativeTime = GetResourceString("Time_HoursAgo", (int)span.TotalHours);
             }
             else if (span.TotalDays < 7)
             {
-                RelativeTime = $"{(int)span.TotalDays} days ago";
+                RelativeTime = GetResourceString("Time_DaysAgo", (int)span.TotalDays);
             }
             else
             {
@@ -79,7 +113,9 @@ namespace DiffApp.ViewModels
         private string GeneratePreview(string text)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
+            }
 
             var lines = text.Replace("\r\n", "\n").Split('\n');
             var previewLines = new List<string>();
