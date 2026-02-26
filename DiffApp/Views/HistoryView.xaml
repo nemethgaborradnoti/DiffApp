@@ -180,11 +180,7 @@
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource DangerBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                        <Run Text="{Binding OriginalLineCount, Mode=OneWay}" />
-                                                        <Run Text=" " />
-                                                        <Run Text="{DynamicResource ComparisonView_Lines}" />
-                                                    </TextBlock>
+                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource DangerBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center"><Run Text="{Binding OriginalLineCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Lines}" /></TextBlock>
 
                                                     <Border Grid.Column="1"
                                                             Background="{StaticResource BrushSurface}"
@@ -215,11 +211,7 @@
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                        <Run Text="{Binding ModifiedLineCount, Mode=OneWay}" />
-                                                        <Run Text=" " />
-                                                        <Run Text="{DynamicResource ComparisonView_Lines}" />
-                                                    </TextBlock>
+                                                    <TextBlock Grid.Column="0" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold" Margin="0,0,8,0" VerticalAlignment="Center"><Run Text="{Binding ModifiedLineCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Lines}" /></TextBlock>
 
                                                     <Border Grid.Column="1"
                                                             Background="{StaticResource BrushSurface}"

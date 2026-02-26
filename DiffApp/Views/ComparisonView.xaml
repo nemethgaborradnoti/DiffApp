@@ -453,19 +453,11 @@
                         <Grid Grid.Column="0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock FontWeight="Bold" Foreground="{StaticResource DangerBrush}" FontSize="14" VerticalAlignment="Center">
-                                    <Run Text="{Binding RemovalsCount, Mode=OneWay}" />
-                                    <Run Text=" " />
-                                    <Run Text="{DynamicResource ComparisonView_Removals}" />
-                                </TextBlock>
+                                <TextBlock FontWeight="Bold" Foreground="{StaticResource DangerBrush}" FontSize="14" VerticalAlignment="Center"><Run Text="{Binding RemovalsCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Removals}" /></TextBlock>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center">
-                                    <Run Text="{Binding LeftLineCount, Mode=OneWay}" />
-                                    <Run Text=" " />
-                                    <Run Text="{DynamicResource ComparisonView_Lines}" />
-                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"><Run Text="{Binding LeftLineCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Lines}" /></TextBlock>
 
                                 <Button Style="{StaticResource IconButtonStyle}"
                                         ToolTip="{DynamicResource ComparisonView_CopyOriginalToolTip}"
@@ -517,19 +509,11 @@
                         <Grid Grid.Column="2">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock Text="{x:Static fonts:MaterialIcons.description}" Style="{StaticResource IconStyle}" FontSize="18" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,8,0"/>
-                                <TextBlock FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" FontSize="14" VerticalAlignment="Center">
-                                    <Run Text="{Binding AdditionsCount, Mode=OneWay}" />
-                                    <Run Text=" " />
-                                    <Run Text="{DynamicResource ComparisonView_Additions}" />
-                                </TextBlock>
+                                <TextBlock FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" FontSize="14" VerticalAlignment="Center"><Run Text="{Binding AdditionsCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Additions}" /></TextBlock>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center">
-                                    <Run Text="{Binding RightLineCount, Mode=OneWay}" />
-                                    <Run Text=" " />
-                                    <Run Text="{DynamicResource ComparisonView_Lines}" />
-                                </TextBlock>
+                                <TextBlock Foreground="{StaticResource GrayTextBrush}" Margin="0,0,10,0" FontSize="13" VerticalAlignment="Center"><Run Text="{Binding RightLineCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{DynamicResource ComparisonView_Lines}" /></TextBlock>
 
                                 <Button Style="{StaticResource IconButtonStyle}"
                                         ToolTip="{DynamicResource ComparisonView_CopyModifiedToolTip}"
