@@ -1,10 +1,4 @@
-﻿using DiffApp.Models;
-using DiffApp.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace DiffApp.Services
+﻿namespace DiffApp.Services
 {
     public class MergeService : IMergeService
     {
@@ -12,37 +6,54 @@ namespace DiffApp.Services
         {
             var lines = GetLines(targetText);
 
+            List<ChangeLine> sourceLines;
+            List<ChangeLine> targetLines;
+
+            int insertIndex;
+
             if (direction == MergeDirection.LeftToRight)
             {
-                if (block.Kind == BlockType.Added)
-                {
-                    RemoveLines(lines, block.NewLines);
-                }
-                else if (block.Kind == BlockType.Removed)
-                {
-                    var textToInsert = block.OldLines.Select(l => GetText(l)).ToList();
-                    InsertLines(lines, block.StartIndexNew, textToInsert);
-                }
-                else if (block.Kind == BlockType.Modified)
-                {
-                    ReplaceLines(lines, block.NewLines, block.OldLines);
-                }
+                sourceLines = block.OldLines;
+                targetLines = block.NewLines;
+                insertIndex = block.StartIndexNew;
             }
             else
             {
-                if (block.Kind == BlockType.Added)
+                sourceLines = block.NewLines;
+                targetLines = block.OldLines;
+                insertIndex = block.StartIndexOld;
+            }
+
+            var textToInsert = sourceLines
+                .Where(l => l.Kind != DiffChangeType.Imaginary)
+                .Select(l => GetText(l))
+                .ToList();
+
+            if (block.Kind == BlockType.Added)
+            {
+                if (direction == MergeDirection.LeftToRight)
                 {
-                    var textToInsert = block.NewLines.Select(l => GetText(l)).ToList();
-                    InsertLines(lines, block.StartIndexOld, textToInsert);
+                    RemoveLines(lines, targetLines);
                 }
-                else if (block.Kind == BlockType.Removed)
+                else
                 {
-                    RemoveLines(lines, block.OldLines);
+                    InsertLines(lines, insertIndex, textToInsert);
                 }
-                else if (block.Kind == BlockType.Modified)
+            }
+            else if (block.Kind == BlockType.Removed)
+            {
+                if (direction == MergeDirection.LeftToRight)
                 {
-                    ReplaceLines(lines, block.OldLines, block.NewLines);
+                    InsertLines(lines, insertIndex, textToInsert);
                 }
+                else
+                {
+                    RemoveLines(lines, targetLines);
+                }
+            }
+            else if (block.Kind == BlockType.Modified)
+            {
+                ReplaceLines(lines, targetLines, textToInsert);
             }
 
             return string.Join(Environment.NewLine, lines);
@@ -89,25 +100,26 @@ namespace DiffApp.Services
             textLines.InsertRange(insertIndex, linesToInsert);
         }
 
-        private void ReplaceLines(List<string> textLines, List<ChangeLine> targets, List<ChangeLine> sources)
+        private void ReplaceLines(List<string> textLines, List<ChangeLine> targets, List<string> newContent)
         {
-            var indices = targets
-                .Where(l => l.LineNumber.HasValue)
-                .Select(l => l.LineNumber.Value - 1)
-                .OrderBy(i => i)
-                .ToList();
+            var firstRealLine = targets.FirstOrDefault(l => l.LineNumber.HasValue);
 
-            if (indices.Count == 0) return;
+            if (firstRealLine == null || !firstRealLine.LineNumber.HasValue)
+                return;
 
-            int startIndex = indices.First();
-            int countToRemove = indices.Count;
+            int startIndex = firstRealLine.LineNumber.Value - 1;
+
+            int countToRemove = targets.Count(l => l.Kind != DiffChangeType.Imaginary);
 
             if (startIndex >= 0 && startIndex < textLines.Count)
             {
                 int actualRemovable = Math.Min(countToRemove, textLines.Count - startIndex);
-                textLines.RemoveRange(startIndex, actualRemovable);
 
-                var newContent = sources.Select(l => GetText(l)).ToList();
+                if (actualRemovable > 0)
+                {
+                    textLines.RemoveRange(startIndex, actualRemovable);
+                }
+
                 textLines.InsertRange(startIndex, newContent);
             }
         }

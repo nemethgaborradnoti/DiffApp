@@ -107,6 +107,7 @@
                                         <MultiBinding Converter="{StaticResource DiffStateToBrushConverter}" ConverterParameter="Old">
                                             <Binding Path="ParentBlock" />
                                             <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                            <Binding Path="LeftLine" />
                                         </MultiBinding>
                                     </Border.Background>
                                 </Border>
@@ -130,6 +131,7 @@
                                         <MultiBinding Converter="{StaticResource DiffStateToBrushConverter}" ConverterParameter="New">
                                             <Binding Path="ParentBlock" />
                                             <Binding Path="DataContext.SettingsViewModel.IgnoreWhitespace" RelativeSource="{RelativeSource AncestorType={x:Type views:EditorView}}" />
+                                            <Binding Path="RightLine" />
                                         </MultiBinding>
                                     </Border.Background>
                                 </Border>

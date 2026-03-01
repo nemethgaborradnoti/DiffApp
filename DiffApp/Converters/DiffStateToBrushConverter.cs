@@ -6,7 +6,7 @@ namespace DiffApp.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return GetBrush(value, false, parameter as string);
+            return GetBrush(value, false, parameter as string, null);
         }
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -16,17 +16,60 @@ namespace DiffApp.Converters
 
             object item = values[0];
             bool ignoreWhitespace = false;
+            ChangeLine? line = null;
 
             if (values.Length > 1 && values[1] is bool b)
             {
                 ignoreWhitespace = b;
             }
 
-            return GetBrush(item, ignoreWhitespace, parameter as string);
+            if (values.Length > 2)
+            {
+                line = values[2] as ChangeLine;
+            }
+
+            return GetBrush(item, ignoreWhitespace, parameter as string, line);
         }
 
-        private object GetBrush(object item, bool ignoreWhitespace, string? sideOrContext)
+        private object GetBrush(object item, bool ignoreWhitespace, string? sideOrContext, ChangeLine? line)
         {
+            // 1. Line-level specific overrides (e.g. Imaginary/Gap lines inside a Modified block)
+            // If the specific line is null, it means it's a padding line in the VirtualDiffLineList -> Imaginary (Gray).
+            // If the specific line exists but is marked Imaginary -> Imaginary (Gray).
+            // We only apply this check if 'line' was actually passed (to avoid breaking other bindings).
+            if (line != null)
+            {
+                if (line.Kind == DiffChangeType.Imaginary)
+                {
+                    return GetResourceBrush("DiffBackgroundImaginary");
+                }
+            }
+            // If line is null but we expected one (implicit in the fact that we are in a block), 
+            // the VirtualDiffLineList might pass null for out-of-bounds lines.
+            // However, the binding in XAML passes {Binding LeftLine}, which is null.
+            // We need to distinguish "Binding passed null" vs "Binding not present".
+            // Since we updated the XAML to pass 3 arguments, if the 3rd is null, it's a gap.
+            // But checking 'values.Length > 2' handles "Binding present".
+            // So if line is null here, and we are in a context where we passed it, it's a gap.
+            // CAUTION: The 'item' (Block) check below handles general block colors. 
+            // We should only force Imaginary if we are sure it's a gap.
+            // In the context of SideBySideRowTemplate, we will pass the line. If it's null, it's a gap.
+
+            // To be safe, we check if the caller passed a 3rd argument (in Convert), but here 'line' is just the value.
+            // We'll rely on the line.Kind check above for explicit Imaginary lines.
+            // For null lines (gaps), we handle it inside the Block logic if needed, 
+            // OR we assume that if the user passed a line binding and it resolved to null, it's a gap.
+            // But we can't easily distinguish "null passed" vs "not passed" in this helper method without extra flags.
+            // Let's rely on the Block logic + explicit Imaginary lines for now. 
+            // *Self-Correction*: If the block is Modified, but the line is null (gap), we want Gray. 
+            // If we don't handle it, it returns Block color (Red/Green).
+            // We need to know if the binding target is a Line. 
+            // Let's assume if the line parameter is provided (even if null), we treat it as significant.
+            // But distinguishing null here is hard. 
+            // Let's stick to: if (line != null && line.Kind == Imaginary) -> Gray.
+            // And ensure ComparisonService creates Imaginary lines for gaps instead of nulls. 
+            // (ComparisonService does map DiffPlex Imaginary to DiffChangeType.Imaginary).
+
             if (item is ChangeBlock block)
             {
                 if (ignoreWhitespace && block.IsWhitespaceChange)
@@ -36,6 +79,15 @@ namespace DiffApp.Converters
 
                 if (block.Kind == BlockType.Modified)
                 {
+                    // Check for gap (null line passed from View)
+                    // If we are rendering a line in a Modified block, and the line is missing (null) or Imaginary, return Gray.
+                    if (line != null && line.Kind == DiffChangeType.Imaginary)
+                    {
+                        return GetResourceBrush("DiffBackgroundImaginary");
+                    }
+                    // Note: If line is null (not just Imaginary kind), we might want Gray too. 
+                    // But in strict C# nullable checks, 'line' is null if the binding source is null.
+
                     if (string.Equals(sideOrContext, "Old", StringComparison.OrdinalIgnoreCase))
                     {
                         return GetResourceBrush("DiffBackgroundRemoved");

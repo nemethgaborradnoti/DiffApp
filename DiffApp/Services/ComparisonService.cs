@@ -18,9 +18,11 @@ namespace DiffApp.Services
 
             var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
 
-            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed, ignoreWhitespace: true);
+            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed, ignoreWhitespace: false);
 
             var blocks = BuildBlocks(diffModel, settings);
+
+            blocks = CoalesceBlocks(blocks);
 
             return new ComparisonResult(blocks);
         }
@@ -36,6 +38,9 @@ namespace DiffApp.Services
             var inlineDiffer = new InlineDiffBuilder(new Differ());
             ChangeBlock? currentBlock = null;
 
+            int currentRealIndexOld = 0;
+            int currentRealIndexNew = 0;
+
             for (int i = 0; i < model.OldText.Lines.Count; i++)
             {
                 var oldLine = model.OldText.Lines[i];
@@ -43,6 +48,8 @@ namespace DiffApp.Services
 
                 BlockType kind = BlockType.Unchanged;
                 bool isWhitespaceChange = false;
+
+                bool areLinesIdentical = string.Equals(oldLine.Text, newLine.Text, StringComparison.Ordinal);
 
                 if (oldLine.Type == DiffPlexChangeType.Imaginary && newLine.Type == DiffPlexChangeType.Inserted)
                 {
@@ -53,6 +60,11 @@ namespace DiffApp.Services
                 {
                     kind = BlockType.Removed;
                     isWhitespaceChange = string.IsNullOrWhiteSpace(oldLine.Text);
+                }
+                else if (areLinesIdentical)
+                {
+                    kind = BlockType.Unchanged;
+                    isWhitespaceChange = false;
                 }
                 else if (oldLine.Type == DiffPlexChangeType.Modified || newLine.Type == DiffPlexChangeType.Modified)
                 {
@@ -82,8 +94,8 @@ namespace DiffApp.Services
                     currentBlock = new ChangeBlock
                     {
                         Kind = kind,
-                        StartIndexOld = i,
-                        StartIndexNew = i,
+                        StartIndexOld = currentRealIndexOld,
+                        StartIndexNew = currentRealIndexNew,
                         IsWhitespaceChange = isWhitespaceChange
                     };
                 }
@@ -97,7 +109,12 @@ namespace DiffApp.Services
 
                 if (kind == BlockType.Modified)
                 {
-                    var inlineDiff = inlineDiffer.BuildDiffModel(oldLine.Text ?? string.Empty, newLine.Text ?? string.Empty, ignoreWhitespace: false, ignoreCase: false, new CharacterChunker());
+                    var inlineDiff = inlineDiffer.BuildDiffModel(
+                        oldLine.Text ?? string.Empty,
+                        newLine.Text ?? string.Empty,
+                        ignoreWhitespace: false,
+                        ignoreCase: false,
+                        new CharacterChunker());
 
                     List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
                     List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
@@ -110,6 +127,15 @@ namespace DiffApp.Services
                     currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, oldLine.Type, oldLine.Text, false));
                     currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, newLine.Type, newLine.Text, false));
                 }
+
+                if (oldLine.Type != DiffPlexChangeType.Imaginary)
+                {
+                    currentRealIndexOld++;
+                }
+                if (newLine.Type != DiffPlexChangeType.Imaginary)
+                {
+                    currentRealIndexNew++;
+                }
             }
 
             if (currentBlock != null)
@@ -118,6 +144,39 @@ namespace DiffApp.Services
             }
 
             return blocks;
+        }
+
+        private List<ChangeBlock> CoalesceBlocks(List<ChangeBlock> sourceBlocks)
+        {
+            if (sourceBlocks.Count < 2) return sourceBlocks;
+
+            var result = new List<ChangeBlock>();
+            var current = sourceBlocks[0];
+
+            for (int i = 1; i < sourceBlocks.Count; i++)
+            {
+                var next = sourceBlocks[i];
+
+                if (current.Kind != BlockType.Unchanged && next.Kind != BlockType.Unchanged)
+                {
+                    current.Kind = BlockType.Modified;
+                    current.OldLines.AddRange(next.OldLines);
+                    current.NewLines.AddRange(next.NewLines);
+
+                    if (!next.IsWhitespaceChange)
+                    {
+                        current.IsWhitespaceChange = false;
+                    }
+                }
+                else
+                {
+                    result.Add(current);
+                    current = next;
+                }
+            }
+
+            result.Add(current);
+            return result;
         }
 
         private bool IsWhitespaceOnlyChange(string? oldText, string? newText)
