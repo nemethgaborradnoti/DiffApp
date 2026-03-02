@@ -9,20 +9,35 @@ namespace DiffApp.Services
 {
     public class ComparisonService : IComparisonService
     {
+        private readonly IChunker _characterChunker;
+        private readonly IChunker _lineChunker;
+        private readonly IChunker _wordChunker;
+        private readonly Differ _differ;
+        private readonly SideBySideDiffBuilder _diffBuilder;
+        private readonly InlineDiffBuilder _inlineDiffBuilder;
+
+        public ComparisonService()
+        {
+            _characterChunker = new CharacterChunker();
+            _lineChunker = new LineChunker();
+            _wordChunker = new WordChunker();
+            _differ = new Differ();
+            _diffBuilder = new SideBySideDiffBuilder(_differ, _lineChunker, _wordChunker);
+            _inlineDiffBuilder = new InlineDiffBuilder(_differ);
+        }
+
         public ComparisonResult Compare(string oldText, string newText, CompareSettings settings)
         {
             string oldTextProcessed = oldText ?? string.Empty;
             string newTextProcessed = newText ?? string.Empty;
 
-            IChunker chunker = new CharacterChunker();
-
-            var diffBuilder = new SideBySideDiffBuilder(new Differ(), new LineChunker(), chunker);
-
-            var diffModel = diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed, ignoreWhitespace: false);
+            var diffModel = _diffBuilder.BuildDiffModel(oldTextProcessed, newTextProcessed, ignoreWhitespace: false);
 
             var blocks = BuildBlocks(diffModel, settings);
 
             blocks = CoalesceBlocks(blocks);
+
+            blocks = AlignModifiedBlocks(blocks);
 
             return new ComparisonResult(blocks);
         }
@@ -35,7 +50,6 @@ namespace DiffApp.Services
                 return blocks;
             }
 
-            var inlineDiffer = new InlineDiffBuilder(new Differ());
             ChangeBlock? currentBlock = null;
 
             int currentRealIndexOld = 0;
@@ -109,18 +123,7 @@ namespace DiffApp.Services
 
                 if (kind == BlockType.Modified)
                 {
-                    var inlineDiff = inlineDiffer.BuildDiffModel(
-                        oldLine.Text ?? string.Empty,
-                        newLine.Text ?? string.Empty,
-                        ignoreWhitespace: false,
-                        ignoreCase: false,
-                        new CharacterChunker());
-
-                    List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
-                    List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
-
-                    currentBlock.OldLines.Add(CreateChangeLine(oldLine.Position, DiffPlexChangeType.Deleted, oldPieces, true));
-                    currentBlock.NewLines.Add(CreateChangeLine(newLine.Position, DiffPlexChangeType.Inserted, newPieces, true));
+                    GenerateInlineDiff(currentBlock, oldLine, newLine);
                 }
                 else
                 {
@@ -179,6 +182,126 @@ namespace DiffApp.Services
             return result;
         }
 
+        private List<ChangeBlock> AlignModifiedBlocks(List<ChangeBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                if (block.Kind == BlockType.Modified)
+                {
+                    RealignBlock(block);
+                }
+            }
+            return blocks;
+        }
+
+        private void RealignBlock(ChangeBlock block)
+        {
+            var oldRealLines = block.OldLines.Where(x => x.Kind != DiffChangeType.Imaginary).ToList();
+            var newRealLines = block.NewLines.Where(x => x.Kind != DiffChangeType.Imaginary).ToList();
+
+            var oldText = string.Join(Environment.NewLine, oldRealLines.Select(x => GetTextFromFragments(x.Fragments)));
+            var newText = string.Join(Environment.NewLine, newRealLines.Select(x => GetTextFromFragments(x.Fragments)));
+
+            var subModel = _diffBuilder.BuildDiffModel(oldText, newText, ignoreWhitespace: false);
+
+            var alignedOldLines = new List<ChangeLine>();
+            var alignedNewLines = new List<ChangeLine>();
+
+            int oldIndex = 0;
+            int newIndex = 0;
+
+            for (int i = 0; i < subModel.OldText.Lines.Count; i++)
+            {
+                var diffOld = subModel.OldText.Lines[i];
+                var diffNew = subModel.NewText.Lines[i];
+
+                if (diffOld.Type == DiffPlexChangeType.Imaginary)
+                {
+                    alignedOldLines.Add(CreateChangeLine(null, DiffPlexChangeType.Imaginary, (string?)null, true));
+                }
+                else
+                {
+                    if (oldIndex < oldRealLines.Count)
+                    {
+                        var originalLine = oldRealLines[oldIndex];
+                        if (diffOld.Type == DiffPlexChangeType.Modified && diffNew.Type == DiffPlexChangeType.Modified)
+                        {
+                            var inlineDiff = _inlineDiffBuilder.BuildDiffModel(
+                                diffOld.Text ?? string.Empty,
+                                diffNew.Text ?? string.Empty,
+                                ignoreWhitespace: false,
+                                ignoreCase: false,
+                                _characterChunker);
+
+                            var oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
+                            alignedOldLines.Add(CreateChangeLine(originalLine.LineNumber, DiffPlexChangeType.Deleted, oldPieces, true));
+                        }
+                        else
+                        {
+                            alignedOldLines.Add(CreateChangeLine(originalLine.LineNumber, diffOld.Type, diffOld.Text, true));
+                        }
+                        oldIndex++;
+                    }
+                }
+
+                if (diffNew.Type == DiffPlexChangeType.Imaginary)
+                {
+                    alignedNewLines.Add(CreateChangeLine(null, DiffPlexChangeType.Imaginary, (string?)null, true));
+                }
+                else
+                {
+                    if (newIndex < newRealLines.Count)
+                    {
+                        var originalLine = newRealLines[newIndex];
+                        if (diffOld.Type == DiffPlexChangeType.Modified && diffNew.Type == DiffPlexChangeType.Modified)
+                        {
+                            var inlineDiff = _inlineDiffBuilder.BuildDiffModel(
+                                diffOld.Text ?? string.Empty,
+                                diffNew.Text ?? string.Empty,
+                                ignoreWhitespace: false,
+                                ignoreCase: false,
+                                _characterChunker);
+
+                            var newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
+                            alignedNewLines.Add(CreateChangeLine(originalLine.LineNumber, DiffPlexChangeType.Inserted, newPieces, true));
+                        }
+                        else
+                        {
+                            alignedNewLines.Add(CreateChangeLine(originalLine.LineNumber, diffNew.Type, diffNew.Text, true));
+                        }
+                        newIndex++;
+                    }
+                }
+            }
+
+            block.OldLines.Clear();
+            block.OldLines.AddRange(alignedOldLines);
+            block.NewLines.Clear();
+            block.NewLines.AddRange(alignedNewLines);
+        }
+
+        private void GenerateInlineDiff(ChangeBlock block, DiffPiece oldLine, DiffPiece newLine)
+        {
+            var inlineDiff = _inlineDiffBuilder.BuildDiffModel(
+                oldLine.Text ?? string.Empty,
+                newLine.Text ?? string.Empty,
+                ignoreWhitespace: false,
+                ignoreCase: false,
+                _characterChunker);
+
+            List<DiffPlexPiece> oldPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Inserted).ToList();
+            List<DiffPlexPiece> newPieces = inlineDiff.Lines.Where(p => p.Type != DiffPlexChangeType.Deleted).ToList();
+
+            block.OldLines.Add(CreateChangeLine(oldLine.Position, DiffPlexChangeType.Deleted, oldPieces, true));
+            block.NewLines.Add(CreateChangeLine(newLine.Position, DiffPlexChangeType.Inserted, newPieces, true));
+        }
+
+        private string GetTextFromFragments(IReadOnlyList<TextFragment> fragments)
+        {
+            if (fragments == null || fragments.Count == 0) return string.Empty;
+            return string.Join("", fragments.Select(f => f.Text));
+        }
+
         private bool IsWhitespaceOnlyChange(string? oldText, string? newText)
         {
             if (oldText == null && newText == null) return true;
@@ -187,7 +310,7 @@ namespace DiffApp.Services
             return string.Equals(oldText.Trim(), newText.Trim(), StringComparison.Ordinal);
         }
 
-        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, string text, bool isInModifiedBlock)
+        private ChangeLine CreateChangeLine(int? lineNumber, DiffPlexChangeType kind, string? text, bool isInModifiedBlock)
         {
             var internalKind = MapChangeType(kind);
             bool isWhitespace = string.IsNullOrWhiteSpace(text);

@@ -34,7 +34,8 @@
                 {
                     if (block.Kind == BlockType.Modified)
                     {
-                        height = block.OldLines.Count + block.NewLines.Count;
+                        height = block.OldLines.Count(l => l.Kind != DiffChangeType.Imaginary) +
+                                 block.NewLines.Count(l => l.Kind != DiffChangeType.Imaginary);
                     }
                     else if (block.Kind == BlockType.Added)
                     {
@@ -150,13 +151,17 @@
         {
             if (block.Kind == BlockType.Modified)
             {
-                if (localIndex < block.OldLines.Count)
+                int oldRealCount = block.OldLines.Count(l => l.Kind != DiffChangeType.Imaginary);
+
+                if (localIndex < oldRealCount)
                 {
-                    return new DiffLineViewModel(block, block.OldLines[localIndex], null, isFirst, isLast);
+                    var line = GetNthRealLine(block.OldLines, localIndex);
+                    return new DiffLineViewModel(block, line, null, isFirst, isLast);
                 }
                 else
                 {
-                    return new DiffLineViewModel(block, null, block.NewLines[localIndex - block.OldLines.Count], isFirst, isLast);
+                    var line = GetNthRealLine(block.NewLines, localIndex - oldRealCount);
+                    return new DiffLineViewModel(block, null, line, isFirst, isLast);
                 }
             }
             else if (block.Kind == BlockType.Added)
@@ -171,6 +176,20 @@
             {
                 return new DiffLineViewModel(block, block.OldLines[localIndex], block.NewLines[localIndex], isFirst, isLast);
             }
+        }
+
+        private ChangeLine GetNthRealLine(List<ChangeLine> lines, int n)
+        {
+            int found = 0;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].Kind != DiffChangeType.Imaginary)
+                {
+                    if (found == n) return lines[i];
+                    found++;
+                }
+            }
+            return lines[0];
         }
 
         public IEnumerator<DiffLineViewModel> GetEnumerator()
