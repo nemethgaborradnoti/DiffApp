@@ -6,7 +6,7 @@ namespace DiffApp.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return GetBrush(value, false, parameter as string);
+            return GetBrush(value, false, parameter as string, null);
         }
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -16,17 +16,28 @@ namespace DiffApp.Converters
 
             object item = values[0];
             bool ignoreWhitespace = false;
+            ChangeLine? line = null;
 
             if (values.Length > 1 && values[1] is bool b)
             {
                 ignoreWhitespace = b;
             }
 
-            return GetBrush(item, ignoreWhitespace, parameter as string);
+            if (values.Length > 2)
+            {
+                line = values[2] as ChangeLine;
+            }
+
+            return GetBrush(item, ignoreWhitespace, parameter as string, line);
         }
 
-        private object GetBrush(object item, bool ignoreWhitespace, string? sideOrContext)
+        private object GetBrush(object item, bool ignoreWhitespace, string? sideOrContext, ChangeLine? line)
         {
+            if (line != null && line.Kind == DiffChangeType.Imaginary)
+            {
+                return GetResourceBrush("DiffBackgroundImaginary");
+            }
+
             if (item is ChangeBlock block)
             {
                 if (ignoreWhitespace && block.IsWhitespaceChange)
